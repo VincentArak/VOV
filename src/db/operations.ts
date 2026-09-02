@@ -82,11 +82,8 @@ export async function exportAllData(): Promise<string> {
       db.settings.toArray(),
     ])
 
-  // Never write secrets to the export file — githubToken is redacted so backups
-  // can be shared/synced without leaking credentials. Re-enter it in Settings
-  // after importing a backup.
-  const redactedSettings = settings.map((s) => ({ ...s, githubToken: null }))
-
+  // serializeAppData redacts githubToken for every JSON-text export path
+  // (this download and the dev-server file backup) — see db/exportFormat.ts.
   return serializeAppData(
     {
       departments,
@@ -98,7 +95,7 @@ export async function exportAllData(): Promise<string> {
       maps,
       locations,
       tasks,
-      settings: redactedSettings,
+      settings,
     },
     new Date().toISOString(),
   )
