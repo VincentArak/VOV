@@ -33,7 +33,7 @@ function StatCard({
         <span className="text-xs font-medium text-text-muted uppercase tracking-wider">
           {label}
         </span>
-        <Icon size={16} className={color} />
+        <Icon size={16} className={color} aria-hidden="true" />
       </div>
       <div className="text-3xl font-bold">{value}</div>
     </div>
@@ -79,7 +79,7 @@ function TaskSection({
       <h2
         className={`text-sm font-semibold uppercase tracking-wider mb-4 flex items-center gap-2 ${accent ?? 'text-text-muted'}`}
       >
-        <Icon size={14} />
+        <Icon size={14} aria-hidden="true" />
         {title}
         <span className="text-xs font-normal normal-case">({tasks.length})</span>
       </h2>
@@ -102,7 +102,9 @@ function TaskSection({
 }
 
 export function DashboardPage() {
-  const tasks = useLiveQuery(() => db.tasks.toArray()) ?? []
+  const tasksQuery = useLiveQuery(() => db.tasks.toArray())
+  const isLoading = tasksQuery === undefined
+  const tasks = tasksQuery ?? []
   const { isTracked } = useAppStore()
 
   const active = tasks.filter(
@@ -192,13 +194,20 @@ export function DashboardPage() {
         />
       </div>
 
-      {active.length === 0 && tasks.length === 0 && (
-        <div className="mt-8 text-center py-12 rounded-xl border border-dashed border-border">
-          <p className="text-text-muted mb-3">No quests yet. Start your adventure!</p>
-          <Link to="/quests" className="text-accent text-sm hover:underline">
-            Go to Quest Log →
-          </Link>
-        </div>
+      {isLoading ? (
+        <p className="mt-8 text-sm text-text-muted" role="status">
+          Loading quests…
+        </p>
+      ) : (
+        active.length === 0 &&
+        tasks.length === 0 && (
+          <div className="mt-8 text-center py-12 rounded-xl border border-dashed border-border">
+            <p className="text-text-muted mb-3">No quests yet. Start your adventure!</p>
+            <Link to="/quests" className="text-accent text-sm hover:underline">
+              Go to Quest Log →
+            </Link>
+          </div>
+        )
       )}
     </div>
   )

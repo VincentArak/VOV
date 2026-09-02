@@ -17,7 +17,7 @@ export const STATUS_LABELS: Record<TaskStatus, string> = {
 }
 
 export const STATUS_COLORS: Record<TaskStatus, string> = {
-  available: 'bg-slate-500',
+  available: 'bg-border',
   in_progress: 'bg-info',
   pending_review: 'bg-warning',
   completed: 'bg-success',
@@ -34,7 +34,7 @@ export const PRIORITY_LABELS: Record<Priority, string> = {
 }
 
 export const PRIORITY_COLORS: Record<Priority, string> = {
-  low: 'text-slate-400',
+  low: 'text-text-muted',
   medium: 'text-info',
   high: 'text-warning',
   urgent: 'text-danger',
