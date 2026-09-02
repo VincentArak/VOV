@@ -1,4 +1,5 @@
 import { cn } from '../../utils'
+import { FIELD_CLASS, LABEL_CLASS } from './Input'
 
 interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   label?: string
@@ -10,20 +11,13 @@ export function Select({ label, options, className, id, ...props }: SelectProps)
   return (
     <div className="flex flex-col gap-1">
       {label && (
-        <label htmlFor={inputId} className="text-xs text-text-muted font-medium">
+        <label htmlFor={inputId} className={LABEL_CLASS}>
           {label}
         </label>
       )}
-      <select
-        id={inputId}
-        className={cn(
-          'rounded-lg border border-border bg-surface-raised px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 focus:ring-accent/50',
-          className,
-        )}
-        {...props}
-      >
+      <select id={inputId} className={cn(FIELD_CLASS, 'cursor-pointer', className)} {...props}>
         {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
+          <option key={opt.value} value={opt.value} className="bg-surface-raised text-text">
             {opt.label}
           </option>
         ))}

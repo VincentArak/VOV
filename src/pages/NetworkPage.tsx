@@ -30,7 +30,7 @@ export function NetworkPage() {
     <div className="p-6 max-w-5xl">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold">Relationship Network</h1>
+          <h1 className="font-fancy text-3xl text-accent [text-shadow:0_0_14px_rgba(255,209,0,0.25),1px_1px_0_#000]">The Realm</h1>
           <p className="text-sm text-text-muted mt-1">
             {people.length} people · {relationships.length} relationship
             {relationships.length !== 1 ? 's' : ''} · {typeDefs.length} type
@@ -96,7 +96,7 @@ export function NetworkPage() {
                     return (
                       <div
                         key={rel.id}
-                        className="flex items-center justify-between rounded-lg border border-border px-3 py-2 text-sm"
+                        className="flex items-center justify-between rounded-sm border border-frame-dark px-3 py-2 text-sm"
                       >
                         <span>
                           <Link to={`/people/${from.id}`} className="hover:text-accent">

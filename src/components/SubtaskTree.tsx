@@ -29,7 +29,7 @@ function SubtaskNode({
   return (
     <div>
       <div
-        className="flex items-center gap-2 rounded-lg border border-border bg-surface-raised px-3 py-2"
+        className="flex items-center gap-2 rounded-sm border border-frame-dark bg-surface-raised/70 shadow-[0_0_0_1px_rgba(107,74,24,0.35)] px-3 py-2"
         style={{ marginLeft: level * 20 }}
       >
         <button

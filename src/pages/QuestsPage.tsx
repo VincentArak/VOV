@@ -9,6 +9,7 @@ import type { Task, TaskStatus } from '../types'
 import {
   PRIORITIES,
   PRIORITY_COLORS,
+  PRIORITY_HEX,
   PRIORITY_LABELS,
   STATUS_LABELS,
   TASK_STATUSES,
@@ -119,32 +120,48 @@ export function QuestsPage() {
     )
   }
 
+  const activeCount = tasks.filter(
+    (t) => t.status !== 'completed' && t.status !== 'abandoned',
+  ).length
+
   return (
-    <div className="p-6 max-w-4xl">
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-6 max-w-5xl">
+      <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Quest Log</h1>
-          <p className="text-sm text-text-muted mt-1">
-            {tasks.length} quest{tasks.length !== 1 ? 's' : ''} total · Press{' '}
-            <kbd className="px-1 py-0.5 rounded bg-surface-overlay text-xs">N</kbd> to create
+          <h1 className="font-fancy text-3xl text-accent [text-shadow:0_0_14px_rgba(255,209,0,0.25),1px_1px_0_#000]">
+            Quest Log
+          </h1>
+          <p className="tabular mt-1 text-xs text-text-muted">
+            {/* WoW caps your log at 25 quests; showing an active count in
+                that shape makes the number feel like a resource. */}
+            <span className="text-accent">{activeCount}</span> active ·{' '}
+            <span className="text-text-dim">{tasks.length} total</span> · press{' '}
+            <kbd className="rounded-sm border border-frame-dark bg-surface-overlay px-1.5 py-0.5 text-[10px] shadow-[0_0_0_1px_rgba(107,74,24,0.6)]">
+              N
+            </kbd>{' '}
+            to accept a new quest
           </p>
         </div>
         <Button onClick={createTask}>
-          <Plus size={16} />
+          <Plus size={15} aria-hidden="true" />
           New Quest
         </Button>
       </div>
 
-      <div className="flex flex-wrap gap-3 mb-6">
-        <div className="relative flex-1 min-w-[200px]">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
+      <div className="mb-5 flex flex-wrap gap-2.5">
+        <div className="relative min-w-[200px] flex-1">
+          <Search
+            size={15}
+            aria-hidden="true"
+            className="pointer-events-none absolute left-2.5 top-1/2 z-10 -translate-y-1/2 text-text-dim"
+          />
           <Input
             data-search-input
             aria-label="Search quests"
-            placeholder="Search quests... (press /)"
+            placeholder="Search quests… (press /)"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-9"
+            className="pl-8"
           />
         </div>
         <Select
@@ -161,34 +178,34 @@ export function QuestsPage() {
           value={priorityFilter}
           onChange={(e) => setPriorityFilter(e.target.value)}
           options={[
-            { value: 'all', label: 'All Priorities' },
+            { value: 'all', label: 'All Difficulties' },
             ...PRIORITIES.map((p) => ({ value: p, label: PRIORITY_LABELS[p] })),
           ]}
         />
         <Select
-          aria-label="Filter by department"
+          aria-label="Filter by repository"
           value={departmentFilter}
           onChange={(e) => setDepartmentFilter(e.target.value)}
           options={[
-            { value: 'all', label: 'All Departments' },
+            { value: 'all', label: 'All Repositories' },
             ...departments.map((d) => ({ value: d.id, label: d.name })),
           ]}
         />
         <Select
-          aria-label="Filter by mission"
+          aria-label="Filter by campaign"
           value={missionFilter}
           onChange={(e) => setMissionFilter(e.target.value)}
           options={[
-            { value: 'all', label: 'All Missions' },
+            { value: 'all', label: 'All Campaigns' },
             ...missions.map((m) => ({ value: m.id, label: missionLabel(m, missions) })),
           ]}
         />
         <Select
-          aria-label="Filter by map"
+          aria-label="Filter by zone"
           value={mapFilter}
           onChange={(e) => setMapFilter(e.target.value)}
           options={[
-            { value: 'all', label: 'All Maps' },
+            { value: 'all', label: 'All Zones' },
             ...maps.map((m) => ({ value: m.id, label: m.name })),
           ]}
         />
@@ -197,7 +214,7 @@ export function QuestsPage() {
           value={personFilter}
           onChange={(e) => setPersonFilter(e.target.value)}
           options={[
-            { value: 'all', label: 'All People' },
+            { value: 'all', label: 'All Characters' },
             ...people.map((p) => ({ value: p.id, label: p.name })),
           ]}
         />
@@ -205,27 +222,28 @@ export function QuestsPage() {
 
       {isLoading ? (
         <p className="text-sm text-text-muted" role="status">
-          Loading quests…
+          Loading quest log…
         </p>
       ) : filtered.length === 0 ? (
         <EmptyState
-          title="No quests found"
-          description="Create your first quest to get started"
+          title="Your quest log is empty"
+          description="No quests match these filters. Accept a new one to begin."
           action={
             <Button onClick={createTask}>
-              <Plus size={16} />
+              <Plus size={15} aria-hidden="true" />
               New Quest
             </Button>
           }
         />
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-5">
           {trackedTasks.length > 0 && (
             <section>
-              <h2 className="text-xs font-semibold uppercase tracking-wider text-accent mb-3 flex items-center gap-1.5">
-                <Star size={12} className="fill-accent" />
-                Tracked ({trackedTasks.length})
-              </h2>
+              <QuestSectionHeader
+                icon={<Star size={11} className="fill-accent text-accent" aria-hidden="true" />}
+                label="Tracked"
+                count={trackedTasks.length}
+              />
               <TaskList
                 tasks={trackedTasks}
                 allTasks={tasks}
@@ -241,9 +259,7 @@ export function QuestsPage() {
           {otherTasks.length > 0 && (
             <section>
               {trackedTasks.length > 0 && (
-                <h2 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-3">
-                  All Quests
-                </h2>
+                <QuestSectionHeader label="All Quests" count={otherTasks.length} />
               )}
               <TaskList
                 tasks={otherTasks}
@@ -259,6 +275,26 @@ export function QuestsPage() {
           )}
         </div>
       )}
+    </div>
+  )
+}
+
+/** Collapsible-style category header, matching the quest log's zone rows. */
+function QuestSectionHeader({
+  icon,
+  label,
+  count,
+}: {
+  icon?: React.ReactNode
+  label: string
+  count: number
+}) {
+  return (
+    <div className="mb-2 flex items-center gap-2">
+      {icon}
+      <h2 className="font-fancy text-xs uppercase tracking-[0.15em] text-ot-header">{label}</h2>
+      <span className="tabular text-xs text-text-dim">({count})</span>
+      <div className="wow-divider flex-1" />
     </div>
   )
 }
@@ -284,14 +320,19 @@ function TaskList({
 }) {
   return (
     <AnimatePresence>
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         {tasks.map((task, index) => {
           const blocked = !areDependenciesMet(task, allTasks) && task.status === 'available'
           const progress = subtaskProgress(task)
+          const tracked = isTracked(task.id)
+          const done = task.status === 'completed'
+          const readyToTurnIn = task.status === 'pending_review'
+
           const moveTo = (targetIndex: number) => {
             const target = tasks[targetIndex]
             if (target) onDrop(task.id, target.id)
           }
+
           return (
             <motion.div
               key={task.id}
@@ -307,20 +348,27 @@ function TaskList({
                 e.preventDefault()
                 if (dragId) onDrop(dragId, task.id)
               }}
-              className={cn(dragId === task.id && 'opacity-50')}
+              className={cn(dragId === task.id && 'opacity-40')}
             >
               <div
                 className={cn(
-                  'flex items-center gap-2 rounded-xl border border-border bg-surface-raised px-2 py-3 hover:border-accent/40 transition-colors group',
-                  isTracked(task.id) && 'border-accent/30 bg-accent/5',
-                  blocked && 'opacity-60',
+                  'wow-hilight group flex items-center gap-2 rounded-sm border border-frame-dark px-2 py-2.5',
+                  'bg-gradient-to-r from-surface-raised to-surface-raised/60',
+                  'shadow-[0_0_0_1px_rgba(107,74,24,0.45),inset_0_1px_0_rgba(248,231,160,0.06)]',
+                  'transition-shadow',
+                  tracked &&
+                    'from-accent/10 shadow-[0_0_0_1px_var(--color-gold-mid),inset_0_1px_0_rgba(248,231,160,0.15)]',
+                  // Completed work recedes toward the background instead of
+                  // being struck through — the game never uses strikethrough.
+                  done && 'opacity-55',
+                  blocked && 'opacity-50 saturate-50',
                 )}
               >
                 <div
                   role="button"
                   tabIndex={0}
-                  aria-label={`Reorder "${task.title}". Use arrow up/down to move.`}
-                  className="shrink-0 text-text-muted cursor-grab active:cursor-grabbing p-2.5 -m-0.5 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
+                  aria-label={`Reorder "${task.title}". Use arrow up or down to move.`}
+                  className="shrink-0 cursor-grab rounded p-2 text-text-dim opacity-0 transition-opacity focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent group-hover:opacity-100 active:cursor-grabbing"
                   onKeyDown={(e) => {
                     if (e.key === 'ArrowUp') {
                       e.preventDefault()
@@ -331,45 +379,89 @@ function TaskList({
                     }
                   }}
                 >
-                  <GripVertical size={16} aria-hidden="true" />
+                  <GripVertical size={14} aria-hidden="true" />
                 </div>
+
                 <button
-                  className="shrink-0 text-text-muted hover:text-accent transition-colors cursor-pointer p-2.5 -m-0.5 rounded"
+                  className="shrink-0 cursor-pointer rounded p-2 text-text-dim transition-colors hover:text-accent"
                   onClick={() => onToggleTrack(task.id)}
-                  aria-label={isTracked(task.id) ? 'Untrack quest' : 'Track quest'}
-                  aria-pressed={isTracked(task.id)}
+                  aria-label={tracked ? 'Untrack quest' : 'Track quest'}
+                  aria-pressed={tracked}
                 >
                   <Star
-                    size={16}
+                    size={15}
                     aria-hidden="true"
-                    className={isTracked(task.id) ? 'fill-accent text-accent' : ''}
+                    className={tracked ? 'fill-accent text-accent' : ''}
                   />
                 </button>
-                <Link to={`/quests/${task.id}`} className="flex-1 min-w-0">
+
+                {/* Difficulty pip: the coloured square is how the game
+                    signals at a glance whether a quest is worth doing. */}
+                <span
+                  aria-hidden="true"
+                  className="h-7 w-1 shrink-0 rounded-full"
+                  style={{
+                    background: PRIORITY_HEX[task.priority],
+                    boxShadow: `0 0 6px ${PRIORITY_HEX[task.priority]}66`,
+                  }}
+                />
+
+                <Link to={`/quests/${task.id}`} className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="font-medium truncate">{task.title}</span>
+                    {readyToTurnIn && (
+                      <span
+                        className="wow-bob font-fancy text-base leading-none text-accent"
+                        title="Ready to turn in"
+                        aria-label="Ready to turn in"
+                      >
+                        ?
+                      </span>
+                    )}
+                    <span
+                      className={cn(
+                        'truncate font-medium',
+                        done ? 'text-ot-complete' : 'text-ot-normal group-hover:text-white',
+                      )}
+                    >
+                      {task.title}
+                    </span>
                     {blocked && (
-                      <span className="text-xs text-warning">🔒 Locked</span>
+                      <span className="tabular shrink-0 text-[10px] uppercase tracking-wide text-warning">
+                        Locked
+                      </span>
                     )}
                   </div>
-                  <div className="flex items-center gap-2 mt-1 text-xs text-text-muted">
+
+                  <div className="tabular mt-0.5 flex items-center gap-2.5 text-[11px]">
                     <span className={PRIORITY_COLORS[task.priority]}>
                       {PRIORITY_LABELS[task.priority]}
                     </span>
                     {task.dueDate && (
-                      <span className={isOverdue(task.dueDate, task.status) ? 'text-danger' : ''}>
-                        Due {formatDate(task.dueDate)}
+                      <span
+                        className={
+                          isOverdue(task.dueDate, task.status) ? 'text-danger' : 'text-text-dim'
+                        }
+                      >
+                        {isOverdue(task.dueDate, task.status) ? 'Overdue ' : 'Due '}
+                        {formatDate(task.dueDate)}
+                      </span>
+                    )}
+                    {task.linkedItems.length > 0 && (
+                      <span className="text-q-heirloom">
+                        {task.linkedItems.length} linked
                       </span>
                     )}
                   </div>
+
                   {progress.total > 0 && (
                     <ProgressBar
                       done={progress.done}
                       total={progress.total}
-                      className="mt-2 max-w-xs"
+                      className="mt-1.5 max-w-xs"
                     />
                   )}
                 </Link>
+
                 <StatusBadge status={task.status} />
               </div>
             </motion.div>

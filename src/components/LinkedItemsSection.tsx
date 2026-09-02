@@ -178,7 +178,7 @@ export function LinkedItemsSection({ task, onUpdate }: LinkedItemsSectionProps) 
   return (
     <section>
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider">
+        <h3 className="font-fancy text-xs uppercase tracking-[0.15em] text-ot-header">
           Linked Items
         </h3>
         {!adding && (
@@ -203,7 +203,7 @@ export function LinkedItemsSection({ task, onUpdate }: LinkedItemsSectionProps) 
         {task.linkedItems.map((item) => (
           <div
             key={item.id}
-            className="flex items-center gap-2 rounded-lg border border-border bg-surface-raised px-3 py-2 text-sm"
+            className="wow-hilight flex items-center gap-2 rounded-sm border border-frame-dark bg-surface-raised px-3 py-2 text-sm shadow-[0_0_0_1px_rgba(107,74,24,0.4)]"
           >
             {item.provider === 'github' ? (
               <GitBranch size={14} className="text-text-muted shrink-0" />
@@ -216,7 +216,7 @@ export function LinkedItemsSection({ task, onUpdate }: LinkedItemsSectionProps) 
             </span>
             {item.status && (
               <span
-                className={`text-xs rounded px-1.5 py-0.5 ${
+                className={`tabular rounded-sm px-1.5 py-0.5 text-[10px] uppercase ${
                   item.status === 'closed'
                     ? 'bg-success/15 text-success'
                     : 'bg-surface-overlay text-text-muted'
@@ -260,7 +260,7 @@ export function LinkedItemsSection({ task, onUpdate }: LinkedItemsSectionProps) 
       </div>
 
       {adding === 'github' && (
-        <div className="rounded-lg border border-border p-3 space-y-3">
+        <div className="space-y-3 rounded-sm border border-gold-lo/60 bg-surface-sunken/60 p-3 shadow-[inset_0_0_14px_rgba(0,0,0,0.6)]">
           {!settings?.githubToken || !settings?.githubRepo ? (
             <p className="text-xs text-text-muted">
               Configure a token and repository under Settings → Integrations first.
@@ -296,7 +296,7 @@ export function LinkedItemsSection({ task, onUpdate }: LinkedItemsSectionProps) 
       )}
 
       {adding === 'jira' && (
-        <div className="rounded-lg border border-border p-3 space-y-3">
+        <div className="space-y-3 rounded-sm border border-gold-lo/60 bg-surface-sunken/60 p-3 shadow-[inset_0_0_14px_rgba(0,0,0,0.6)]">
           <p className="text-xs text-text-muted">
             No real Jira API access from the browser — open the create screen, paste the
             summary, then paste the resulting ticket key/URL back here to link it.

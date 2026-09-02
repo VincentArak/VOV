@@ -1,42 +1,107 @@
 ---
 name: VOV
-description: A quest-log task manager where objectives glow gold against midnight-slate depth.
+description: A task manager wearing World of Warcraft's interface — gold on midnight, quest text on parchment.
 colors:
-  midnight-ledger: "#0f172a"
-  slate-parchment: "#1e293b"
-  torch-ash: "#334155"
-  torch-gold: "#fbbf24"
-  ember-copper: "#d97706"
-  parchment-white: "#f1f5f9"
-  fog-slate: "#94a3b8"
-  iron-seam: "#475569"
-  verdant-seal: "#22c55e"
-  amber-warning: "#f59e0b"
-  ember-red: "#ef4444"
-  beacon-blue: "#3b82f6"
+  midnight: "#0a0a16"
+  panel: "#171730"
+  panel-raised: "#252546"
+  sunken: "#05050d"
+  torch-gold: "#ffd100"
+  ember: "#c4a300"
+  gold-hi: "#f8e7a0"
+  gold: "#c9a44c"
+  gold-mid: "#a8802f"
+  gold-lo: "#6b4a18"
+  bronze: "#8a6a2e"
+  frame-dark: "#1a1208"
+  parchment-hi: "#f0dcb4"
+  parchment: "#dcc49c"
+  parchment-lo: "#c9a97a"
+  parchment-dark: "#402605"
+  ink: "#2e1f0f"
+  ink-title: "#350000"
+  ink-objective: "#4d2e00"
+  ink-shadow: "#7d590d"
+  ink-gold: "#6b5200"
+  text: "#ffffff"
+  text-muted: "#a8a8a8"
+  text-dim: "#7f7f7f"
+  tracker-normal: "#cccccc"
+  tracker-complete: "#999999"
+  tracker-header: "#bf9c00"
+  qd-trivial: "#808080"
+  qd-standard: "#40bf40"
+  qd-difficult: "#ffd100"
+  qd-verydifficult: "#ff8040"
+  qd-impossible: "#ff1a1a"
+  quality-poor: "#9d9d9d"
+  quality-common: "#ffffff"
+  quality-uncommon: "#1eff00"
+  quality-rare: "#0070dd"
+  quality-epic: "#a335ee"
+  quality-legendary: "#ff8000"
+  quality-artifact: "#e6cc80"
+  quality-heirloom: "#00ccff"
+  success: "#1aff1a"
+  warning: "#ff8040"
+  danger: "#ff1a1a"
+  info: "#00bff3"
+  xp-fill: "#94008c"
+  xp-fill-hi: "#b81fae"
+  xp-fill-lo: "#6a0064"
+  xp-rested: "#0063e0"
+  bar-gold-hi: "#ffe066"
+  bar-green-hi: "#4dff4d"
+  bar-green-lo: "#00c000"
+  class-mage: "#3fc7eb"
+  class-hunter: "#aad372"
+  class-demonhunter: "#a330c9"
+  class-druid: "#ff7c0a"
+  class-warrior: "#c69b6d"
+  alliance: "#4a54e8"
+  horde: "#e50d12"
 typography:
   display:
-    fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
-    fontSize: "1.5rem"
-    fontWeight: 700
+    fontFamily: "Metamorphous, Cinzel, Georgia, serif"
+    fontSize: "30px"
+    fontWeight: 400
+    lineHeight: 1.2
+  title:
+    fontFamily: "Metamorphous, Cinzel, Georgia, serif"
+    fontSize: "18px"
+    fontWeight: 400
     lineHeight: 1.3
+  heading:
+    fontFamily: "Metamorphous, Cinzel, Georgia, serif"
+    fontSize: "12px"
+    fontWeight: 400
+    letterSpacing: "0.15em"
   body:
-    fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
-    fontSize: "0.875rem"
+    fontFamily: "Amethysta, Marcellus, Georgia, serif"
+    fontSize: "13px"
     fontWeight: 400
     lineHeight: 1.5
-  label:
-    fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
-    fontSize: "0.75rem"
-    fontWeight: 500
-    letterSpacing: "0.05em"
+  small:
+    fontFamily: "Amethysta, Marcellus, Georgia, serif"
+    fontSize: "12px"
+    fontWeight: 400
   micro:
-    fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
-    fontSize: "0.625rem"
+    fontFamily: "Amethysta, Marcellus, Georgia, serif"
+    fontSize: "11px"
+    fontWeight: 400
+  tiny:
+    fontFamily: "Barlow Condensed, Roboto Condensed, sans-serif"
+    fontSize: "10px"
+    fontWeight: 400
+  nano:
+    fontFamily: "Barlow Condensed, Roboto Condensed, sans-serif"
+    fontSize: "9px"
     fontWeight: 400
 rounded:
-  md: "8px"
-  lg: "12px"
+  sm: "2px"
+  md: "3px"
+  lg: "4px"
+  xl: "6px"
   full: "9999px"
 spacing:
   xs: "4px"
@@ -44,159 +109,223 @@ spacing:
   md: "12px"
   lg: "16px"
   xl: "20px"
-  2xl: "24px"
 components:
   button-primary:
-    backgroundColor: "{colors.torch-gold}"
-    textColor: "{colors.midnight-ledger}"
-    rounded: "{rounded.lg}"
-    padding: "8px 16px"
+    backgroundColor: "{colors.gold}"
+    textColor: "{colors.frame-dark}"
+    rounded: "{rounded.md}"
+    padding: "6px 16px"
   button-primary-hover:
-    backgroundColor: "{colors.ember-copper}"
+    backgroundColor: "{colors.gold-hi}"
   button-secondary:
-    backgroundColor: "{colors.torch-ash}"
-    textColor: "{colors.parchment-white}"
-    rounded: "{rounded.lg}"
-    padding: "8px 16px"
-  button-secondary-hover:
-    backgroundColor: "{colors.iron-seam}"
+    backgroundColor: "{colors.panel-raised}"
+    textColor: "{colors.text}"
+    rounded: "{rounded.md}"
+    padding: "6px 16px"
   button-danger:
-    backgroundColor: "{colors.ember-red}"
-    textColor: "{colors.ember-red}"
-    rounded: "{rounded.lg}"
-    padding: "8px 16px"
+    backgroundColor: "#3a0d0d"
+    textColor: "{colors.danger}"
+    rounded: "{rounded.md}"
+    padding: "6px 16px"
   card:
-    backgroundColor: "{colors.slate-parchment}"
+    backgroundColor: "{colors.panel}"
     rounded: "{rounded.lg}"
     padding: "20px"
+  card-parchment:
+    backgroundColor: "{colors.parchment}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.md}"
+    padding: "20px 24px"
   input:
-    backgroundColor: "{colors.slate-parchment}"
-    textColor: "{colors.parchment-white}"
-    rounded: "{rounded.lg}"
-    padding: "8px 12px"
+    backgroundColor: "{colors.sunken}"
+    textColor: "{colors.text}"
+    rounded: "{rounded.md}"
+    padding: "6px 12px"
+  status-badge:
+    rounded: "{rounded.sm}"
+    padding: "2px 8px"
+    textColor: "{colors.text}"
 ---
 
 # Design System: VOV
 
 ## Overview
 
-**Creative North Star: "The Torchbearer"**
+**Creative North Star: "The Quest Log"**
 
-VOV reads like a lone explorer's quest log carried into a cave: everything sits in a deep midnight-navy dark (`#0f172a`), and the only warmth in the room is the single torch-gold accent (`#fbbf24`) marking what matters right now — the active nav item, the primary action, the objective still glowing at 60% complete. There is no second competing accent color; gold is reserved and precise, the way a torch is the one light source you trust.
+VOV wears World of Warcraft's interface. Not a fantasy-flavoured skin — the
+actual grammar of the game's UI: a midnight-blue panel that is deliberately not
+black, one gold accent doing all the emphasis work, forged-metal borders that
+overflow their own frames, and quest text set in dark ink on an aged sheet of
+parchment.
 
-Depth is conveyed entirely through three steps of background darkness (surface → surface-raised → surface-overlay) rather than shadows — nothing casts light in this world, things simply sit closer to or further from the dark. The interface is calm and utilitarian at rest (this is an Operate surface: task management, not a marketing page) but the interaction layer — button presses, status chip toggles, quest completion — gets a tactile, game-like snap rather than a corporate fade, because the product's whole premise is that admin work should feel a little bit like play.
+The palette is taken from Blizzard's own FrameXML source rather than sampled by
+eye, so `#171730` really is `TOOLTIP_DEFAULT_BACKGROUND_COLOR` and `#ffd100`
+really is `NORMAL_FONT_COLOR`. Where a value could only come from a bitmap —
+the parchment sheet, the gold border ramp — it is marked as estimated in
+`src/index.css` rather than presented as canon. No Blizzard art is used: every
+frame, bevel and texture is CSS, and the two typefaces are open-licenced
+stand-ins for the game's commercial faces.
+
+The mapping runs deeper than colour. Task priority uses the game's
+quest-difficulty scale, because grey-means-skip-it and red-means-this-will-kill-you
+is the same judgement a priority field asks for. A task awaiting review shows the
+bobbing `?` of a quest ready to turn in. Departments read as Repositories and the
+relationship graph reads as The Realm, because in this project that is what they
+are.
 
 **Key Characteristics:**
-- Single accent color (torch gold), used sparingly — active states, primary actions, progress fills, never decoration
-- Tonal-only depth: three background steps, zero box-shadow
-- Dense, utilitarian layout (Operate mode) with playful micro-interactions layered on top
-- System font stack throughout — no display/brand typeface, personality comes from color and motion, not type
+- One gold accent (`#ffd100`) carries every active and primary state; nothing else competes
+- Depth is tonal — four background steps, and metal borders drawn with layered box-shadows, never a soft drop shadow
+- Two typefaces in opposition: an ornate face for titles against a glyphic serif for body copy
+- Dark panels everywhere except quest prose, which sits on parchment in near-black ink
+- Completion recedes toward the background; it is never struck through
 
 ## Colors
 
-The palette is almost monochrome-navy at rest, with one reserved gold accent and standard semantic colors for status communication.
+Near-monochrome midnight with a single gold accent, plus two borrowed semantic
+scales (quest difficulty and item quality) that carry real meaning rather than
+decoration.
 
 ### Primary
-- **Torch Gold** (`#fbbf24`): The only accent in the system. Active nav item background/text, primary button fill, focus rings (`accent/50`), progress bar fill, star/favorite toggle, selected-chip border and background tint. Never used for more than a handful of elements per screen.
-- **Ember Copper** (`#d97706`): Torch Gold's hover/pressed state only. Never appears at rest.
+- **Torch Gold** (`#ffd100`): The only accent. Active nav, primary buttons, section headings, progress fill, focus rings, the tracked star. Its scarcity is what makes it read as important.
+- **Ember** (`#c4a300`): Gold's quieter register — field labels, group headings, secondary emphasis.
 
 ### Neutral
-- **Midnight Ledger** (`#0f172a`): App background (`body`). The base darkness everything else sits on top of.
-- **Slate Parchment** (`#1e293b`): First elevation step — sidebar, cards, modals, inputs, selects, textareas. This is "the page" as opposed to "the void behind the page."
-- **Torch Ash** (`#334155`): Second elevation step — hover backgrounds on nav items, unselected chip/pill backgrounds, the progress bar's empty track, `<kbd>` key badges.
-- **Parchment White** (`#f1f5f9`): Primary text.
-- **Fog Slate** (`#94a3b8`): Secondary/muted text — labels, timestamps, placeholder text, empty-state copy.
-- **Iron Seam** (`#475569`): Borders and dividers — card borders, input borders, the sidebar's right-hand divider.
+- **Midnight** (`#0a0a16`): The page behind everything.
+- **Panel** (`#171730`): Every card, sidebar and dialog. The blue channel is double red/green — this is the single most identifying value in the system, and using black here collapses the whole look.
+- **Panel Raised** (`#252546`): Hover fills, chips, keycaps.
+- **Sunken** (`#05050d`): Inputs and icon slots, which read as carved into the panel.
+- **White / Muted / Dim** (`#ffffff` / `#a8a8a8` / `#7f7f7f`): Body, secondary, tertiary text.
 
-### Semantic (status communication only — never decorative)
-- **Verdant Seal** (`#22c55e`): Completed status, the "Quest Complete!" banner, closed-issue chips.
-- **Amber Warning** (`#f59e0b`): Blocked/waiting-on-dependency text, pending-review status.
-- **Ember Red** (`#ef4444`): Danger actions (delete buttons), destructive confirmation text, abandoned status.
-- **Beacon Blue** (`#3b82f6`): Reserved for informational status (currently defined as a token but lightly used — available for future "in review elsewhere" style states).
+### Metal (ESTIMATED — sampled from screenshots, no source constant exists)
+- **Gold Highlight → Gold → Gold Mid → Gold Low** (`#f8e7a0` → `#c9a44c` → `#a8802f` → `#6b4a18`): The four-stop ramp every border gradient runs through.
+- **Frame Dark** (`#1a1208`): The near-black outline that sits outside the metal.
+
+### Parchment
+- **Sheet** (`#f0dcb4` / `#dcc49c` / `#c9a97a`, ESTIMATED): Highlight, midtone and shadow of the quest sheet.
+- **Ink** (`#2e1f0f`) / **Ink Title** (`#350000`) / **Ink Objective** (`#4d2e00`): Body, title and objective text on parchment.
+- **Ink Shadow** (`#7d590d`): Titles on parchment take a dark-gold shadow, never black.
+- **Ink Gold** (`#6b5200`): Torch Gold darkened for parchment. Gold at full brightness is unreadable on the sheet, so any gold-coded value (a "difficult" priority chip, for example) drops to this on light ground.
+
+### Quest Difficulty → task priority
+`#808080` trivial · `#40bf40` standard · `#ffd100` difficult · `#ff8040` very difficult · `#ff1a1a` impossible.
+
+### Class Colours → relationship types
+Bonds in The Realm graph use the game's class palette so each type has a distinct, saturated identity: `#3fc7eb` Mage cyan (collaborator) · `#aad372` Hunter green (reports to) · `#a330c9` Demon Hunter purple (mentor) · `#ff7c0a` Druid orange (assists) · `#c69b6d` Warrior tan (peer).
+
+### Item Quality → available for linked-item and rarity signals
+`#9d9d9d` poor · `#ffffff` common · `#1eff00` uncommon · `#0070dd` rare · `#a335ee` epic · `#ff8000` legendary · `#e6cc80` artifact · `#00ccff` heirloom.
 
 ### Named Rules
-**The One Torch Rule.** Torch Gold is the only color allowed to signal "this is active / this is the primary action." If a screen needs to draw attention to two things at once, one of them is wrong, not the palette.
+**The One Torch Rule.** Gold marks what is active or primary and nothing else. If two things on a screen are gold, one of them is wrong.
+
+**The Not-Black Rule.** Panels are `#171730`. Reaching for `#000` or a neutral grey anywhere a panel belongs is the fastest way to lose the look.
 
 ## Typography
 
-**Body Font:** system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif (no separate display or mono face)
+**Display / Title face:** Metamorphous (open-licenced stand-in for Morpheus)
+**Body face:** Amethysta (open-licenced stand-in for Friz Quadrata)
+**Numeric face:** Barlow Condensed (stand-in for Arial Narrow), tabular figures
 
-**Character:** A single, honest system-font stack carries the whole interface — the product's personality comes from color, motion, and vocabulary ("Quest," "Objective," "NPC"), not from typographic flourish.
+**Character:** The game's hierarchy comes from switching family, not from weight.
+An ornate title against a glyphic serif body reads as hierarchy even at the same
+size and colour — which is why this system has almost no bold text.
 
 ### Hierarchy
-- **Display** (700, 1.5rem/24px, line-height 1.3): Page titles ("Settings", "Dashboard") and the quest title on the detail page. Rare — one per screen.
-- **Body** (400, 0.875rem/14px, line-height 1.5): The default for nearly everything — descriptions, list items, form inputs, button labels.
-- **Label** (500, 0.75rem/12px, letter-spacing 0.05em, often uppercase): Section headers inside a quest ("OBJECTIVES", "PREREQUISITES"), field labels above inputs.
-- **Micro** (400, 0.625rem/10px): The smallest text in the system — progress bar counters ("3/5 objectives"), backup-copy hints in the sidebar footer.
+- **Display** (Metamorphous, 30px): Page titles. One per screen, gold, with a soft outer glow.
+- **Title** (Metamorphous, 18px): Quest titles on parchment, dialog headings.
+- **Heading** (Metamorphous, 12px, 0.15em tracking, uppercase): Section and group labels.
+- **Body** (Amethysta, 13px): Default text.
+- **Small** (Amethysta, 12px): Dense rows, chips, status text.
+- **Micro** (Amethysta, 11px): Metadata under a quest row, help text, field hints.
+- **Tiny / Nano** (Barlow Condensed, 10px / 9px): Counters, timestamps, keycaps, nav hover hints.
 
 ### Named Rules
-**The No-Flourish Rule.** There is no italic, no serif, no display weight above 700. If a moment needs more emphasis, reach for color (gold) or motion (framer-motion), not a heavier or fancier typeface.
+**The Family-Not-Weight Rule.** Emphasis comes from switching to Metamorphous or to gold. Bold is nearly absent; there is no italic and no second serif.
+
+**The Hard Shadow Rule.** Text on dark surfaces carries `1px 1px 0 rgba(0,0,0,0.85)`. Text on parchment carries none, except titles, which take a dark-gold shadow.
+
+## Layout
+
+Pages are a single column against a fixed 240px sidebar, capped at `max-w-5xl`
+for list and dashboard screens and `max-w-3xl` for the quest sheet, so prose
+never runs to a fatiguing measure. The sidebar collapses behind a trigger below
+the `lg` breakpoint.
+
+Density is tight — 12–20px card padding, 6px between list rows — because these
+screens are read at a glance rather than browsed.
 
 ## Elevation & Depth
 
-VOV uses tonal layering exclusively — zero `box-shadow` anywhere in the codebase today. Depth is "how dark is the background," not "how much light does this cast." Three steps: Midnight Ledger (void) → Slate Parchment (surface, +1) → Torch Ash (interactive/hover, +2). A `border-border` (Iron Seam) hairline typically separates a raised surface from the void behind it, doing the job a shadow would do in a lit system.
+No soft drop shadows. Depth is four tonal steps (Midnight → Panel → Panel Raised,
+with Sunken below the page for inset fields) plus forged metal edges built from
+stacked `box-shadow` rings: a near-black outline, a gold ring, an inner top
+highlight, and an inner darkening.
+
+This reproduces the game's 9-slice borders, whose art overflows the frame's own
+bounds — an action button is 36px but its border texture is 66px. That overflow
+is why WoW frames read as objects rather than rectangles, and stacked shadows are
+how CSS gets there without an image.
 
 ### Named Rules
-**The Flat-By-Default Rule.** Nothing floats above the page by casting a shadow. If a future component needs to feel "lifted" (e.g., a toast or dropdown), reach for one more tonal step or a border first; only add a soft shadow as a last resort, and keep it ambient/diffuse, never a hard drop-shadow, so it doesn't clash with the otherwise flat system.
+**The Forged-Edge Rule.** A raised surface gets a metal ring, not a blur. The only blur in the system is the ambient darkness under a modal.
 
 ## Shapes
 
-Two radius steps plus fully-round pills, no sharp corners anywhere:
-- **Medium (8px, `rounded-lg`)**: The default for interactive elements — buttons, inputs, selects, textareas, the attachment/linked-item row containers.
-- **Large (12px, `rounded-xl`)**: Containers one size up from their contents — cards, section panels, the modal shell, the "Quest Complete" banner.
-- **Full (`rounded-full`)**: Anything chip/pill/circular — status badges, department/tag/role-selector chips, avatars, the progress bar track and fill.
+Corners are nearly square — 2–4px, 6px on the ornate frame. WoW frames are
+geometrically rectangular and only look rounded because the corner art is a
+curved metal fitting, so anything softer than 6px immediately reads as a modern
+web app instead.
 
-Borders are always 1px, always Iron Seam (`border-border`) at rest, and switch to a gold-tinted border (`border-accent` or `border-accent/50`) on selection/focus rather than changing thickness.
+Pills (`9999px`) are reserved for avatars and progress tracks.
 
 ## Components
 
-Interaction character across all components: **tactile and game-like, not corporate.** Hover/active states change background color instantly (`transition-colors`) rather than fading softly; the one exception is the framer-motion "Quest Complete" banner, which pops in with a spring-like scale (`scale: 0.9 → 1`) rather than a plain fade — completion should feel like an event, not a state change.
-
 ### Buttons
-- **Shape:** 8px radius (`rounded-lg`), never full-round except icon-only variants inside pill contexts.
-- **Primary:** Torch Gold background, Midnight Ledger text (dark-on-gold for max contrast), `px-4 py-2` (md) or `px-2.5 py-1` (sm) + `text-sm`/`text-xs`.
-- **Secondary:** Torch Ash background, Parchment White text — the "second-most-important action" slot.
-- **Danger:** Ember Red at 20% opacity background, full-opacity Ember Red text — deliberately quieter than Primary so delete actions don't visually compete with "accept quest."
-- **Ghost:** No background at rest, Fog Slate text; hover adds Torch Ash background and shifts text to Parchment White. Used for low-emphasis actions (Add, Restore, icon-adjacent labels).
-- **Hover / Focus:** Instant color swap on hover (no fade duration specified — relies on Tailwind's default `transition-colors`); disabled state drops opacity to 50% and removes the pointer cursor.
+- **Primary:** Gold gradient, near-black text, 3px radius, semibold. Depresses on `:active`.
+- **Secondary:** Panel gradient with a gold ring.
+- **Danger:** Deep red field with bright red text — deliberately quieter than primary so destructive actions do not out-shout the main one.
+- **Ghost:** No fill; muted text warming to gold.
+- **Hover:** An additive white overlay (`mix-blend-mode: plus-lighter`), matching the game's `alphaMode="ADD"` highlight. Not an opacity or background change.
 
-### Chips / Pills (roles, departments, tags, dependencies)
-- **Shape:** `rounded-full`, 1px border.
-- **Unselected:** Iron Seam border, Fog Slate text, transparent fill.
-- **Selected:** Torch Gold border, Torch Gold text, Torch Gold fill at 15% opacity (`bg-accent/15`) — the gold never runs at full opacity on a fill this large, keeping large selected areas legible against Parchment White body text elsewhere.
+### Cards
+Panel fill, metal ring, 4px radius, 12–20px padding. The `ornate` variant swaps
+the ring for a real four-stop gradient border and is reserved for dialogs and the
+one hero surface on a page. The `parchment` variant flips to the aged sheet with
+ink text.
 
-### Cards / Containers
-- **Corner Style:** 12px (`rounded-xl`).
-- **Background:** Slate Parchment.
-- **Elevation Strategy:** Tonal only — see Elevation & Depth. No shadow.
-- **Border:** 1px Iron Seam.
-- **Internal Padding:** 20px (`p-5`) for top-level settings/dashboard cards; 12px (`px-3 py-2`) for compact list rows (attachments, linked items, snapshots).
-
-### Inputs / Fields (Input, Select, Textarea)
-- **Style:** Slate Parchment background, Iron Seam border, 8px radius, Parchment White text, Fog Slate placeholder.
-- **Focus:** 2px Torch Gold ring at 50% opacity (`focus:ring-2 focus:ring-accent/50`), no border-color change — the ring is the only focus signal.
-- **Label:** Label typography (12px, medium, muted) sits directly above the field, never floating/inline.
+### Inputs
+Sunken fill with an inset shadow so the field reads as carved. Focus adds a gold
+ring plus outer glow; the border colour never changes.
 
 ### Status Badge
-- **Shape:** Fully round pill, `px-2 py-0.5`, `text-xs font-medium`, always white text regardless of fill color (fill color comes from per-status semantic tokens, e.g. Verdant Seal for completed).
+Small square-ish pill, white text, colour by state, with a hairline gold ring.
 
 ### Progress Bar
-- **Style:** No shadow, no border — a 6px-tall (`h-1.5`) fully-rounded track in Torch Ash, filled with a Torch Gold bar that animates width over 300ms. Micro-typography count ("3/5 objectives") and percentage sit directly above it.
+Black track with a gold ring; fill is a gold gradient (`#ffe066` → `#ffd100` → `#c4a300`) that switches to green (`#4dff4d` → `#1aff1a` → `#00c000`) at 100%. A
+white spark trails the leading edge — the detail that identifies a WoW bar at a
+glance. The spark is suppressed at 0% so it does not sit orphaned at the left.
 
-### Navigation (sidebar)
-- **Style:** Fixed-width rail, Slate Parchment background, Iron Seam right border. Each item: icon + label, 8px radius, `px-3 py-2`. Active item gets Torch Gold text on a 15%-opacity Torch Gold background — the only place in the whole system where the accent appears as a background fill on an area this large, marking it as the single most important piece of navigational state.
-- **Mobile treatment:** none yet — the rail is fixed-width and always visible; there is no collapse/hamburger behavior below any breakpoint (tracked as a known gap, see PRODUCT.md Capabilities and Constraints).
+### Quest Row
+Difficulty pip, tracking star, title, metadata line, optional progress bar and a
+status badge. A quest ready for review shows a bobbing gold `?`.
+
+### Divider
+A gold rule fading at both ends with a rotated diamond at its centre.
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** keep Torch Gold reserved for "this is active / this is primary" — one accent, used sparingly (The One Torch Rule).
-- **Do** express elevation with the three tonal steps (Midnight Ledger → Slate Parchment → Torch Ash) before reaching for a shadow (The Flat-By-Default Rule).
-- **Do** use `rounded-lg` (8px) for anything a user directly interacts with (buttons, inputs) and `rounded-xl` (12px) for the container one level up (cards, modals).
-- **Do** let completion/success moments (finishing a quest, closing a linked GitHub issue) feel like an event — a spring-scale pop or a colored banner — not a silent state flip.
+- **Do** keep `#171730` as the panel colour — it is the system's fingerprint.
+- **Do** build elevation from tonal steps and metal rings, never a soft shadow.
+- **Do** signal completion by receding toward the background (`#cccccc` → `#999999` on dark, `#000000` → `#333333` on parchment) and, on parchment, by appending "(Complete)".
+- **Do** switch typeface to create hierarchy before reaching for weight.
+- **Do** put quest prose on parchment and interface chrome on dark panels.
 
 ### Don't:
-- **Don't** introduce a second full-opacity accent color for emphasis; desaturate to Fog Slate or use a semantic status color instead.
-- **Don't** add `box-shadow` to cards, modals, or dropdowns as a first instinct — try one more tonal step first.
-- **Don't** run Torch Gold at full opacity across a large fill (a whole selected-chip background, a whole active-row background); keep large fills at 15% opacity and let the border/text carry full saturation.
-- **Don't** introduce a second typeface or an italic/serif treatment for "emphasis" — reach for color or motion instead (The No-Flourish Rule).
+- **Don't** introduce a second accent colour; use a difficulty or quality colour if a second signal is genuinely needed.
+- **Don't** use strikethrough or heavy transparency for completed items.
+- **Don't** round corners past 6px.
+- **Don't** use `opacity` or a background swap for hover where the additive overlay belongs.
+- **Don't** embed Blizzard textures, icons, or the Friz Quadrata / Morpheus typefaces — the look is reproduced, not lifted.

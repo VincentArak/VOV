@@ -1,18 +1,114 @@
 @import "tailwindcss";
 
+/* ═══════════════════════════════════════════════════════════════════
+   VOV — World of Warcraft themed interface
+   
+   Color values are taken from Blizzard's own FrameXML source
+   (SharedColorConstants.lua, Constants.lua, ChrClasses.db2) so the
+   palette matches the game rather than approximating it by eye.
+   Values that could only come from sampling a bitmap texture (the
+   parchment sheet, the gold border ramp) are marked ESTIMATED.
+
+   No Blizzard art assets are used — every frame, border and texture
+   here is CSS. Fonts are open-licenced stand-ins for the game's
+   commercial faces (Friz Quadrata / Morpheus).
+   ═══════════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Amethysta&family=Metamorphous&family=Barlow+Condensed:wght@400;500;600;700&display=swap');
+
 @theme {
-  --color-surface: #0f172a;
-  --color-surface-raised: #1e293b;
-  --color-surface-overlay: #334155;
-  --color-accent: #fbbf24;
-  --color-accent-dim: #d97706;
-  --color-text: #f1f5f9;
-  --color-text-muted: #94a3b8;
-  --color-border: #475569;
-  --color-success: #22c55e;
-  --color-warning: #f59e0b;
-  --color-danger: #ef4444;
-  --color-info: #3b82f6;
+  /* ─── Core surfaces ───────────────────────────────────────────────
+     #171730 is TOOLTIP_DEFAULT_BACKGROUND_COLOR — the signature WoW
+     panel colour. It is deliberately NOT black: the blue channel is
+     double red/green. Using #000 here is the single fastest way to
+     make a WoW recreation look wrong. */
+  --color-surface: #0a0a16;
+  --color-surface-raised: #171730;
+  --color-surface-overlay: #252546;
+  --color-surface-sunken: #05050d;
+
+  /* ─── Accent: one gold, used sparingly ───────────────────────────
+     NORMAL_FONT_COLOR (1, .82, 0). The only strong accent in the
+     game's UI — titles, active state, primary action. */
+  --color-accent: #ffd100;
+  --color-accent-dim: #c4a300;
+
+  /* ─── Text ─────────────────────────────────────────────────────── */
+  --color-text: #ffffff;
+  --color-text-muted: #a8a8a8;
+  --color-text-dim: #7f7f7f;
+
+  /* ─── Metal frame ramp (ESTIMATED — sampled, no source constant) ── */
+  --color-border: #6b4a18;
+  --color-gold-hi: #f8e7a0;
+  --color-gold: #c9a44c;
+  --color-gold-mid: #a8802f;
+  --color-gold-lo: #6b4a18;
+  --color-bronze: #8a6a2e;
+  --color-frame-dark: #1a1208;
+
+  /* ─── Semantic (SharedColorConstants.lua) ───────────────────────── */
+  --color-success: #1aff1a;
+  --color-warning: #ff8040;
+  --color-danger: #ff1a1a;
+  --color-danger-dim: #cc1a1a;
+  --color-info: #00bff3;
+
+  /* ─── Quest difficulty (Constants.lua QuestDifficultyColors) ─────
+     Mapped onto task priority: a low-priority task is "trivial grey",
+     an urgent one is "impossible red" — the same signal the game uses
+     to tell you whether a quest is worth your time. */
+  --color-qd-trivial: #808080;
+  --color-qd-standard: #40bf40;
+  --color-qd-difficult: #ffd100;
+  --color-qd-verydifficult: #ff8040;
+  --color-qd-impossible: #ff1a1a;
+
+  /* ─── Item quality (GetItemQualityColor) ────────────────────────── */
+  --color-q-poor: #9d9d9d;
+  --color-q-common: #ffffff;
+  --color-q-uncommon: #1eff00;
+  --color-q-rare: #0070dd;
+  --color-q-epic: #a335ee;
+  --color-q-legendary: #ff8000;
+  --color-q-artifact: #e6cc80;
+  --color-q-heirloom: #00ccff;
+
+  /* ─── Objective tracker (OBJECTIVE_TRACKER_COLOR) ───────────────── */
+  --color-ot-normal: #cccccc;
+  --color-ot-complete: #999999;
+  --color-ot-header: #bf9c00;
+
+  /* ─── Parchment (PAPER_FRAME_* are official; the three sheet tones
+         below are ESTIMATED from screenshots) ────────────────────── */
+  --color-paper-hi: #f0dcb4;
+  --color-paper: #dcc49c;
+  --color-paper-lo: #c9a97a;
+  --color-paper-dark: #402605;
+  --color-paper-text: #2e1f0f;
+  --color-paper-title: #350000;
+  --color-sepia: #906028;
+  --color-quest-objective: #4d2e00;
+  --color-quest-shadow: #7d590d;
+
+  /* ─── Faction ───────────────────────────────────────────────────── */
+  --color-alliance: #4a54e8;
+  --color-horde: #e50d12;
+
+  /* ─── Resource bars ─────────────────────────────────────────────── */
+  --color-xp: #94008c;
+  --color-xp-rested: #0063e0;
+  --color-cast: #ffb200;
+  --color-bar-track: rgba(0, 0, 0, 0.55);
+
+  /* ─── Type ───────────────────────────────────────────────────────
+     The game pairs two families: an ornate face for titles (Morpheus)
+     against a glyphic serif for body copy (Friz Quadrata). Same
+     colour, same size — the family switch alone carries the
+     hierarchy. Both stand-ins below are open-licenced. */
+  --font-fancy: 'Metamorphous', 'Cinzel', Georgia, serif;
+  --font-body: 'Amethysta', 'Marcellus', Georgia, serif;
+  --font-num: 'Barlow Condensed', 'Roboto Condensed', 'Arial Narrow', sans-serif;
 }
 
 * {
@@ -24,24 +120,304 @@ body {
   min-height: 100vh;
   background: var(--color-surface);
   color: var(--color-text);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: var(--font-body);
+  font-size: 13px;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Almost every piece of text in the game sits on a dark surface with a
+   1px hard black shadow down-right. It is what stops light text from
+   vibrating against busy backgrounds. */
+body,
+button,
+input,
+select,
+textarea {
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.85);
 }
 
 #root {
   min-height: 100vh;
 }
 
+h1,
+h2,
+h3 {
+  font-family: var(--font-fancy);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+/* Digits use the condensed face — matches the game's stat readouts and
+   keeps long numbers from pushing layout around. */
+.tabular,
+kbd {
+  font-family: var(--font-num);
+  font-variant-numeric: tabular-nums;
+}
+
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: var(--color-surface-sunken);
+  border-left: 1px solid var(--color-frame-dark);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-border);
+  background: linear-gradient(180deg, var(--color-gold-mid), var(--color-gold-lo));
+  border: 1px solid var(--color-frame-dark);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, var(--color-gold), var(--color-gold-mid));
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Frames
+
+   The game builds every window from a 9-slice border texture that
+   overflows the frame's own bounds — an action button is 36px but its
+   border art is 66px, spilling 15px on each side. That overflow is why
+   WoW panels read as forged metal rather than CSS boxes. Layered
+   box-shadows reproduce it without any image.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.wow-frame {
+  position: relative;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-frame-dark);
+  border-radius: 4px;
+  box-shadow:
+    0 0 0 2px var(--color-gold-lo),
+    inset 0 1px 0 rgba(248, 231, 160, 0.22),
+    inset 0 0 18px rgba(0, 0, 0, 0.75),
+    0 4px 16px rgba(0, 0, 0, 0.6);
+}
+
+/* Ornate variant: a real metal gradient in the border box. Reserved for
+   the few surfaces that should read as "important window". */
+.wow-frame-ornate {
+  position: relative;
+  border: 3px solid transparent;
+  border-radius: 6px;
+  background:
+    linear-gradient(var(--color-surface-raised), var(--color-surface-raised)) padding-box,
+    linear-gradient(
+        145deg,
+        var(--color-gold-hi) 0%,
+        var(--color-gold) 18%,
+        var(--color-gold-lo) 48%,
+        var(--color-gold-mid) 72%,
+        var(--color-gold-hi) 100%
+      )
+      border-box;
+  box-shadow:
+    inset 0 0 24px rgba(0, 0, 0, 0.8),
+    0 6px 24px rgba(0, 0, 0, 0.7);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Parchment
+
+   Quest text in the game is dark ink on an aged sheet. A flat tan
+   rectangle reads as cardboard; the sheet needs darkened corners and
+   a fibre grain to read as paper. Both are pure gradients here.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.wow-parchment {
+  background-color: var(--color-paper);
+  background-image:
+    radial-gradient(ellipse at 18% 12%, rgba(64, 38, 5, 0) 38%, rgba(64, 38, 5, 0.2) 100%),
+    radial-gradient(ellipse at 82% 88%, rgba(64, 38, 5, 0) 42%, rgba(64, 38, 5, 0.17) 100%),
+    repeating-linear-gradient(107deg, rgba(144, 96, 40, 0.05) 0 2px, transparent 2px 5px),
+    repeating-linear-gradient(17deg, rgba(144, 96, 40, 0.04) 0 3px, transparent 3px 7px),
+    linear-gradient(160deg, var(--color-paper-hi) 0%, var(--color-paper) 45%, var(--color-paper-lo) 100%);
+  color: var(--color-paper-text);
+  border: 1px solid var(--color-paper-dark);
   border-radius: 3px;
+  box-shadow:
+    inset 0 0 40px rgba(64, 38, 5, 0.3),
+    0 3px 14px rgba(0, 0, 0, 0.55);
+  text-shadow: none;
+}
+
+.wow-parchment h1,
+.wow-parchment h2,
+.wow-parchment h3,
+.wow-parchment .paper-title {
+  color: var(--color-paper-title);
+  /* Morpheus titles on parchment carry a dark-gold shadow, not black. */
+  text-shadow: 1px 1px 0 rgba(125, 89, 13, 0.55);
+}
+
+.wow-parchment * {
+  text-shadow: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Interaction
+
+   Hover in the game is an additive white overlay (alphaMode="ADD"),
+   not an opacity or background swap. plus-lighter is the CSS
+   equivalent and is what makes buttons feel lit rather than tinted.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.wow-hilight {
+  position: relative;
+}
+
+.wow-hilight::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: rgba(255, 255, 255, 0.16);
+  mix-blend-mode: plus-lighter;
+  opacity: 0;
+  transition: opacity 0.12s;
+  pointer-events: none;
+}
+
+.wow-hilight:hover::after {
+  opacity: 1;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Status bars
+
+   The trailing white spark is the detail that identifies a WoW
+   progress bar at a glance. It costs one pseudo-element.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.wow-bar {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-bar-track);
+  border: 1px solid var(--color-frame-dark);
+  box-shadow:
+    0 0 0 1px var(--color-gold-lo),
+    inset 0 0 6px rgba(0, 0, 0, 0.85);
+}
+
+/* The fill is always full width and slides left instead of resizing, so
+   the bar animates on the compositor rather than triggering layout on
+   every frame. Sliding also keeps the gradient at a fixed scale — a
+   width transition would squash it, and the trailing spark with it. */
+.wow-bar-fill {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  transform: translateX(calc(var(--fill, 0) * 1% - 100%));
+  transition: transform 0.3s ease-out;
+  will-change: transform;
+}
+
+/* The trailing spark only makes sense once the bar has actually
+   started; at 0% it would sit outside the fill and read as a stray
+   artefact on the left edge. */
+.wow-bar-fill:not([data-empty='true'])::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -5px;
+  width: 10px;
+  height: 200%;
+  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0) 70%);
+  mix-blend-mode: plus-lighter;
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Icon slots — the 36px action-button grid
+   ═══════════════════════════════════════════════════════════════════ */
+
+.wow-slot {
+  position: relative;
+  background: var(--color-surface-sunken);
+  border: 1px solid var(--color-frame-dark);
+  border-radius: 3px;
+  box-shadow:
+    0 0 0 2px var(--color-gold-lo),
+    inset 0 1px 0 rgba(248, 231, 160, 0.3),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.8),
+    inset 0 0 6px rgba(0, 0, 0, 0.9);
+}
+
+.wow-slot-active {
+  box-shadow:
+    0 0 0 2px var(--color-gold),
+    0 0 10px 2px rgba(255, 209, 0, 0.45),
+    inset 0 0 10px rgba(255, 209, 0, 0.25);
+}
+
+/* A gold rule with a diamond at its centre — the game's section
+   divider. Used to break up long panels. */
+.wow-divider {
+  position: relative;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-gold-lo) 15%,
+    var(--color-gold-mid) 50%,
+    var(--color-gold-lo) 85%,
+    transparent
+  );
+}
+
+.wow-divider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  translate: -50% -50%;
+  rotate: 45deg;
+  background: var(--color-gold);
+  box-shadow: 0 0 4px rgba(255, 209, 0, 0.6);
+}
+
+@keyframes wow-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.wow-pulse {
+  animation: wow-pulse 1.6s ease-in-out infinite;
+}
+
+/* The exclamation mark over a quest giver's head bobs; reusing that
+   motion for "new/available" markers keeps the metaphor consistent. */
+@keyframes wow-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+.wow-bob {
+  animation: wow-bob 1.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wow-pulse,
+  .wow-bob {
+    animation: none;
+  }
+  .wow-bar-fill {
+    transition: none;
+  }
 }

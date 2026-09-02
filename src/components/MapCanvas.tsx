@@ -84,7 +84,7 @@ export function MapCanvas({
       <img
         src={imageUrl}
         alt="Map"
-        className="w-full h-auto rounded-lg border border-border"
+        className="w-full h-auto rounded-sm border border-frame-dark"
         draggable={false}
       />
       {locations.map((loc) => {
@@ -127,7 +127,7 @@ export function MapCanvas({
                 </span>
               )}
               {childMap && (
-                <span className="absolute -bottom-1 -right-2 w-[14px] h-[14px] flex items-center justify-center rounded-full bg-info text-white text-[8px] font-bold shadow">
+                <span className="absolute -bottom-1 -right-2 w-[14px] h-[14px] flex items-center justify-center rounded-full bg-info text-white text-[9px] font-bold shadow">
                   ⊕
                 </span>
               )}
