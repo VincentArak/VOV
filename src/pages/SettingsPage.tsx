@@ -1,6 +1,16 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useRef } from 'react'
-import { Download, RotateCcw, Upload, Volume2, VolumeX } from 'lucide-react'
+import { useRef, useState } from 'react'
+import {
+  CheckCircle,
+  Download,
+  GitBranch,
+  RotateCcw,
+  Ticket,
+  Upload,
+  Volume2,
+  VolumeX,
+  XCircle,
+} from 'lucide-react'
 import {
   exportAllData,
   getSnapshotInfo,
@@ -9,14 +19,33 @@ import {
 } from '../db'
 import type { SnapshotId } from '../types'
 import { useAppStore } from '../store'
+import { testGithubConnection } from '../services/github'
 import { RelationshipTypeManager } from '../components/RelationshipTypeManager'
 import { Button } from '../components/ui/Button'
+import { Input } from '../components/ui/Input'
 import { formatDate } from '../utils'
 
 export function SettingsPage() {
-  const { settings, toggleSound } = useAppStore()
+  const { settings, toggleSound, updateSettings } = useAppStore()
   const importRef = useRef<HTMLInputElement>(null)
   const snapshots = useLiveQuery(() => getSnapshotInfo()) ?? []
+  const [githubTest, setGithubTest] = useState<
+    { state: 'idle' } | { state: 'testing' } | { state: 'success'; login: string } | { state: 'error'; message: string }
+  >({ state: 'idle' })
+
+  const handleTestGithub = async () => {
+    if (!settings?.githubToken) return
+    setGithubTest({ state: 'testing' })
+    try {
+      const { login } = await testGithubConnection(settings.githubToken)
+      setGithubTest({ state: 'success', login })
+    } catch (err) {
+      setGithubTest({
+        state: 'error',
+        message: err instanceof Error ? err.message : 'Connection failed',
+      })
+    }
+  }
 
   const handleExport = async () => {
     const data = await exportAllData()
@@ -152,6 +181,105 @@ export function SettingsPage() {
             </>
           )}
         </Button>
+      </section>
+
+      <section className="rounded-xl border border-border bg-surface-raised p-5 mb-4">
+        <h2 className="font-semibold mb-3">Integrations</h2>
+        <p className="text-sm text-text-muted mb-4">
+          Link quests to GitHub issues or Jira tickets from the quest detail page.
+        </p>
+
+        <div className="mb-5">
+          <div className="flex items-center gap-2 mb-2">
+            <GitBranch size={16} className="text-text-muted" />
+            <h3 className="text-sm font-medium">GitHub</h3>
+          </div>
+          <p className="text-xs text-text-muted mb-3">
+            Uses the GitHub REST API directly from your browser — no server needed. Create
+            a{' '}
+            <a
+              href="https://github.com/settings/personal-access-tokens/new"
+              target="_blank"
+              rel="noreferrer"
+              className="text-accent hover:underline"
+            >
+              fine-grained personal access token
+            </a>{' '}
+            scoped to just the "Issues" permission on the repo below.
+          </p>
+          <div className="grid grid-cols-2 gap-3 mb-3">
+            <Input
+              label="Personal access token"
+              type="password"
+              placeholder="github_pat_..."
+              value={settings?.githubToken ?? ''}
+              onChange={(e) => {
+                setGithubTest({ state: 'idle' })
+                updateSettings({ githubToken: e.target.value || null })
+              }}
+            />
+            <Input
+              label="Repository (owner/repo)"
+              placeholder="VincentArak/VOV"
+              value={settings?.githubRepo ?? ''}
+              onChange={(e) => updateSettings({ githubRepo: e.target.value || null })}
+            />
+          </div>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="secondary"
+              size="sm"
+              disabled={!settings?.githubToken || githubTest.state === 'testing'}
+              onClick={handleTestGithub}
+            >
+              {githubTest.state === 'testing' ? 'Testing…' : 'Test connection'}
+            </Button>
+            {githubTest.state === 'success' && (
+              <span className="inline-flex items-center gap-1 text-xs text-success">
+                <CheckCircle size={14} /> Connected as {githubTest.login}
+              </span>
+            )}
+            {githubTest.state === 'error' && (
+              <span className="inline-flex items-center gap-1 text-xs text-danger">
+                <XCircle size={14} /> {githubTest.message}
+              </span>
+            )}
+          </div>
+          <p className="text-xs text-warning mt-3">
+            ⚠️ The token is stored unencrypted in this browser's IndexedDB (this app has no
+            crypto library). It is automatically stripped from Export Data backups, but
+            anyone with access to this browser profile can read it via devtools.
+          </p>
+        </div>
+
+        <div className="pt-4 border-t border-border">
+          <div className="flex items-center gap-2 mb-2">
+            <Ticket size={16} className="text-text-muted" />
+            <h3 className="text-sm font-medium">Jira</h3>
+          </div>
+          <p className="text-xs text-text-muted mb-3">
+            Jira Cloud doesn't allow API calls directly from a browser (no backend here to
+            proxy them), so this only opens Jira's "create issue" screen and copies the
+            quest's title/description to your clipboard for pasting — no automatic sync or
+            status. This is a best-effort convenience, not a real integration.
+          </p>
+          <div className="grid grid-cols-2 gap-3">
+            <Input
+              label="Jira site URL"
+              placeholder="https://yourteam.atlassian.net"
+              value={settings?.jiraSiteUrl ?? ''}
+              onChange={(e) => updateSettings({ jiraSiteUrl: e.target.value || null })}
+            />
+            <Input
+              label="Project key (for reference)"
+              placeholder="PROJ"
+              value={settings?.jiraProjectKey ?? ''}
+              onChange={(e) =>
+                updateSettings({ jiraProjectKey: e.target.value.toUpperCase() || null })
+              }
+            />
+          </div>
+        </div>
       </section>
 
       <section className="rounded-xl border border-border bg-surface-raised p-5 mb-4">

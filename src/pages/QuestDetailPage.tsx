@@ -29,6 +29,7 @@ import {
   updateSubtaskInTree,
 } from '../utils/subtasks'
 import { SubtaskTree } from '../components/SubtaskTree'
+import { LinkedItemsSection } from '../components/LinkedItemsSection'
 import { Avatar } from '../components/ui/Avatar'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
@@ -504,6 +505,8 @@ export function QuestDetailPage() {
             </div>
           )}
         </section>
+
+        <LinkedItemsSection task={task} onUpdate={update} />
       </div>
     </div>
   )
