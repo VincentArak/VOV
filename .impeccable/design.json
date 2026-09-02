@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-02T00:00:00.000Z",
+  "title": "Design System: VOV",
+  "extensions": {
+    "colorMeta": {
+      "midnight-ledger": { "role": "neutral", "displayName": "Midnight Ledger", "canonical": "#0f172a", "tonalRamp": ["#05070d", "#0a0f1c", "#0f172a", "#16213a", "#1e293b", "#334155", "#64748b", "#94a3b8"] },
+      "slate-parchment": { "role": "neutral", "displayName": "Slate Parchment", "canonical": "#1e293b", "tonalRamp": ["#0a0f1c", "#131c2c", "#1e293b", "#2a3849", "#3a4a5e", "#556577", "#8595a4", "#c3cdd6"] },
+      "torch-ash": { "role": "neutral", "displayName": "Torch Ash", "canonical": "#334155", "tonalRamp": ["#12161c", "#1e2530", "#293241", "#334155", "#475569", "#64748b", "#94a3b8", "#cbd5e1"] },
+      "torch-gold": { "role": "primary", "displayName": "Torch Gold", "canonical": "#fbbf24", "tonalRamp": ["#4a2e04", "#7a4a06", "#ab6708", "#d9860e", "#f2a815", "#fbbf24", "#fdd463", "#fee8a3"] },
+      "ember-copper": { "role": "primary", "displayName": "Ember Copper", "canonical": "#d97706", "tonalRamp": ["#3d2003", "#673505", "#914907", "#b85e08", "#d97706", "#e8942e", "#f2b662", "#f9d69c"] },
+      "parchment-white": { "role": "neutral", "displayName": "Parchment White", "canonical": "#f1f5f9", "tonalRamp": ["#7a838d", "#93999f", "#adb2b8", "#c6cacf", "#dfe2e5", "#eef1f4", "#f1f5f9", "#fbfcfd"] },
+      "fog-slate": { "role": "neutral", "displayName": "Fog Slate", "canonical": "#94a3b8", "tonalRamp": ["#2c3440", "#3f4b58", "#546374", "#6b7c8f", "#84939f", "#94a3b8", "#b3bfcc", "#d3dae2"] },
+      "iron-seam": { "role": "neutral", "displayName": "Iron Seam", "canonical": "#475569", "tonalRamp": ["#15191f", "#232b36", "#323d4d", "#475569", "#5c6d82", "#78899c", "#9fadbc", "#cbd3dc"] },
+      "verdant-seal": { "role": "success", "displayName": "Verdant Seal", "canonical": "#22c55e", "tonalRamp": ["#062910", "#0d4a1e", "#146b2c", "#1a9c40", "#22c55e", "#4ad57e", "#82e3a8", "#c1f1d3"] },
+      "amber-warning": { "role": "warning", "displayName": "Amber Warning", "canonical": "#f59e0b", "tonalRamp": ["#402a03", "#6b4705", "#976307", "#c48009", "#f59e0b", "#f7b23c", "#fac972", "#fde3ac"] },
+      "ember-red": { "role": "danger", "displayName": "Ember Red", "canonical": "#ef4444", "tonalRamp": ["#3f0d0d", "#6b1717", "#9b2121", "#c72e2e", "#ef4444", "#f37070", "#f7a3a3", "#fbd2d2"] },
+      "beacon-blue": { "role": "info", "displayName": "Beacon Blue", "canonical": "#3b82f6", "tonalRamp": ["#0d1f40", "#16336b", "#204897", "#2b63c4", "#3b82f6", "#6ba0f8", "#a1c3fa", "#d3e2fd"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Page titles and the quest-detail title. One per screen." },
+      "body": { "displayName": "Body", "purpose": "Default text for descriptions, lists, form fields." },
+      "label": { "displayName": "Label", "purpose": "Section headers and field labels, often uppercase." },
+      "micro": { "displayName": "Micro", "purpose": "Smallest text — progress counters, footer hints." }
+    },
+    "shadows": [],
+    "motion": [
+      { "name": "state-transition", "value": "background-color transition, default duration", "purpose": "Instant-feeling hover/active color swaps on buttons, nav items, chips." },
+      { "name": "progress-fill", "value": "width 300ms ease (transition-all duration-300)", "purpose": "Progress bar fill animating to the new percentage." },
+      { "name": "completion-pop", "value": "framer-motion scale 0.9 -> 1, opacity 0 -> 1", "purpose": "Quest Complete banner entrance — completion should feel like an event." }
+    ],
+    "breakpoints": []
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The single most important action on a screen (accept quest, save, export).",
+      "html": "<button class=\"ds-btn-primary\">Accept Quest</button>",
+      "css": ".ds-btn-primary { background: #fbbf24; color: #0f172a; padding: 8px 16px; border-radius: 8px; border: none; font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: background-color 0.15s; } .ds-btn-primary:hover { background: #d97706; } .ds-btn-primary:focus-visible { outline: 2px solid #fbbf24; outline-offset: 2px; } .ds-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "The second-tier action (import, restore, cancel-adjacent).",
+      "html": "<button class=\"ds-btn-secondary\">Import Data</button>",
+      "css": ".ds-btn-secondary { background: #334155; color: #f1f5f9; padding: 8px 16px; border-radius: 8px; border: none; font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: background-color 0.15s; } .ds-btn-secondary:hover { background: #475569; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Low-emphasis action, often paired with an icon (Add, Restore).",
+      "html": "<button class=\"ds-btn-ghost\">+ Add</button>",
+      "css": ".ds-btn-ghost { background: transparent; color: #94a3b8; padding: 4px 10px; border-radius: 8px; border: none; font-size: 0.75rem; cursor: pointer; transition: color 0.15s, background-color 0.15s; } .ds-btn-ghost:hover { color: #f1f5f9; background: #334155; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Standard text field used across quest editing and settings.",
+      "html": "<label class=\"ds-label\">Title</label><input class=\"ds-input\" placeholder=\"Quest title\" />",
+      "css": ".ds-label { display: block; font-size: 0.75rem; font-weight: 500; color: #94a3b8; margin-bottom: 4px; } .ds-input { background: #1e293b; color: #f1f5f9; border: 1px solid #475569; border-radius: 8px; padding: 8px 12px; font-size: 0.875rem; width: 100%; } .ds-input::placeholder { color: #94a3b8; } .ds-input:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(251,191,36,0.5); }"
+    },
+    {
+      "name": "Selected Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Toggle chip for roles, departments, tags — selected state.",
+      "html": "<button class=\"ds-chip ds-chip-selected\">Engineering</button>",
+      "css": ".ds-chip { border-radius: 9999px; padding: 4px 12px; font-size: 0.75rem; border: 1px solid #475569; background: transparent; color: #94a3b8; cursor: pointer; transition: border-color 0.15s; } .ds-chip-selected { border-color: #fbbf24; color: #fbbf24; background: rgba(251,191,36,0.15); }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Top-level content container — settings sections, dashboard tiles.",
+      "html": "<div class=\"ds-card\"><h2 class=\"ds-card-title\">Sound Effects</h2><p class=\"ds-card-body\">Play sounds when accepting or completing quests.</p></div>",
+      "css": ".ds-card { background: #1e293b; border: 1px solid #475569; border-radius: 12px; padding: 20px; } .ds-card-title { font-size: 0.875rem; font-weight: 600; margin: 0 0 12px; color: #f1f5f9; } .ds-card-body { font-size: 0.875rem; color: #94a3b8; margin: 0; }"
+    },
+    {
+      "name": "Status Badge",
+      "kind": "chip",
+      "refersTo": "status-badge",
+      "description": "Pill showing a quest's current status (color varies by status).",
+      "html": "<span class=\"ds-status-badge\" style=\"background:#22c55e\">Completed</span>",
+      "css": ".ds-status-badge { display: inline-flex; align-items: center; border-radius: 9999px; padding: 2px 8px; font-size: 0.75rem; font-weight: 500; color: white; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Torchbearer",
+    "overview": "VOV reads like a lone explorer's quest log carried into a cave: everything sits in a deep midnight-navy dark (#0f172a), and the only warmth in the room is the single torch-gold accent (#fbbf24) marking what matters right now — the active nav item, the primary action, the objective still glowing at 60% complete. There is no second competing accent color; gold is reserved and precise, the way a torch is the one light source you trust.\n\nDepth is conveyed entirely through three steps of background darkness (surface -> surface-raised -> surface-overlay) rather than shadows — nothing casts light in this world, things simply sit closer to or further from the dark. The interface is calm and utilitarian at rest (this is an Operate surface: task management, not a marketing page) but the interaction layer — button presses, status chip toggles, quest completion — gets a tactile, game-like snap rather than a corporate fade, because the product's whole premise is that admin work should feel a little bit like play.",
+    "keyCharacteristics": [
+      "Single accent color (torch gold), used sparingly — active states, primary actions, progress fills, never decoration",
+      "Tonal-only depth: three background steps, zero box-shadow",
+      "Dense, utilitarian layout (Operate mode) with playful micro-interactions layered on top",
+      "System font stack throughout — no display/brand typeface, personality comes from color and motion, not type"
+    ],
+    "rules": [
+      { "name": "The One Torch Rule", "body": "Torch Gold is the only color allowed to signal \"this is active / this is the primary action.\" If a screen needs to draw attention to two things at once, one of them is wrong, not the palette.", "section": "colors" },
+      { "name": "The No-Flourish Rule", "body": "There is no italic, no serif, no display weight above 700. If a moment needs more emphasis, reach for color (gold) or motion (framer-motion), not a heavier or fancier typeface.", "section": "typography" },
+      { "name": "The Flat-By-Default Rule", "body": "Nothing floats above the page by casting a shadow. If a future component needs to feel \"lifted,\" reach for one more tonal step or a border first; only add a soft shadow as a last resort, and keep it ambient/diffuse.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do keep Torch Gold reserved for \"this is active / this is primary\" — one accent, used sparingly (The One Torch Rule).",
+      "Do express elevation with the three tonal steps before reaching for a shadow (The Flat-By-Default Rule).",
+      "Do use rounded-lg (8px) for anything a user directly interacts with and rounded-xl (12px) for the container one level up.",
+      "Do let completion/success moments feel like an event — a spring-scale pop or a colored banner — not a silent state flip."
+    ],
+    "donts": [
+      "Don't introduce a second full-opacity accent color for emphasis; desaturate to Fog Slate or use a semantic status color instead.",
+      "Don't add box-shadow to cards, modals, or dropdowns as a first instinct — try one more tonal step first.",
+      "Don't run Torch Gold at full opacity across a large fill; keep large fills at 15% opacity and let the border/text carry full saturation.",
+      "Don't introduce a second typeface or an italic/serif treatment for emphasis (The No-Flourish Rule)."
+    ]
+  }
+}

@@ -33,7 +33,9 @@ import { cn } from '../utils'
 export function QuestsPage() {
   const navigate = useNavigate()
   const location = useLocation()
-  const tasks = useLiveQuery(() => db.tasks.toArray()) ?? []
+  const tasksQuery = useLiveQuery(() => db.tasks.toArray())
+  const isLoading = tasksQuery === undefined
+  const tasks = tasksQuery ?? []
   const departments = useLiveQuery(() => db.departments.toArray()) ?? []
   const missions = useLiveQuery(() => db.missions.toArray()) ?? []
   const maps = useLiveQuery(() => db.maps.toArray()) ?? []
@@ -138,6 +140,7 @@ export function QuestsPage() {
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
           <Input
             data-search-input
+            aria-label="Search quests"
             placeholder="Search quests... (press /)"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -145,6 +148,7 @@ export function QuestsPage() {
           />
         </div>
         <Select
+          aria-label="Filter by status"
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as TaskStatus | 'all')}
           options={[
@@ -153,6 +157,7 @@ export function QuestsPage() {
           ]}
         />
         <Select
+          aria-label="Filter by priority"
           value={priorityFilter}
           onChange={(e) => setPriorityFilter(e.target.value)}
           options={[
@@ -161,6 +166,7 @@ export function QuestsPage() {
           ]}
         />
         <Select
+          aria-label="Filter by department"
           value={departmentFilter}
           onChange={(e) => setDepartmentFilter(e.target.value)}
           options={[
@@ -169,6 +175,7 @@ export function QuestsPage() {
           ]}
         />
         <Select
+          aria-label="Filter by mission"
           value={missionFilter}
           onChange={(e) => setMissionFilter(e.target.value)}
           options={[
@@ -177,6 +184,7 @@ export function QuestsPage() {
           ]}
         />
         <Select
+          aria-label="Filter by map"
           value={mapFilter}
           onChange={(e) => setMapFilter(e.target.value)}
           options={[
@@ -185,6 +193,7 @@ export function QuestsPage() {
           ]}
         />
         <Select
+          aria-label="Filter by person"
           value={personFilter}
           onChange={(e) => setPersonFilter(e.target.value)}
           options={[
@@ -194,7 +203,11 @@ export function QuestsPage() {
         />
       </div>
 
-      {filtered.length === 0 ? (
+      {isLoading ? (
+        <p className="text-sm text-text-muted" role="status">
+          Loading quests…
+        </p>
+      ) : filtered.length === 0 ? (
         <EmptyState
           title="No quests found"
           description="Create your first quest to get started"
@@ -272,9 +285,13 @@ function TaskList({
   return (
     <AnimatePresence>
       <div className="space-y-2">
-        {tasks.map((task) => {
+        {tasks.map((task, index) => {
           const blocked = !areDependenciesMet(task, allTasks) && task.status === 'available'
           const progress = subtaskProgress(task)
+          const moveTo = (targetIndex: number) => {
+            const target = tasks[targetIndex]
+            if (target) onDrop(task.id, target.id)
+          }
           return (
             <motion.div
               key={task.id}
@@ -299,15 +316,32 @@ function TaskList({
                   blocked && 'opacity-60',
                 )}
               >
-                <div className="shrink-0 text-text-muted cursor-grab active:cursor-grabbing px-1">
-                  <GripVertical size={16} />
+                <div
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Reorder "${task.title}". Use arrow up/down to move.`}
+                  className="shrink-0 text-text-muted cursor-grab active:cursor-grabbing p-2.5 -m-0.5 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
+                  onKeyDown={(e) => {
+                    if (e.key === 'ArrowUp') {
+                      e.preventDefault()
+                      moveTo(index - 1)
+                    } else if (e.key === 'ArrowDown') {
+                      e.preventDefault()
+                      moveTo(index + 1)
+                    }
+                  }}
+                >
+                  <GripVertical size={16} aria-hidden="true" />
                 </div>
                 <button
-                  className="shrink-0 text-text-muted hover:text-accent transition-colors cursor-pointer"
+                  className="shrink-0 text-text-muted hover:text-accent transition-colors cursor-pointer p-2.5 -m-0.5 rounded"
                   onClick={() => onToggleTrack(task.id)}
+                  aria-label={isTracked(task.id) ? 'Untrack quest' : 'Track quest'}
+                  aria-pressed={isTracked(task.id)}
                 >
                   <Star
                     size={16}
+                    aria-hidden="true"
                     className={isTracked(task.id) ? 'fill-accent text-accent' : ''}
                   />
                 </button>
