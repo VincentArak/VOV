@@ -169,6 +169,27 @@ class VovDatabase extends Dexie {
           ),
         )
       })
+    this.version(10).upgrade(async (tx) => {
+      const tasks = await tx.table('tasks').toArray()
+      await Promise.all(
+        tasks.map((task: Task) =>
+          tx.table('tasks').update(task.id, {
+            linkedItems: task.linkedItems ?? [],
+          }),
+        ),
+      )
+      const settings = await tx.table('settings').toArray()
+      await Promise.all(
+        settings.map((s: AppSettings) =>
+          tx.table('settings').update(s.id, {
+            githubToken: s.githubToken ?? null,
+            githubRepo: s.githubRepo ?? null,
+            jiraSiteUrl: s.jiraSiteUrl ?? null,
+            jiraProjectKey: s.jiraProjectKey ?? null,
+          }),
+        ),
+      )
+    })
   }
 }
 

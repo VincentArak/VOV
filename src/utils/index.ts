@@ -85,6 +85,7 @@ export function createEmptyTask(sortOrder: number): Task {
     dependencyIds: [],
     subtasks: [],
     attachments: [],
+    linkedItems: [],
     sortOrder,
     createdAt: now,
     updatedAt: now,
@@ -169,6 +170,7 @@ export function normalizeTask(task: Task & LegacyTaskFields): Task {
     assistantIds: task.assistantIds ?? [],
     missionId: task.missionId ?? null,
     subtasks: normalizeSubtasks(task.subtasks ?? []),
+    linkedItems: task.linkedItems ?? [],
   }
 }
 
