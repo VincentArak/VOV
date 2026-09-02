@@ -32,6 +32,7 @@ import {
 import { SubtaskTree } from '../components/SubtaskTree'
 import { LinkedItemsSection } from '../components/LinkedItemsSection'
 import { QuestChain } from '../components/QuestChain'
+import { QuestEpic } from '../components/QuestEpic'
 import { Avatar } from '../components/ui/Avatar'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
@@ -294,6 +295,8 @@ export function QuestDetailPage() {
             is the first thing worth seeing — it was previously the last
             section, below attachments. */}
         <LinkedItemsSection task={task} onUpdate={update} />
+
+        <QuestEpic task={task} missions={missions} allTasks={allTasks} />
 
         <QuestChain task={task} allTasks={allTasks} />
 

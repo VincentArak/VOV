@@ -190,6 +190,14 @@ class VovDatabase extends Dexie {
         ),
       )
     })
+    this.version(11).upgrade(async (tx) => {
+      const departments = await tx.table('departments').toArray()
+      await Promise.all(
+        departments.map((d: Department) =>
+          tx.table('departments').update(d.id, { githubRepo: d.githubRepo ?? null }),
+        ),
+      )
+    })
   }
 }
 

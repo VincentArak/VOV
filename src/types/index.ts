@@ -13,6 +13,12 @@ export interface Department {
   parentId: string | null
   description: string
   sortOrder: number
+  /**
+   * "owner/repo". A department in this project is a codebase, so binding one
+   * to a real repository is what lets the branch/PR/issue panel know what to
+   * fetch. Null means the department is an organisational grouping only.
+   */
+  githubRepo: string | null
 }
 
 export type MissionStatus = 'planned' | 'active' | 'completed' | 'archived'

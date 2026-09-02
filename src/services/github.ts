@@ -141,3 +141,131 @@ export function parseGithubIssueUrl(
   if (!match) return null
   return { owner: match[1], repo: match[2], number: Number(match[3]) }
 }
+
+/* ────────────────────────────────────────────────────────────────────
+   Repository-level reads, for the panel on a Repository page.
+   ──────────────────────────────────────────────────────────────────── */
+
+export interface GithubBranch {
+  name: string
+  sha: string
+  protected: boolean
+}
+
+export interface GithubPull {
+  number: number
+  title: string
+  state: GithubState
+  url: string
+  head: string
+  base: string
+  author: string
+  updatedAt: string
+}
+
+export interface GithubRepoIssue {
+  number: number
+  title: string
+  state: 'open' | 'closed'
+  url: string
+  author: string
+  labels: { name: string; color: string }[]
+  updatedAt: string
+}
+
+export async function listBranches(
+  token: string,
+  repo: string,
+  limit = 30,
+): Promise<GithubBranch[]> {
+  const { owner, name } = parseRepo(repo)
+  const res = await fetch(
+    `https://api.github.com/repos/${owner}/${name}/branches?per_page=${limit}`,
+    { headers: authHeaders(token) },
+  )
+  if (!res.ok) throw new Error(await readError(res))
+  const data = await res.json()
+  return data.map((b: { name: string; commit: { sha: string }; protected: boolean }) => ({
+    name: b.name,
+    sha: b.commit.sha.slice(0, 7),
+    protected: b.protected,
+  }))
+}
+
+export async function listPullRequests(
+  token: string,
+  repo: string,
+  limit = 30,
+): Promise<GithubPull[]> {
+  const { owner, name } = parseRepo(repo)
+  const res = await fetch(
+    `https://api.github.com/repos/${owner}/${name}/pulls?state=all&per_page=${limit}&sort=updated&direction=desc`,
+    { headers: authHeaders(token) },
+  )
+  if (!res.ok) throw new Error(await readError(res))
+  const data = await res.json()
+  return data.map(
+    (p: {
+      number: number
+      title: string
+      state: string
+      draft?: boolean
+      merged_at?: string | null
+      html_url: string
+      head: { ref: string }
+      base: { ref: string }
+      user?: { login: string }
+      updated_at: string
+    }) => ({
+      number: p.number,
+      title: p.title,
+      state: p.merged_at ? 'merged' : p.state === 'open' && p.draft ? 'draft' : p.state === 'closed' ? 'closed' : 'open',
+      url: p.html_url,
+      head: p.head.ref,
+      base: p.base.ref,
+      author: p.user?.login ?? 'unknown',
+      updatedAt: p.updated_at,
+    }),
+  )
+}
+
+/**
+ * GitHub's /issues endpoint returns pull requests as well — every PR is an
+ * issue underneath. Anything carrying a `pull_request` object is dropped
+ * here, otherwise the panel would list each PR twice: once under Pull
+ * Requests and again under Issues.
+ */
+export async function listIssues(
+  token: string,
+  repo: string,
+  limit = 30,
+): Promise<GithubRepoIssue[]> {
+  const { owner, name } = parseRepo(repo)
+  const res = await fetch(
+    `https://api.github.com/repos/${owner}/${name}/issues?state=all&per_page=${limit}&sort=updated&direction=desc`,
+    { headers: authHeaders(token) },
+  )
+  if (!res.ok) throw new Error(await readError(res))
+  const data = await res.json()
+  return data
+    .filter((i: { pull_request?: unknown }) => !i.pull_request)
+    .map(
+      (i: {
+        number: number
+        title: string
+        state: string
+        html_url: string
+        user?: { login: string }
+        labels?: { name: string; color: string }[]
+        updated_at: string
+      }) => ({
+        number: i.number,
+        title: i.title,
+        state: i.state === 'closed' ? ('closed' as const) : ('open' as const),
+        url: i.html_url,
+        author: i.user?.login ?? 'unknown',
+        labels: (i.labels ?? []).map((l) => ({ name: l.name, color: l.color })),
+        updatedAt: i.updated_at,
+      }),
+    )
+}
