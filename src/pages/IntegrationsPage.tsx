@@ -48,6 +48,7 @@ export function IntegrationsPage() {
   const githubLinks = linked.filter((l) => l.item.provider === 'github')
   const jiraLinks = linked.filter((l) => l.item.provider === 'jira')
 
+  const mergedCount = linked.filter((l) => l.item.status === 'merged').length
   const githubReady = Boolean(settings?.githubToken && settings?.githubRepo)
   const jiraReady = Boolean(settings?.jiraSiteUrl)
 
@@ -249,7 +250,7 @@ export function IntegrationsPage() {
             ) : undefined
           }
         >
-          Bound Quests ({linked.length})
+          Bound Quests ({linked.length}{mergedCount > 0 ? ` · ${mergedCount} merged` : ''})
         </CardTitle>
 
         {syncResult && <p className="mb-2 text-xs text-text-muted">{syncResult}</p>}
@@ -322,7 +323,6 @@ function PortalStone({
 }
 
 function LinkedRow({ task, item }: { task: Task; item: LinkedItem }) {
-  const closed = item.status === 'closed'
   return (
     <div className="wow-hilight flex items-center gap-2 rounded-sm border border-frame-dark bg-surface-raised px-3 py-2 text-sm shadow-[0_0_0_1px_rgba(107,74,24,0.4)]">
       {item.provider === 'github' ? (
@@ -343,7 +343,10 @@ function LinkedRow({ task, item }: { task: Task; item: LinkedItem }) {
         <span
           className={cn(
             'tabular shrink-0 rounded-sm px-1.5 py-0.5 text-[10px] uppercase',
-            closed ? 'bg-success/15 text-success' : 'bg-surface-overlay text-text-muted',
+            item.status === 'merged' && 'bg-q-epic/20 text-q-epic',
+            item.status === 'open' && 'bg-success/15 text-success',
+            item.status === 'draft' && 'bg-surface-overlay text-text-muted',
+            item.status === 'closed' && 'bg-surface-overlay text-text-dim',
           )}
         >
           {item.status}

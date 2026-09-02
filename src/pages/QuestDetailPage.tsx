@@ -31,6 +31,7 @@ import {
 } from '../utils/subtasks'
 import { SubtaskTree } from '../components/SubtaskTree'
 import { LinkedItemsSection } from '../components/LinkedItemsSection'
+import { QuestChain } from '../components/QuestChain'
 import { Avatar } from '../components/ui/Avatar'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
@@ -288,6 +289,14 @@ export function QuestDetailPage() {
       )}
 
       <div className="space-y-6">
+        {/* Bindings lead the page. A quest here is usually the local face of
+            a ticket that ships as a pull request, so where that work stands
+            is the first thing worth seeing — it was previously the last
+            section, below attachments. */}
+        <LinkedItemsSection task={task} onUpdate={update} />
+
+        <QuestChain task={task} allTasks={allTasks} />
+
         <div className="grid grid-cols-2 gap-4">
           <Select
             label="Priority"
@@ -573,7 +582,6 @@ export function QuestDetailPage() {
           )}
         </section>
 
-        <LinkedItemsSection task={task} onUpdate={update} />
       </div>
     </div>
   )

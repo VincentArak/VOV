@@ -7,12 +7,49 @@
  * see db/operations.ts for the export-redaction handling of that token.
  */
 
+/**
+ * `state` collapses GitHub's separate issue/PR vocabularies into one value
+ * the UI can render directly.
+ *
+ * The distinction that matters here is merged versus closed. GitHub's REST
+ * API reports a merged pull request as `state: "closed"`, which in a
+ * ticket-to-PR workflow is exactly wrong: shipped work and abandoned work
+ * would look identical on the quest. A PR carries a `merged_at` timestamp,
+ * so we promote that to a first-class state.
+ */
+export type GithubState = 'open' | 'closed' | 'merged' | 'draft'
+
 export interface GithubIssueResult {
   number: number
   url: string
   title: string
-  /** "open" | "closed" */
+  state: GithubState
+  /** True when the linked item is a pull request rather than an issue. */
+  isPullRequest: boolean
+}
+
+interface GithubItemPayload {
+  number: number
+  html_url: string
+  title: string
   state: string
+  draft?: boolean
+  merged_at?: string | null
+  pull_request?: { merged_at?: string | null }
+}
+
+function toResult(data: GithubItemPayload): GithubIssueResult {
+  // The issues endpoint marks a PR with a `pull_request` object; the pulls
+  // endpoint returns `merged_at` at the top level.
+  const isPullRequest = Boolean(data.pull_request || data.merged_at !== undefined)
+  const mergedAt = data.merged_at ?? data.pull_request?.merged_at ?? null
+
+  let state: GithubState
+  if (mergedAt) state = 'merged'
+  else if (data.state === 'open' && data.draft) state = 'draft'
+  else state = data.state === 'closed' ? 'closed' : 'open'
+
+  return { number: data.number, url: data.html_url, title: data.title, state, isPullRequest }
 }
 
 interface GithubApiError {
@@ -61,8 +98,7 @@ export async function createGithubIssue(
     body: JSON.stringify({ title, body }),
   })
   if (!res.ok) throw new Error(await readError(res))
-  const data = await res.json()
-  return { number: data.number, url: data.html_url, title: data.title, state: data.state }
+  return toResult(await res.json())
 }
 
 export async function getGithubIssueStatus(
@@ -77,7 +113,22 @@ export async function getGithubIssueStatus(
   )
   if (!res.ok) throw new Error(await readError(res))
   const data = await res.json()
-  return { number: data.number, url: data.html_url, title: data.title, state: data.state }
+
+  // The issues endpoint knows an item is a PR but not whether it merged, so
+  // a second call to the pulls endpoint is required to tell shipped from
+  // abandoned. Failing that call is not fatal — fall back to open/closed.
+  if (data.pull_request) {
+    try {
+      const prRes = await fetch(
+        `https://api.github.com/repos/${owner}/${name}/pulls/${issueNumber}`,
+        { headers: authHeaders(token) },
+      )
+      if (prRes.ok) return toResult(await prRes.json())
+    } catch {
+      /* fall through to the issue payload */
+    }
+  }
+  return toResult(data)
 }
 
 /** Parses "https://github.com/owner/repo/issues/123" (also matches /pull/123). */

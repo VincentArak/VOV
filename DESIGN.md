@@ -61,6 +61,12 @@ colors:
   alliance: "#4a54e8"
   horde: "#e50d12"
 typography:
+  wordmark:
+    fontFamily: "Metamorphous, Cinzel, Georgia, serif"
+    fontSize: "2.1rem"
+    fontWeight: 400
+    lineHeight: 1
+    letterSpacing: "0.08em"
   display:
     fontFamily: "Metamorphous, Cinzel, Georgia, serif"
     fontSize: "30px"
@@ -233,6 +239,7 @@ An ornate title against a glyphic serif body reads as hierarchy even at the same
 size and colour — which is why this system has almost no bold text.
 
 ### Hierarchy
+- **Wordmark** (Metamorphous, 2.1rem / ~34px, 0.08em tracking): The VOV mark in the sidebar only. Sits above the display step because it is a cast-metal emblem rather than running text.
 - **Display** (Metamorphous, 30px): Page titles. One per screen, gold, with a soft outer glow.
 - **Title** (Metamorphous, 18px): Quest titles on parchment, dialog headings.
 - **Heading** (Metamorphous, 12px, 0.15em tracking, uppercase): Section and group labels.
@@ -311,6 +318,12 @@ glance. The spark is suppressed at 0% so it does not sit orphaned at the left.
 Difficulty pip, tracking star, title, metadata line, optional progress bar and a
 status badge. A quest ready for review shows a bobbing gold `?`.
 
+### Wordmark
+Cast metal, built in two passes because a glyph cannot be both gradient-filled and stroked at once: the element paints the heavy `#140e04` outline plus its drop shadow, and an `::after` carrying the same text through `data-text` paints the gold gradient on top. Ordering matters — a pseudo-element pushed behind with `z-index: -1` still paints *after* the parent's background, and the clipped gradient is that background, so the outline would bury the gold. Beneath it sits a gold rule with a bevelled diamond.
+
+### Cursors
+The pointer is replaced throughout: a metal arrowhead at rest, a pointing gauntlet over anything clickable. Both are SVG data URIs defined as `--cursor-arrow` and `--cursor-hand`, with hotspots on the arrow tip and the fingertip and a native keyword as the final fallback. Text fields keep the I-beam — a glove over an input hides the caret and makes the field read as disabled — and drag handles keep `grab`/`grabbing`.
+
 ### Divider
 A gold rule fading at both ends with a rotated diamond at its centre.
 
@@ -322,6 +335,7 @@ A gold rule fading at both ends with a rotated diamond at its centre.
 - **Do** signal completion by receding toward the background (`#cccccc` → `#999999` on dark, `#000000` → `#333333` on parchment) and, on parchment, by appending "(Complete)".
 - **Do** switch typeface to create hierarchy before reaching for weight.
 - **Do** put quest prose on parchment and interface chrome on dark panels.
+- **Do** leave the I-beam on text fields and `grab` on drag handles; the gauntlet is for click targets only.
 
 ### Don't:
 - **Don't** introduce a second accent colour; use a difficulty or quality colour if a second signal is genuinely needed.

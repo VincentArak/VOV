@@ -202,6 +202,10 @@
       "nano": {
         "displayName": "Nano",
         "purpose": "Nav hover hints — the smallest text in the system."
+      },
+      "wordmark": {
+        "displayName": "Wordmark",
+        "purpose": "The VOV cast-metal emblem in the sidebar. Sidebar only; never for running text."
       }
     },
     "shadows": [
@@ -334,6 +338,14 @@
       "description": "Active state is a gold left rule with a fading gold wash.",
       "html": "<a class=\"ds-nav ds-nav-active\">Quest Log</a><a class=\"ds-nav\">Campaigns</a>",
       "css": ".ds-nav{display:block;padding:8px 10px;border-radius:2px;font:400 13px 'Amethysta',Georgia,serif;color:#a8a8a8;text-decoration:none;text-shadow:1px 1px 0 rgba(0,0,0,.85)}.ds-nav:hover{color:#fff}.ds-nav-active{color:#ffd100;background:linear-gradient(90deg,rgba(255,209,0,.2),transparent);box-shadow:inset 2px 0 0 #ffd100}"
+    },
+    {
+      "name": "Wordmark",
+      "kind": "custom",
+      "refersTo": "wordmark",
+      "description": "Cast-metal VOV mark: outline pass on the element, gradient pass on ::after.",
+      "html": "<span class=\"ds-wordmark\" data-text=\"VOV\">VOV</span><div class=\"ds-wordmark-rule\"></div>",
+      "css": ".ds-wordmark{position:relative;display:inline-block;font:400 2.1rem/1 'Metamorphous',serif;letter-spacing:.08em;color:#140e04;-webkit-text-stroke:.14em #140e04;text-shadow:0 .035em 0 #6b4a18,0 .07em .06em rgba(0,0,0,.85),0 0 .5em rgba(255,209,0,.22)}.ds-wordmark::after{content:attr(data-text);position:absolute;inset:0;-webkit-text-stroke:0;text-shadow:none;background-image:linear-gradient(180deg,#fffbe8 0%,#ffe98a 22%,#ffd100 42%,#c9a44c 62%,#8a6a2e 82%,#e8d089 100%);-webkit-background-clip:text;background-clip:text;color:transparent}.ds-wordmark-rule{position:relative;height:2px;margin-top:6px;background:linear-gradient(90deg,transparent,#6b4a18 12%,#c9a44c 50%,#6b4a18 88%,transparent)}.ds-wordmark-rule::after{content:'';position:absolute;top:50%;left:50%;width:7px;height:7px;translate:-50% -50%;rotate:45deg;background:linear-gradient(135deg,#f8e7a0,#a8802f);border:1px solid #1a1208;box-shadow:0 0 6px rgba(255,209,0,.5)}"
     }
   ],
   "narrative": {
@@ -378,7 +390,8 @@
       "Do build elevation from tonal steps and metal rings, never a soft shadow.",
       "Do signal completion by receding toward the background and, on parchment, by appending \"(Complete)\".",
       "Do switch typeface to create hierarchy before reaching for weight.",
-      "Do put quest prose on parchment and interface chrome on dark panels."
+      "Do put quest prose on parchment and interface chrome on dark panels.",
+      "Do leave the I-beam on text fields and grab on drag handles; the gauntlet is for click targets only."
     ],
     "donts": [
       "Don't introduce a second accent colour; use a difficulty or quality colour if a second signal is genuinely needed.",

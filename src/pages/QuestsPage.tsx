@@ -2,10 +2,10 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useCallback, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { GripVertical, Plus, Search, Star } from 'lucide-react'
+import { GitMerge, GitPullRequest, GripVertical, Plus, Search, Star, Ticket } from 'lucide-react'
 import { db } from '../db'
 import { useAppStore } from '../store'
-import type { Task, TaskStatus } from '../types'
+import type { LinkedItem, Task, TaskStatus } from '../types'
 import {
   PRIORITIES,
   PRIORITY_COLORS,
@@ -446,11 +446,7 @@ function TaskList({
                         {formatDate(task.dueDate)}
                       </span>
                     )}
-                    {task.linkedItems.length > 0 && (
-                      <span className="text-q-heirloom">
-                        {task.linkedItems.length} linked
-                      </span>
-                    )}
+                    <BindingChips items={task.linkedItems} />
                   </div>
 
                   {progress.total > 0 && (
@@ -469,5 +465,49 @@ function TaskList({
         })}
       </div>
     </AnimatePresence>
+  )
+}
+
+/**
+ * A quest is usually the local face of a ticket that ships as a pull
+ * request, so the row shows how far that work has physically got. The
+ * previous "N linked" count said something was attached but not whether it
+ * was open, abandoned, or already shipped — which is the only part anyone
+ * scans a list for.
+ */
+function BindingChips({ items }: { items: LinkedItem[] }) {
+  if (items.length === 0) return null
+
+  const gh = items.find((i) => i.provider === 'github')
+  const jira = items.find((i) => i.provider === 'jira')
+
+  return (
+    <span className="inline-flex items-center gap-2">
+      {gh && (
+        <span
+          className={cn(
+            'inline-flex items-center gap-1',
+            gh.status === 'merged' && 'text-q-epic',
+            gh.status === 'open' && 'text-success',
+            gh.status === 'closed' && 'text-text-dim',
+            (gh.status === 'draft' || !gh.status) && 'text-text-muted',
+          )}
+          title={`${gh.externalId}${gh.status ? ` — ${gh.status}` : ''}`}
+        >
+          {gh.status === 'merged' ? (
+            <GitMerge size={11} aria-hidden="true" />
+          ) : (
+            <GitPullRequest size={11} aria-hidden="true" />
+          )}
+          {gh.status ?? gh.externalId.split('#')[1]}
+        </span>
+      )}
+      {jira && (
+        <span className="inline-flex items-center gap-1 text-q-heirloom" title={jira.externalId}>
+          <Ticket size={11} aria-hidden="true" />
+          {jira.externalId}
+        </span>
+      )}
+    </span>
   )
 }

@@ -177,6 +177,152 @@ kbd {
 }
 
 /* ═══════════════════════════════════════════════════════════════════
+   Cursors
+
+   The game replaces the system pointer with a gauntlet: a metal
+   arrowhead at rest, a pointing glove over anything you can use. Both
+   are drawn here as SVG — Blizzard's cursor art is not redistributable,
+   and a vector redraw scales cleanly on a HiDPI display anyway.
+
+   Hotspots sit on the arrow tip (3,2) and the fingertip (13,2). Each
+   declaration keeps a native keyword as the last fallback so the
+   interface still communicates intent if the data URI ever fails.
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root {
+  --cursor-arrow: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2228%22%20height%3D%2228%22%20viewBox%3D%220%200%2028%2028%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22a%22%20x1%3D%22.15%22%20y1%3D%220%22%20x2%3D%22.75%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23fff8dd%22%2F%3E%3Cstop%20offset%3D%22.3%22%20stop-color%3D%22%23ffd94d%22%2F%3E%3Cstop%20offset%3D%22.62%22%20stop-color%3D%22%23c9a44c%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%237d5f28%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Cpath%20d%3D%22M3%201.5%20L3%2021.5%20L8.4%2016.6%20L12.2%2024.8%20L16.4%2022.9%20L12.6%2015%20L19.6%2014.2%20Z%22%20fill%3D%22url(%23a)%22%20stroke%3D%22%23140e04%22%20stroke-width%3D%221.6%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M4.7%205.2%20L4.7%2017.4%20L8.8%2013.8%22%20fill%3D%22none%22%20stroke%3D%22%23fff8dd%22%20stroke-width%3D%221%22%20opacity%3D%22.5%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E") 3 2, default;
+  --cursor-hand: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2230%22%20height%3D%2230%22%20viewBox%3D%220%200%2030%2030%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22h%22%20x1%3D%22.15%22%20y1%3D%220%22%20x2%3D%22.75%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23fff8dd%22%2F%3E%3Cstop%20offset%3D%22.3%22%20stop-color%3D%22%23ffd94d%22%2F%3E%3Cstop%20offset%3D%22.62%22%20stop-color%3D%22%23c9a44c%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%237d5f28%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Cpath%20d%3D%22M10.4%2014.2%20V5.1%20c0-1.6%201.3-2.9%202.9-2.9%20s2.9%201.3%202.9%202.9%20V12%20c.5-.5%201.2-.8%201.9-.8%201%200%201.9.5%202.4%201.3%20.5-.4%201.1-.6%201.8-.6%201.5%200%202.7%201.1%202.9%202.5%20.4-.2.9-.4%201.4-.4%20v5.6%20c0%204.6-3.7%208.3-8.3%208.3%20h-2.2%20c-3.1%200-5.9-1.9-7-4.8%20l-2.7-7%20c-.5-1.3.2-2.7%201.5-3.1%201.1-.4%202.4.1%202.9%201.2%20z%22%20fill%3D%22url(%23h)%22%20stroke%3D%22%23140e04%22%20stroke-width%3D%221.7%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23140e04%22%20stroke-width%3D%221.1%22%20opacity%3D%22.8%22%20stroke-linecap%3D%22round%22%3E%3Cpath%20d%3D%22M16.2%2012.9%20v3.1%22%2F%3E%3Cpath%20d%3D%22M20.5%2013.6%20v2.5%22%2F%3E%3Cpath%20d%3D%22M24.6%2014.9%20v1.6%22%2F%3E%3Cpath%20d%3D%22M9.6%2021.4%20h13.9%22%2F%3E%3C%2Fg%3E%3Cpath%20d%3D%22M12.1%205.4%20v8.2%22%20fill%3D%22none%22%20stroke%3D%22%23fff8dd%22%20stroke-width%3D%221.2%22%20opacity%3D%22.55%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fsvg%3E") 13 2, pointer;
+}
+
+body {
+  cursor: var(--cursor-arrow);
+}
+
+/* Anything that responds to a click gets the glove. */
+a,
+button,
+summary,
+label[for],
+select,
+[role='button'],
+[role='tab'],
+[draggable='true'],
+.cursor-pointer {
+  cursor: var(--cursor-hand);
+}
+
+/* Typing and dragging keep their native affordances — a glove over a
+   text field hides the caret position and makes the field feel
+   read-only. */
+input:not([type='checkbox']):not([type='radio']):not([type='button']):not([type='submit']),
+textarea {
+  cursor: text;
+}
+
+input[type='checkbox'],
+input[type='radio'],
+input[type='range'],
+input[type='color'],
+input[type='date'],
+input[type='file'] {
+  cursor: var(--cursor-hand);
+}
+
+:disabled,
+[aria-disabled='true'] {
+  cursor: not-allowed;
+}
+
+.cursor-grab {
+  cursor: grab;
+}
+
+.cursor-grab:active,
+.cursor-grabbing {
+  cursor: grabbing;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Wordmark
+
+   The game's logo is cast metal: a bright top edge falling through gold
+   into a dark underside, wrapped in a heavy near-black outline that
+   makes it hold up against any background.
+
+   That needs two passes — a gradient cannot be painted and stroked at
+   once, because background-clip:text and -webkit-text-stroke both want
+   the glyph fill. So the outline is a duplicate glyph rendered behind
+   the real one, fed by a data-text attribute.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.wow-wordmark {
+  position: relative;
+  display: inline-block;
+  font-family: var(--font-fancy);
+  letter-spacing: 0.08em;
+  line-height: 1;
+  /* Base pass: the heavy outline and the shadow it throws. Painting the
+     stroke on the element itself — rather than on a negative-z-index
+     pseudo — matters, because a pseudo below the parent still paints
+     after the parent's background, and the clipped gradient IS that
+     background. Layering it underneath would bury the gold. */
+  color: #140e04;
+  -webkit-text-stroke: 0.14em #140e04;
+  text-shadow:
+    0 0.035em 0 #6b4a18,
+    0 0.07em 0.06em rgba(0, 0, 0, 0.85),
+    0 0 0.5em rgba(255, 209, 0, 0.22);
+}
+
+.wow-wordmark::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+  background-image: linear-gradient(
+    180deg,
+    #fffbe8 0%,
+    #ffe98a 22%,
+    #ffd100 42%,
+    #c9a44c 62%,
+    #8a6a2e 82%,
+    #e8d089 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* The rule and diamond the game hangs beneath a title block. */
+.wow-wordmark-rule {
+  position: relative;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-gold-lo) 12%,
+    var(--color-gold) 50%,
+    var(--color-gold-lo) 88%,
+    transparent
+  );
+}
+
+.wow-wordmark-rule::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 7px;
+  height: 7px;
+  translate: -50% -50%;
+  rotate: 45deg;
+  background: linear-gradient(135deg, var(--color-gold-hi), var(--color-gold-mid));
+  border: 1px solid var(--color-frame-dark);
+  box-shadow: 0 0 6px rgba(255, 209, 0, 0.5);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
    Frames
 
    The game builds every window from a 9-slice border texture that

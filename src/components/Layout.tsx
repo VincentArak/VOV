@@ -77,12 +77,18 @@ export function Layout() {
 
   const nav = (
     <>
-      <div className="border-b border-gold-lo/40 px-5 py-4">
-        <NavLink to="/" className="block" onClick={() => setMobileOpen(false)}>
-          <h1 className="font-fancy text-2xl tracking-widest text-accent [text-shadow:0_0_12px_rgba(255,209,0,0.35),1px_1px_0_#000]">
+      <div className="border-b border-gold-lo/40 px-5 pb-4 pt-5">
+        <NavLink
+          to="/"
+          className="block"
+          onClick={() => setMobileOpen(false)}
+          aria-label="VOV — go to Character"
+        >
+          <span className="wow-wordmark text-[2.1rem]" data-text="VOV" aria-hidden="true">
             VOV
-          </h1>
-          <p className="tabular mt-0.5 text-[10px] uppercase tracking-[0.2em] text-text-dim">
+          </span>
+          <div className="wow-wordmark-rule mt-1.5" />
+          <p className="tabular mt-1.5 text-[9px] uppercase tracking-[0.28em] text-accent-dim">
             Quest Manager
           </p>
         </NavLink>

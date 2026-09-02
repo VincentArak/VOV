@@ -179,7 +179,7 @@ export function LinkedItemsSection({ task, onUpdate }: LinkedItemsSectionProps) 
     <section>
       <div className="flex items-center justify-between mb-3">
         <h3 className="font-fancy text-xs uppercase tracking-[0.15em] text-ot-header">
-          Linked Items
+          Bindings
         </h3>
         {!adding && (
           <div className="flex gap-1">
@@ -196,7 +196,7 @@ export function LinkedItemsSection({ task, onUpdate }: LinkedItemsSectionProps) 
       </div>
 
       {task.linkedItems.length === 0 && !adding && (
-        <p className="text-sm text-text-muted">No linked GitHub issues or Jira tickets</p>
+        <p className="text-sm text-text-dim">Not bound to a pull request or ticket yet</p>
       )}
 
       <div className="space-y-2 mb-3">
@@ -214,17 +214,7 @@ export function LinkedItemsSection({ task, onUpdate }: LinkedItemsSectionProps) 
               {item.externalId}
               {item.title && item.title !== item.externalId ? ` — ${item.title}` : ''}
             </span>
-            {item.status && (
-              <span
-                className={`tabular rounded-sm px-1.5 py-0.5 text-[10px] uppercase ${
-                  item.status === 'closed'
-                    ? 'bg-success/15 text-success'
-                    : 'bg-surface-overlay text-text-muted'
-                }`}
-              >
-                {item.status}
-              </span>
-            )}
+            {item.status && <StateChip state={item.status} />}
             {item.provider === 'github' && settings?.githubToken && (
               <button
                 className="text-text-muted hover:text-accent cursor-pointer disabled:opacity-50"
@@ -344,5 +334,27 @@ export function LinkedItemsSection({ task, onUpdate }: LinkedItemsSectionProps) 
         </div>
       )}
     </section>
+  )
+}
+
+/**
+ * Merged is shown apart from closed on purpose: GitHub reports a merged pull
+ * request as `state: "closed"`, which would make shipped work and abandoned
+ * work look the same on a quest.
+ */
+function StateChip({ state }: { state: string }) {
+  const tone =
+    state === 'merged'
+      ? 'bg-q-epic/20 text-q-epic'
+      : state === 'open'
+        ? 'bg-success/15 text-success'
+        : state === 'draft'
+          ? 'bg-surface-overlay text-text-muted'
+          : 'bg-surface-overlay text-text-dim'
+
+  return (
+    <span className={`tabular rounded-sm px-1.5 py-0.5 text-[10px] uppercase ${tone}`}>
+      {state}
+    </span>
   )
 }
