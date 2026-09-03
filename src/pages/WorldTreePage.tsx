@@ -1,5 +1,6 @@
 import {
   useCallback,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -118,8 +119,10 @@ export function WorldTreePage() {
   const [selectedBranch, setSelectedBranch] = useState<string | null>(null)
   const [selectedSha, setSelectedSha] = useState<string | null>(null)
   const [scrollState, setScrollState] = useState<ScrollState>('partial')
-  const [scrollOffset, setScrollOffset] = useState({ x: 0, y: 0 })
   const [scrollDragging, setScrollDragging] = useState(false)
+  const shellRef = useRef<HTMLDivElement | null>(null)
+  const scrollOffset = useRef({ x: 0, y: 0 })
+  const scrollFrame = useRef<number | null>(null)
   const scrollDrag = useRef<{
     pointerId: number
     startX: number
@@ -149,6 +152,22 @@ export function WorldTreePage() {
     ]
   }, [skeleton, topology])
 
+  const queueScrollOffset = useCallback((x: number, y: number) => {
+    scrollOffset.current = { x, y }
+    if (scrollFrame.current !== null) return
+    scrollFrame.current = requestAnimationFrame(() => {
+      const offset = scrollOffset.current
+      if (shellRef.current) {
+        shellRef.current.style.transform = `translate3d(${offset.x}px, ${offset.y}px, 0)`
+      }
+      scrollFrame.current = null
+    })
+  }, [])
+
+  useEffect(() => () => {
+    if (scrollFrame.current !== null) cancelAnimationFrame(scrollFrame.current)
+  }, [])
+
   const beginScrollDrag = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
     if (event.button !== 0) return
     const target = event.target as HTMLElement
@@ -157,12 +176,12 @@ export function WorldTreePage() {
       pointerId: event.pointerId,
       startX: event.clientX,
       startY: event.clientY,
-      originX: scrollOffset.x,
-      originY: scrollOffset.y,
+      originX: scrollOffset.current.x,
+      originY: scrollOffset.current.y,
     }
     event.currentTarget.setPointerCapture(event.pointerId)
     setScrollDragging(true)
-  }, [scrollOffset])
+  }, [])
 
   const moveScroll = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
     const drag = scrollDrag.current
@@ -171,8 +190,8 @@ export function WorldTreePage() {
     const maxY = Math.min(120, window.innerHeight * 0.1)
     const x = Math.max(-maxX, Math.min(maxX, drag.originX + event.clientX - drag.startX))
     const y = Math.max(-maxY, Math.min(maxY, drag.originY + event.clientY - drag.startY))
-    setScrollOffset({ x, y })
-  }, [])
+    queueScrollOffset(x, y)
+  }, [queueScrollOffset])
 
   const endScrollDrag = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
     if (scrollDrag.current?.pointerId !== event.pointerId) return
@@ -186,8 +205,9 @@ export function WorldTreePage() {
   return (
     <div className="wt-page">
       <div
+        ref={shellRef}
         className={`wt-shell${scrollDragging ? ' wt-shell-dragging' : ''}`}
-        style={{ transform: `translate3d(${scrollOffset.x}px, ${scrollOffset.y}px, 0)` }}
+        style={{ transform: 'translate3d(0, 0, 0)' }}
         onPointerDown={beginScrollDrag}
         onPointerMove={moveScroll}
         onPointerUp={endScrollDrag}
@@ -195,7 +215,7 @@ export function WorldTreePage() {
         onDoubleClick={(event) => {
           const target = event.target as HTMLElement
           if (!target.closest('button, a, input, select, textarea, .wt-tree-panel, .wt-rail')) {
-            setScrollOffset({ x: 0, y: 0 })
+            queueScrollOffset(0, 0)
           }
         }}
       >
@@ -246,10 +266,12 @@ export function WorldTreePage() {
             ) : (
               <div className="wt-loading">
                 <img
-                  src="/world-tree-underpainting-v3.png"
+                  src="/world-tree-underpainting-v3.webp"
                   className="wt-empty-tree"
                   alt=""
                   aria-hidden="true"
+                  loading="lazy"
+                  decoding="async"
                 />
                 <p>No repository planted yet. Name one and the tree will grow.</p>
               </div>

@@ -49,7 +49,7 @@ type LimbState = 'normal' | 'active' | 'dimmed'
  *   3. the tooltip's *position* is a DOM write on pointermove while only its
  *      *target* is state, so tracking the cursor does not re-render the tree.
  */
-export function GitWorldTree({
+export const GitWorldTree = memo(function GitWorldTree({
   layout,
   topology,
   selectedBranch,
@@ -307,7 +307,7 @@ export function GitWorldTree({
       <TreeTooltip ref={tipRef} target={tooltip} />
     </div>
   )
-}
+})
 
 /* ------------------------------------------------------------------ */
 

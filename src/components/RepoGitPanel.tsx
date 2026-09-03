@@ -34,7 +34,7 @@ type Tab = 'pulls' | 'branches' | 'issues'
  * last refresh.
  */
 export function RepoGitPanel({ repo }: { repo: string }) {
-  const { settings } = useAppStore()
+  const settings = useAppStore((state) => state.settings)
   const token = settings?.githubToken ?? null
 
   const [tab, setTab] = useState<Tab>('pulls')

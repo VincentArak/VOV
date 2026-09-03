@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Amethysta&family=Metamorphous&family=Barlow+Condensed:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -105,9 +104,9 @@
      against a glyphic serif for body copy (Friz Quadrata). Same
      colour, same size — the family switch alone carries the
      hierarchy. Both stand-ins below are open-licenced. */
-  --font-fancy: 'Metamorphous', 'Cinzel', Georgia, serif;
-  --font-body: 'Amethysta', 'Marcellus', Georgia, serif;
-  --font-num: 'Barlow Condensed', 'Roboto Condensed', 'Arial Narrow', sans-serif;
+  --font-fancy: 'Cormorant SC', 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'Cormorant Garamond', Baskerville, Georgia, serif;
+  --font-num: 'Cormorant Garamond', 'Arial Narrow', serif;
 }
 
 * {

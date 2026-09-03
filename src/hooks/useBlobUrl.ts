@@ -2,13 +2,13 @@ import { useEffect, useState } from 'react'
 import { getBlobUrl } from '../db'
 
 export function useBlobUrl(blobId: string | null): string | null {
-  const [url, setUrl] = useState<string | null>(null)
+  const [loaded, setLoaded] = useState<{ id: string; url: string | null }>({
+    id: '',
+    url: null,
+  })
 
   useEffect(() => {
-    if (!blobId) {
-      setUrl(null)
-      return
-    }
+    if (!blobId) return
 
     let objectUrl: string | null = null
     let cancelled = false
@@ -16,7 +16,7 @@ export function useBlobUrl(blobId: string | null): string | null {
     getBlobUrl(blobId).then((u) => {
       if (!cancelled) {
         objectUrl = u
-        setUrl(u)
+        setLoaded({ id: blobId, url: u })
       }
     })
 
@@ -26,5 +26,5 @@ export function useBlobUrl(blobId: string | null): string | null {
     }
   }, [blobId])
 
-  return url
+  return blobId && loaded.id === blobId ? loaded.url : null
 }

@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { db } from '../db'
 import { getTypeName } from '../constants/relationships'
@@ -11,11 +11,13 @@ import { RelationshipTypeManager } from '../components/RelationshipTypeManager'
 import { EmptyState } from '../components/ui/EmptyState'
 import { Button } from '../components/ui/Button'
 
+const EMPTY_LIST: never[] = []
+
 export function NetworkPage() {
-  const people = useLiveQuery(() => db.people.toArray()) ?? []
-  const relationships = useLiveQuery(() => db.relationships.toArray()) ?? []
+  const people = useLiveQuery(() => db.people.toArray()) ?? EMPTY_LIST
+  const relationships = useLiveQuery(() => db.relationships.toArray()) ?? EMPTY_LIST
   const typeDefs =
-    useLiveQuery(() => db.relationshipTypes.orderBy('sortOrder').toArray()) ?? []
+    useLiveQuery(() => db.relationshipTypes.orderBy('sortOrder').toArray()) ?? EMPTY_LIST
   const [activeTypeIds, setActiveTypeIds] = useState<string[]>([])
 
   const toggleType = (typeId: string) => {
@@ -25,6 +27,16 @@ export function NetworkPage() {
   }
 
   const filterTypeIds = activeTypeIds.length > 0 ? activeTypeIds : undefined
+  const peopleById = useMemo(
+    () => new Map(people.map((person) => [person.id, person])),
+    [people],
+  )
+  const visibleRelationships = useMemo(
+    () => relationships.filter(
+      (relationship) => !filterTypeIds || filterTypeIds.includes(relationship.type),
+    ),
+    [filterTypeIds, relationships],
+  )
 
   return (
     <div className="p-6 max-w-5xl">
@@ -87,11 +99,10 @@ export function NetworkPage() {
                 All Relationships
               </h2>
               <div className="space-y-2">
-                {relationships
-                  .filter((r) => !filterTypeIds || filterTypeIds.includes(r.type))
+                {visibleRelationships
                   .map((rel) => {
-                    const from = people.find((p) => p.id === rel.fromPersonId)
-                    const to = people.find((p) => p.id === rel.toPersonId)
+                    const from = peopleById.get(rel.fromPersonId)
+                    const to = peopleById.get(rel.toPersonId)
                     if (!from || !to) return null
                     return (
                       <div

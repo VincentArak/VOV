@@ -52,10 +52,57 @@
   background-color: #8f6f42;
   background-image:
     linear-gradient(rgba(197, 163, 104, .16), rgba(116, 75, 31, .12)),
-    url('/parchment-ledger-v2.png');
+    url('/parchment-ledger-v2.webp');
   background-position: center top;
   background-size: cover;
   background-attachment: local;
+}
+
+.route-loading {
+  min-height: min(72vh, 720px);
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 14px;
+  color: #3a2815;
+  font: 600 1rem/1.3 var(--font-ledger, Georgia, serif);
+  letter-spacing: .035em;
+}
+
+.route-loading-rune {
+  width: 34px;
+  aspect-ratio: 1;
+  border: 2px solid #6c4824;
+  border-top-color: #bd852e;
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px rgb(45 27 12 / 16%), inset 0 0 10px rgb(100 51 13 / 28%);
+  animation: route-rune-turn .8s linear infinite;
+}
+
+@keyframes route-rune-turn {
+  to { transform: rotate(1turn); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .route-loading-rune { animation: none; }
+}
+
+.quest-row {
+  content-visibility: auto;
+  contain-intrinsic-block-size: 68px;
+}
+
+.quest-complete-banner {
+  animation: quest-complete-arrive .28s cubic-bezier(.2, .8, .2, 1) both;
+}
+
+@keyframes quest-complete-arrive {
+  from { opacity: 0; transform: scale(.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quest-complete-banner { animation: none; }
 }
 
 .archive-main::before {

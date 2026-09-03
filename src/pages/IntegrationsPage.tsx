@@ -36,7 +36,8 @@ type TestState =
  * once instead of opening 20 quests to press refresh 20 times.
  */
 export function IntegrationsPage() {
-  const { settings, updateSettings } = useAppStore()
+  const settings = useAppStore((state) => state.settings)
+  const updateSettings = useAppStore((state) => state.updateSettings)
   const tasks = useLiveQuery(() => db.tasks.toArray()) ?? []
   const [githubTest, setGithubTest] = useState<TestState>({ state: 'idle' })
   const [syncing, setSyncing] = useState(false)

@@ -13,18 +13,20 @@ import { Select } from '../components/ui/Select'
 import { StatusBadge } from '../components/ui/StatusBadge'
 import { createEmptyTask, getMapAncestors, getMapDescendantIds, wouldCreateMapCycle } from '../utils'
 
+const EMPTY_LIST: never[] = []
+
 export function MapDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const map = useLiveQuery(() => (id ? db.maps.get(id) : undefined), [id])
-  const allMaps = useLiveQuery(() => db.maps.toArray()) ?? []
+  const allMaps = useLiveQuery(() => db.maps.toArray()) ?? EMPTY_LIST
   const locations = useLiveQuery(
     () => (id ? db.locations.where('mapId').equals(id).toArray() : []),
     [id],
-  ) ?? []
-  const allLocations = useLiveQuery(() => db.locations.toArray()) ?? []
-  const tasks = useLiveQuery(() => db.tasks.toArray()) ?? []
-  const departments = useLiveQuery(() => db.departments.toArray()) ?? []
+  ) ?? EMPTY_LIST
+  const allLocations = useLiveQuery(() => db.locations.toArray()) ?? EMPTY_LIST
+  const tasks = useLiveQuery(() => db.tasks.toArray()) ?? EMPTY_LIST
+  const departments = useLiveQuery(() => db.departments.toArray()) ?? EMPTY_LIST
   const imageUrl = useBlobUrl(map?.imageId ?? null)
 
   const childMaps = useMemo(

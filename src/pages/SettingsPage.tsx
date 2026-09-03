@@ -21,7 +21,8 @@ type Confirm = {
 }
 
 export function SettingsPage() {
-  const { settings, toggleSound } = useAppStore()
+  const settings = useAppStore((state) => state.settings)
+  const toggleSound = useAppStore((state) => state.toggleSound)
   const importRef = useRef<HTMLInputElement>(null)
   const snapshots = useLiveQuery(() => getSnapshotInfo()) ?? []
   const [confirm, setConfirm] = useState<Confirm | null>(null)
