@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Amethysta&family=Metamorphous&family=Barlow+Condensed:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -13,8 +14,6 @@
    here is CSS. Fonts are open-licenced stand-ins for the game's
    commercial faces (Friz Quadrata / Morpheus).
    ═══════════════════════════════════════════════════════════════════ */
-
-@import url('https://fonts.googleapis.com/css2?family=Amethysta&family=Metamorphous&family=Barlow+Condensed:wght@400;500;600;700&display=swap');
 
 @theme {
   /* ─── Core surfaces ───────────────────────────────────────────────

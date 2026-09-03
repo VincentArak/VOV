@@ -1,0 +1,1762 @@
+/* ==========================================================================
+   World Tree — parchment design system, scoped to the Git Map page.
+   Nothing here leaks into the rest of VOV: every rule sits under .wt-page.
+   ========================================================================== */
+
+.wt-page {
+  --p-light: #efe4c6;
+  --p-base: #e5d7b2;
+  --p-mid: #d8c69c;
+  --p-deep: #c4ad7f;
+  --p-shade: #a98f5f;
+  --ink: #3b2a17;
+  --ink-soft: #6a5233;
+  --ink-faint: #8a7047;
+  --bronze: #8a6a35;
+  --bronze-hi: #c9a45c;
+  --gold: #c9992f;
+  --wood: #5a3f24;
+  --wood-hi: #8b6437;
+  --wood-dark: #34220f;
+  --moss: #65783a;
+  --arcane: #4f9b93;
+  --danger: #9b4a2f;
+
+  position: relative;
+  min-height: 100vh;
+  color: #e8dcc0;
+  font-family: Georgia, 'Iowan Old Style', 'Palatino Linotype', serif;
+  /* The desk the scroll is opened on. It went dark when the scroll became the
+     canvas: parchment on parchment gave the sheet no edge to be an object
+     against, and the drop shadow beneath it had nothing to fall onto. */
+  background-color: #0a0a16;
+  background-image:
+    radial-gradient(ellipse 70% 50% at 50% 34%, #24203a 0%, transparent 72%),
+    radial-gradient(ellipse 40% 30% at 12% 88%, #1a1628 0%, transparent 70%),
+    linear-gradient(170deg, #12111f 0%, #0a0a16 55%, #07060f 100%);
+}
+
+/* A faint grain over the desk, so the dark ground is not a flat fill. */
+.wt-page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image:
+    radial-gradient(circle at 18% 24%, #ffd10008 0 22%, transparent 60%),
+    radial-gradient(circle at 82% 74%, #4f9b9309 0 18%, transparent 58%);
+}
+
+.wt-shell {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 22px clamp(16px, 3vw, 40px) 26px;
+  gap: 16px;
+}
+
+/* Below the breakpoint the page returns to normal document flow so the rail
+   sits under the tree instead of squeezing it. */
+@media (max-width: 1100px) {
+  .wt-shell {
+    height: auto;
+    min-height: 100vh;
+  }
+}
+
+/* ---------------------------------------------------------------- header -- */
+
+.wt-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.wt-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: #c4a300;
+}
+
+.wt-title {
+  margin: 4px 0 0;
+  font-size: clamp(26px, 3.4vw, 40px);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #ffd100;
+  text-shadow: 0 1px 0 #00000096, 0 0 26px #ffd10024;
+}
+
+.wt-repo-line {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: #a89878;
+  max-width: 62ch;
+  line-height: 1.5;
+}
+
+.wt-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.wt-stat {
+  min-width: 84px;
+  padding: 8px 13px;
+  border: 1px solid #6b4a1899;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #201d38, #16142a);
+  box-shadow: inset 0 1px 0 #c9a44c33, 0 2px 6px #00000059;
+}
+
+.wt-stat b {
+  display: block;
+  font-size: 20px;
+  line-height: 1.05;
+  font-weight: 700;
+  color: #ffd100;
+}
+
+.wt-stat span {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #8d825f;
+}
+
+/* ----------------------------------------------------------------- stage -- */
+
+.wt-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(292px, 350px);
+  grid-template-rows: minmax(0, 1fr);
+  gap: 20px;
+  align-items: stretch;
+  flex: 1;
+  min-height: 0;
+}
+
+@media (max-width: 1100px) {
+  .wt-main {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto;
+    align-items: start;
+  }
+  .ps-scroll {
+    height: clamp(560px, 76vh, 940px);
+  }
+}
+
+/* ==========================================================================
+   The great scroll — the page's canvas, not a card with a texture on it.
+
+   `.ps-scroll` is measured, and the parchment SVG inside it is drawn at 1
+   user unit per CSS pixel (see core/scroll.ts). The tree is then positioned
+   into the clear inner region the parchment leaves, so the sheet defines the
+   boundary of the visualization and nothing rectangular does.
+   ========================================================================== */
+
+.ps-scroll {
+  --unfurl-ms: 1250ms;
+  /* Weight, not spring: the rods carry inertia and settle just past their mark
+     before easing back, the way a heavy rod on a table does. */
+  --ease-rod: cubic-bezier(0.16, 1.02, 0.28, 1.06);
+  /* Paper trails the rods rather than matching them, so the sheet reads as
+     being pulled rather than as a box being resized. */
+  --ease-paper: cubic-bezier(0.32, 0.72, 0.2, 1);
+
+  position: relative;
+  height: 100%;
+  min-height: 420px;
+  /* The shadow the artifact casts on the desk. Two casts: a tight contact
+     shadow that pins the sheet down, and a wide ambient one under the whole
+     object. */
+  filter:
+    drop-shadow(0 3px 6px #00000073)
+    drop-shadow(0 26px 54px #00000059);
+}
+
+.ps-svg {
+  display: block;
+  position: absolute;
+  inset: 0;
+}
+
+/* The tree's own box: no fill, no border, no corner. The parchment is the
+   only edge on this page. */
+.ps-canvas {
+  position: absolute;
+  touch-action: none;
+}
+
+/* ------------------------------------------------------------- unfurling -- */
+
+.ps-sheet {
+  transition: clip-path var(--unfurl-ms) var(--ease-paper);
+}
+
+.ps-roller {
+  transition: transform var(--unfurl-ms) var(--ease-rod);
+}
+
+/* A sheet coming off the rollers is briefly stretched between them. The
+   deformation is small on purpose — enough to feel like material, not enough
+   to look like a wobble effect. */
+@keyframes ps-tension {
+  0% { transform: scaleY(0.985) scaleX(1.004); }
+  62% { transform: scaleY(1.006) scaleX(0.999); }
+  100% { transform: scaleY(1) scaleX(1); }
+}
+
+.ps-scroll[data-phase='unfurling'] .ps-tension {
+  transform-origin: 50% 50%;
+  animation: ps-tension var(--unfurl-ms) var(--ease-paper);
+}
+
+/* Ornament and blemish are painted on the sheet, so they arrive with it, but
+   the ink settles a beat later — the reader sees paper, then what is on it. */
+.ps-border,
+.ps-wrinkles,
+.ps-folds,
+.ps-foxing,
+.ps-motes {
+  transition: opacity 620ms ease 380ms;
+}
+
+.ps-scroll[data-phase='rolled'] .ps-border,
+.ps-scroll[data-phase='rolled'] .ps-wrinkles,
+.ps-scroll[data-phase='rolled'] .ps-folds,
+.ps-scroll[data-phase='rolled'] .ps-foxing,
+.ps-scroll[data-phase='rolled'] .ps-motes {
+  opacity: 0;
+  transition-delay: 0ms;
+}
+
+/* Dust lifted off the sheet as it opens. */
+@keyframes ps-dust {
+  0% { transform: translate(0, 0); opacity: 0; }
+  22% { opacity: 0.5; }
+  76% { opacity: 0.34; }
+  100% { transform: translate(var(--drift, 12px), -46px); opacity: 0; }
+}
+
+.ps-motes circle {
+  animation-name: ps-dust;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+/* ---------------------------------------------------------- the reveal -- */
+
+/* The tree mounts only once the parchment is open (see WorldTreePage), so the
+   staging here is an entrance, not a toggle: body first — trunk, roots and
+   foliage, the thing that has to exist before anything can be written on it —
+   then the runes, names and markers inscribed on top of it. */
+.wt-stage {
+  position: absolute;
+  inset: 0;
+  touch-action: none;
+}
+
+@keyframes wt-emerge {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* A little more than a fade: the tree settles onto the sheet. */
+@keyframes wt-settle {
+  from { opacity: 0; transform: translateY(10px) scale(0.985); }
+  60% { opacity: 1; }
+  to { opacity: 1; transform: none; }
+}
+
+.wt-tree-body {
+  transform-origin: 50% 72%;
+  animation: wt-settle 900ms cubic-bezier(0.22, 0.75, 0.24, 1) both;
+}
+
+.wt-tree-marks {
+  animation: wt-emerge 700ms ease 620ms both;
+}
+
+.wt-layer-hills {
+  animation: wt-emerge 900ms ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ps-sheet,
+  .ps-roller,
+  .ps-border,
+  .ps-wrinkles,
+  .ps-folds,
+  .ps-motes {
+    transition: none;
+  }
+  .wt-tree-body,
+  .wt-tree-marks,
+  .wt-layer-hills {
+    animation-duration: 1ms;
+    animation-delay: 0ms;
+  }
+  .ps-scroll[data-phase='unfurling'] .ps-tension {
+    animation: none;
+  }
+  .ps-motes circle {
+    animation: none;
+    opacity: 0.28;
+  }
+}
+
+.wt-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  user-select: none;
+  cursor: grab;
+}
+
+.wt-svg.is-dragging {
+  cursor: grabbing;
+}
+
+.wt-svg text {
+  user-select: none;
+}
+
+.wt-branch:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+/* subtle, thematic motion only */
+@keyframes wt-pulse {
+  0%, 100% { stroke-opacity: 0.16; }
+  50% { stroke-opacity: 0.36; }
+}
+
+.wt-pulse {
+  animation: wt-pulse 3.4s ease-in-out infinite;
+}
+
+@keyframes wt-drift {
+  0% { transform: translate(0, 0); opacity: 0; }
+  18% { opacity: 0.5; }
+  82% { opacity: 0.4; }
+  100% { transform: translate(24px, -70px); opacity: 0; }
+}
+
+.wt-mote {
+  animation: wt-drift 14s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wt-pulse,
+  .wt-mote {
+    animation: none;
+  }
+  .wt-mote {
+    opacity: 0.22;
+  }
+}
+
+/* -------------------------------------------------------------- controls -- */
+
+.wt-controls {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.wt-controls button {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  color: #2f2210;
+  border: 1px solid #6b4a18;
+  border-radius: 3px;
+  /* Brass instruments left lying on the map, not interface chips dropped on
+     it. On parchment a cool dark panel reads as a foreign object. */
+  background: linear-gradient(180deg, #e6ce88, #c9a45c 46%, #9b7734);
+  box-shadow: inset 0 1px 0 #fff0c2a6, inset 0 -1px 0 #4a3517a6, 0 2px 5px #3b2a1759;
+  transition: transform 140ms ease, filter 140ms ease;
+}
+
+.wt-controls button:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.wt-controls button:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------- legend -- */
+
+.wt-legend {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 13px;
+  font-size: 11px;
+  color: #4a3517;
+  /* The legend is a cartouche drawn on the map, so it is paper on paper: a
+     ruled double border and a wash, with no shadow and no blur. */
+  border: 1px solid #6b4a1873;
+  background: #f2e6c6c4;
+  box-shadow: inset 0 0 0 3px #f2e6c6c4, inset 0 0 0 4px #6b4a1840;
+}
+
+.wt-legend span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.wt-legend-title {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #7d5a26;
+  margin-bottom: 2px;
+}
+
+.wt-key {
+  width: 11px;
+  height: 11px;
+  border-radius: 2px;
+  border: 1px solid #3b2a1780;
+}
+
+.wt-key-trunk { background: #6d5030; }
+.wt-key-growing { background: var(--moss); }
+.wt-key-merged { background: var(--arcane); }
+.wt-key-severed { background: var(--danger); }
+.wt-key-commit { background: #cbab77; border-radius: 50%; }
+
+@media (max-width: 720px) {
+  .wt-legend {
+    display: none;
+  }
+}
+
+/* --------------------------------------------------------------- tooltip -- */
+
+.wt-tooltip {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 20;
+  will-change: transform;
+  max-width: 320px;
+  padding: 9px 12px;
+  pointer-events: none;
+  border: 1px solid #6a5233a6;
+  background: linear-gradient(180deg, #f8f1dc, #e4d5ad);
+  box-shadow: 0 6px 18px #1a120866;
+  font-size: 12px;
+  color: var(--ink);
+}
+
+.wt-tooltip-title {
+  font-weight: 700;
+  line-height: 1.35;
+  margin-bottom: 3px;
+}
+
+.wt-tooltip-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--ink-soft);
+}
+
+.wt-tooltip-note {
+  margin-top: 5px;
+  padding-top: 5px;
+  border-top: 1px dashed #8a704759;
+  font-size: 11px;
+  color: var(--ink-soft);
+}
+
+.wt-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+}
+
+/* ==========================================================================
+   Quest scroll — a constructed object: rods, finials, sheet, viewport.
+   ========================================================================== */
+
+.qs-shell {
+  --rod-h: 44px;
+  --unfurl: 620ms;
+  --ease-unfurl: cubic-bezier(0.22, 0.85, 0.24, 1);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  filter: drop-shadow(0 6px 14px #3b2a1730);
+}
+
+/* ------------------------------------------------------------------ rods -- */
+
+.qs-rod {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  height: var(--rod-h);
+  z-index: 2;
+  transition: transform var(--unfurl) var(--ease-unfurl);
+}
+
+.qs-rod-bottom {
+  height: 26px;
+}
+
+/* the rods take up a touch of tension as the sheet stretches */
+.qs-shell[data-phase='expanding'] .qs-rod-top { transform: translateY(-1.5px); }
+.qs-shell[data-phase='expanding'] .qs-rod-bottom { transform: translateY(1.5px); }
+
+.qs-finial {
+  position: relative;
+  flex: 0 0 22px;
+  align-self: center;
+  height: calc(100% + 8px);
+  border-radius: 5px;
+  background:
+    linear-gradient(180deg, #e0c07a 0%, #a5813d 34%, #6d5222 68%, #b4923f 100%);
+  box-shadow:
+    inset 0 1px 0 #ffeab5a0,
+    inset 0 -1px 0 #2f210c80,
+    0 2px 4px #3b2a1745;
+}
+
+.qs-finial::after {
+  content: '';
+  position: absolute;
+  inset: 4px 5px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #ffe9b8a0, transparent 45%, #2f210c55);
+}
+
+.qs-rod-bottom .qs-finial {
+  flex-basis: 18px;
+}
+
+.qs-rod-body,
+.qs-handle {
+  flex: 1;
+  position: relative;
+  border-top: 1px solid #8f6d3b;
+  border-bottom: 1px solid #2c1c0b;
+  background:
+    repeating-linear-gradient(90deg, #00000012 0 2px, transparent 2px 7px),
+    linear-gradient(180deg, #8b6437 0%, #5a3f24 46%, #3b2712 100%);
+  box-shadow: inset 0 1px 0 #c69a5a66, inset 0 -2px 6px #1a0f0566;
+}
+
+/* carved bands near each end of the rod */
+.qs-rod-body::before,
+.qs-handle::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, #c9a45c55 0 3px, transparent 3px 6px, #c9a45c40 6px 8px, transparent 8px),
+    linear-gradient(270deg, #c9a45c55 0 3px, transparent 3px 6px, #c9a45c40 6px 8px, transparent 8px);
+}
+
+/* ---------------------------------------------------------------- handle -- */
+
+.qs-handle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 0 18px;
+  cursor: pointer;
+  text-align: left;
+  color: #f2e3bf;
+  font-family: inherit;
+  transition: filter 180ms ease;
+}
+
+.qs-handle:hover {
+  filter: brightness(1.12);
+}
+
+.qs-handle:focus-visible {
+  outline: 2px solid var(--bronze-hi);
+  outline-offset: -3px;
+}
+
+.qs-handle-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.qs-title {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 2px #00000080;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.qs-subtitle {
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  color: #d9c197;
+  opacity: 0.85;
+}
+
+.qs-handle-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.qs-chevron {
+  transition: transform 420ms var(--ease-unfurl);
+}
+
+.qs-shell[data-state='partial'] .qs-chevron { transform: rotate(90deg); }
+.qs-shell[data-state='open'] .qs-chevron { transform: rotate(180deg); }
+
+/* ------------------------------------------------------------- parchment -- */
+
+.qs-parchment {
+  position: relative;
+  margin: -2px 9px 0;
+  background:
+    radial-gradient(ellipse at 30% 0%, #f4ebd0 0%, transparent 60%),
+    linear-gradient(180deg, #e9dcba 0%, #e2d3ad 45%, #d9c99f 100%);
+  box-shadow:
+    inset 0 0 0 1px #b59a6b4d,
+    inset 0 12px 20px -14px #6a52334d,
+    inset 0 -12px 20px -14px #6a52334d,
+    0 3px 10px #3b2a1726;
+  transition: box-shadow var(--unfurl) var(--ease-unfurl);
+}
+
+.qs-shell[data-phase='expanding'] .qs-parchment {
+  box-shadow:
+    inset 0 0 0 1px #b59a6b4d,
+    inset 0 18px 26px -14px #6a523366,
+    inset 0 -18px 26px -14px #6a523366,
+    0 8px 20px #3b2a1738;
+}
+
+.qs-shell[data-focused] .qs-parchment {
+  box-shadow:
+    inset 0 0 0 1px #b59a6b66,
+    inset 0 12px 20px -14px #6a52334d,
+    inset 0 -12px 20px -14px #6a52334d,
+    0 0 0 1px #c9a45c73,
+    0 3px 14px #3b2a1733;
+}
+
+/* darker, slightly ragged sheet edges */
+.qs-edge {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 14px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.qs-edge-start {
+  left: 0;
+  background: linear-gradient(90deg, #a98f5f5e, transparent);
+}
+
+.qs-edge-end {
+  right: 0;
+  background: linear-gradient(270deg, #a98f5f5e, transparent);
+}
+
+/* relaxing curl at the sheet's top and bottom, strongest while opening */
+.qs-curl {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 14px;
+  pointer-events: none;
+  opacity: 0.5;
+  transition: opacity var(--unfurl) var(--ease-unfurl);
+}
+
+.qs-curl-top {
+  top: 0;
+  background: linear-gradient(180deg, #6a523347, transparent);
+}
+
+.qs-curl-bottom {
+  bottom: 0;
+  background: linear-gradient(0deg, #6a523347, transparent);
+}
+
+.qs-shell[data-phase='expanding'] .qs-curl { opacity: 0.95; }
+.qs-shell[data-state='open'] .qs-curl { opacity: 0.35; }
+
+/* -------------------------------------------------------------- viewport -- */
+
+.qs-viewport {
+  position: relative;
+  overflow: hidden;
+  will-change: height;
+  transition: height var(--unfurl) var(--ease-unfurl);
+}
+
+/* the clipped edge softens into the sheet rather than shearing a row in half */
+.qs-viewport::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 46px;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(180deg, transparent, #ddcda4 78%);
+  transition: opacity 320ms ease;
+}
+
+.qs-shell[data-state='partial'] .qs-viewport::after {
+  opacity: 1;
+}
+
+.qs-inner {
+  padding: 16px 22px 18px;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition:
+    opacity 320ms ease 200ms,
+    transform 420ms var(--ease-unfurl) 160ms;
+}
+
+.qs-inner[data-revealed] {
+  opacity: 1;
+  transform: none;
+}
+
+/* collapsing hides content first, so nothing is caught outside the sheet */
+.qs-shell[data-phase='collapsing'] .qs-inner {
+  transition: opacity 140ms ease 0ms, transform 140ms ease 0ms;
+}
+
+.qs-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.qs-footer {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #8a704740;
+  font-size: 12px;
+  color: var(--ink-faint);
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.qs-shell[data-reduced] {
+  --unfurl: 1ms;
+}
+
+.qs-shell[data-reduced] .qs-inner,
+.qs-shell[data-reduced] .qs-chevron,
+.qs-shell[data-reduced] .qs-rod {
+  transition-duration: 1ms;
+  transition-delay: 0ms;
+}
+
+/* ------------------------------------------------------------ quest rows -- */
+
+.qr-row {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) auto;
+  gap: 11px;
+  align-items: start;
+  width: 100%;
+  padding: 10px 8px 10px 6px;
+  border: 0;
+  border-bottom: 1px solid #8a70472e;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--ink);
+  transition: background 160ms ease, box-shadow 160ms ease;
+}
+
+.qr-row:last-child {
+  border-bottom: 0;
+}
+
+.qr-row:hover {
+  background: #c9a45c1f;
+}
+
+.qr-row:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 1px #c9a45cad;
+}
+
+.qr-row[data-selected] {
+  background: #c9a45c33;
+  box-shadow: inset 3px 0 0 var(--gold);
+}
+
+.qr-sigil {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: #2b1d0d;
+  clip-path: polygon(50% 0, 100% 26%, 100% 74%, 50% 100%, 0 74%, 0 26%);
+  box-shadow: 0 1px 2px #3b2a1740;
+}
+
+.qr-sigil[data-state='open'] { background: linear-gradient(180deg, #e2bb5c, #b98f2c); }
+.qr-sigil[data-state='merged'] { background: linear-gradient(180deg, #74c0b7, #3f847d); }
+.qr-sigil[data-state='closed'] { background: linear-gradient(180deg, #bd7454, #8a3f26); }
+
+.qr-title {
+  font-size: 13px;
+  line-height: 1.4;
+  font-weight: 600;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.qr-meta {
+  margin-top: 3px;
+  font-size: 11px;
+  color: var(--ink-soft);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  align-items: center;
+}
+
+.qr-ref {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  padding: 1px 5px;
+  border: 1px solid #8a704747;
+  border-radius: 2px;
+  background: #f0e6c976;
+  max-width: 190px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.qr-right {
+  text-align: right;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  white-space: nowrap;
+  padding-top: 3px;
+}
+
+.qs-empty {
+  padding: 18px 4px;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+.qs-filters {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.qs-filter {
+  padding: 4px 11px;
+  font-size: 11px;
+  font-family: inherit;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  border: 1px solid #8a704759;
+  border-radius: 2px;
+  background: #f0e6c980;
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.qs-filter:hover { background: #e7d9b4; }
+
+.qs-filter[data-active] {
+  background: linear-gradient(180deg, #d8b96f, #bb9540);
+  color: #2f2210;
+  border-color: #8a6a35;
+}
+
+.qs-filter:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 1px;
+}
+
+/* ==================================================== side rail + connect == */
+
+.wt-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+  min-height: 0;
+  max-height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 4px;
+}
+
+@media (max-width: 1100px) {
+  .wt-rail {
+    max-height: none;
+    overflow: visible;
+  }
+}
+
+.wt-card {
+  border: 1px solid #6b4a1880;
+  background: linear-gradient(180deg, #1c1934, #15132a);
+  box-shadow: inset 0 1px 0 #c9a44c2e, 0 2px 10px #00000059;
+  padding: 14px 16px;
+  color: #d8cba9;
+}
+
+.wt-card h3 {
+  margin: 0 0 8px;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #c4a300;
+}
+
+.wt-detail-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 5px 0;
+  font-size: 12.5px;
+  border-bottom: 1px dashed #6b4a1859;
+}
+
+.wt-detail-row:last-child { border-bottom: 0; }
+.wt-detail-row span:first-child { color: #96895f; }
+.wt-detail-row span:last-child { text-align: right; font-weight: 600; }
+
+.wt-field {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.wt-input {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 11px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12.5px;
+  color: #e8dcc0;
+  border: 1px solid #6b4a18a6;
+  border-radius: 2px;
+  background: #05050d;
+  box-shadow: inset 0 1px 4px #00000080;
+}
+
+.wt-input:focus {
+  outline: 2px solid var(--gold);
+  outline-offset: -1px;
+}
+
+.wt-btn {
+  padding: 8px 16px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #2f2210;
+  cursor: pointer;
+  border: 1px solid #7b5c28;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #dcbd72, #b98f2c);
+  box-shadow: 0 1px 0 #ffeab580 inset, 0 2px 4px #3b2a1733;
+  transition: filter 150ms ease, transform 120ms ease;
+}
+
+.wt-btn:hover:not(:disabled) { filter: brightness(1.08); transform: translateY(-1px); }
+.wt-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.wt-btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+.wt-btn-ghost {
+  background: #ffffff0a;
+  color: #b3a684;
+  border-color: #6b4a1880;
+  box-shadow: none;
+  font-weight: 600;
+}
+
+.wt-btn-ghost:hover:not(:disabled) {
+  color: #ffd100;
+  background: #ffffff14;
+}
+
+.wt-note {
+  margin: 8px 0 0;
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: #96895f;
+}
+
+.wt-error {
+  margin-top: 10px;
+  padding: 9px 12px;
+  font-size: 12px;
+  color: #ff8f6b;
+  border: 1px solid #9b4a2f99;
+  background: #3a0d0d80;
+}
+
+.wt-loading {
+  display: grid;
+  place-items: center;
+  gap: 10px;
+  min-height: 100%;
+  text-align: center;
+  color: #6a5233;
+}
+
+.wt-seedling {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 2px solid #8a704740;
+  border-top-color: var(--gold);
+  animation: wt-spin 1.3s linear infinite;
+}
+
+@keyframes wt-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wt-seedling { animation-duration: 3s; }
+}
+
+/* ========================================================================
+   Atlas scroll v2
+
+   The generated artwork is the page itself. Every live control is placed in
+   its clear parchment region with percentages, so rollers and torn edges stay
+   attached to all four viewport edges instead of exposing transparent seams.
+   ======================================================================== */
+
+.world-tree-main {
+  background: #080603;
+  padding-top: 0 !important;
+}
+
+.wt-page {
+  min-width: 0;
+  min-height: 100%;
+  padding: clamp(3px, .45vw, 8px);
+  color: var(--ink);
+  font-family: var(--ledger-font, 'Cormorant Garamond', Baskerville, serif);
+  font-size: 16px;
+  font-weight: 600;
+  --ink: #2a1909;
+  --ink-soft: #503417;
+  --ink-faint: #684a28;
+  background: #080603;
+}
+
+.wt-page::before {
+  content: none;
+}
+
+.wt-page,
+.wt-page * {
+  text-shadow: none;
+}
+
+.wt-shell {
+  isolation: isolate;
+  width: 100%;
+  height: max(calc(100dvh - clamp(6px, .9vw, 16px)), 690px);
+  min-height: 690px;
+  gap: clamp(8px, 1vw, 16px);
+  overflow: hidden;
+  padding: 5.6% 7.15% 5.25%;
+  background-color: #a98450;
+  background-image: url('/world-tree-scroll-v2.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+  filter: drop-shadow(0 18px 38px rgba(0, 0, 0, .72));
+  transition: transform .24s cubic-bezier(.22, .78, .24, 1);
+  will-change: transform;
+}
+
+.wt-shell-dragging {
+  cursor: grabbing;
+  transition: none;
+}
+
+.wt-shell::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 8.7% 6.7% 8.4%;
+  pointer-events: none;
+  opacity: .28;
+  background-image:
+    repeating-linear-gradient(8deg, transparent 0 34px, rgba(69, 43, 18, .12) 35px, transparent 36px),
+    radial-gradient(circle at 16% 23%, transparent 0 2px, rgba(62, 38, 15, .15) 2.5px 3px, transparent 3.5px),
+    radial-gradient(circle at 82% 68%, transparent 0 1px, rgba(62, 38, 15, .18) 1.5px 2px, transparent 2.5px);
+  mix-blend-mode: multiply;
+}
+
+.wt-header {
+  flex: 0 0 auto;
+  min-height: clamp(98px, 11.2vh, 132px);
+  align-items: center;
+  gap: 18px;
+  padding: 0 1.15% clamp(7px, 1vh, 13px);
+  border-bottom: 1px solid rgba(73, 45, 18, .48);
+  box-shadow: 0 1px rgba(223, 190, 127, .28);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.wt-shell-dragging .wt-header {
+  cursor: grabbing;
+}
+
+.wt-atlas-heading {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: clamp(12px, 1.35vw, 22px);
+}
+
+.wt-atlas-compass {
+  position: relative;
+  flex: 0 0 clamp(72px, 5.8vw, 96px);
+  width: clamp(72px, 5.8vw, 96px);
+  aspect-ratio: 1;
+  border: 2px solid rgba(60, 35, 12, .72);
+  border-radius: 50%;
+  box-shadow:
+    inset 0 0 0 3px rgba(197, 154, 84, .38),
+    inset 0 0 0 5px rgba(60, 35, 12, .34);
+  background:
+    linear-gradient(45deg, transparent 47%, rgba(50, 30, 12, .58) 48% 52%, transparent 53%),
+    linear-gradient(-45deg, transparent 47%, rgba(50, 30, 12, .58) 48% 52%, transparent 53%),
+    radial-gradient(circle, #8d672f 0 7%, transparent 8% 35%, rgba(62, 39, 16, .56) 36% 38%, transparent 39%);
+  opacity: .82;
+}
+
+.wt-atlas-compass::before,
+.wt-atlas-compass::after {
+  content: '';
+  position: absolute;
+  inset: 13%;
+  clip-path: polygon(50% 0, 57% 42%, 100% 50%, 58% 58%, 50% 100%, 42% 58%, 0 50%, 42% 42%);
+  background: rgba(67, 40, 14, .52);
+}
+
+.wt-atlas-compass::after {
+  inset: 27%;
+  rotate: 22.5deg;
+  background: rgba(158, 111, 47, .65);
+}
+
+.wt-eyebrow {
+  margin: 0 0 1px;
+  color: #5f3e1d;
+  font-family: var(--ledger-smallcaps, 'Cormorant SC', serif);
+  font-size: clamp(12px, .95vw, 16px);
+  font-weight: 600;
+  letter-spacing: .18em;
+}
+
+.wt-title {
+  margin: 0;
+  max-width: 16ch;
+  overflow: hidden;
+  color: #3a210c;
+  font-family: var(--ledger-font, 'Cormorant Garamond', serif);
+  font-size: clamp(36px, 3.65vw, 62px);
+  font-weight: 600;
+  letter-spacing: -.025em;
+  line-height: .94;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-shadow: 0 1px rgba(239, 211, 157, .38);
+}
+
+.wt-repo-line {
+  margin: 5px 0 0;
+  max-width: 58ch;
+  color: #4d3218;
+  font-size: clamp(12px, .92vw, 15px);
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.wt-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(74px, 1fr));
+  flex: 0 1 41%;
+  gap: 9px;
+}
+
+.wt-stat {
+  min-width: 0;
+  padding: 7px 10px 8px;
+  text-align: center;
+  border: 1px solid rgba(78, 45, 14, .58);
+  border-radius: 0;
+  background:
+    linear-gradient(90deg, transparent 0 5%, rgba(119, 76, 26, .08) 5% 95%, transparent 95%),
+    rgba(224, 196, 139, .18);
+  box-shadow:
+    inset 0 0 0 3px rgba(222, 190, 127, .2),
+    inset 0 0 0 4px rgba(79, 46, 15, .18);
+}
+
+.wt-stat b {
+  color: #3b220d;
+  font-family: var(--ledger-font, serif);
+  font-size: clamp(24px, 2.1vw, 36px);
+  font-weight: 600;
+}
+
+.wt-stat span {
+  color: #593a1c;
+  font-family: var(--ledger-smallcaps, serif);
+  font-size: clamp(10px, .72vw, 12px);
+  font-weight: 600;
+  letter-spacing: .08em;
+}
+
+.wt-main {
+  grid-template-columns: minmax(0, 2.14fr) minmax(290px, 1fr);
+  gap: clamp(14px, 1.4vw, 24px);
+  min-height: 0;
+}
+
+.wt-tree-panel {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid rgba(67, 38, 13, .72);
+  background:
+    linear-gradient(rgba(212, 181, 122, .06), rgba(212, 181, 122, .06)),
+    repeating-linear-gradient(9deg, transparent 0 48px, rgba(74, 45, 15, .10) 49px, transparent 50px);
+  box-shadow:
+    inset 0 0 0 4px rgba(221, 188, 124, .25),
+    inset 0 0 0 5px rgba(67, 38, 13, .34);
+}
+
+.wt-tree-panel::before,
+.wt-tree-panel::after {
+  content: '';
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  inset: 10px;
+  border: 1px solid rgba(75, 45, 16, .18);
+}
+
+.wt-tree-panel::after {
+  inset: auto 18px 12px auto;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background:
+    linear-gradient(45deg, transparent 47%, rgba(58, 34, 12, .38) 48% 52%, transparent 53%),
+    linear-gradient(-45deg, transparent 47%, rgba(58, 34, 12, .38) 48% 52%, transparent 53%);
+}
+
+.wt-stage {
+  inset: 8px;
+}
+
+.wt-svg text {
+  font-family: var(--ledger-font, 'Cormorant Garamond', serif) !important;
+  font-weight: 600;
+}
+
+.wt-generated-bark-layer,
+.wt-generated-foliage-layer {
+  pointer-events: none;
+  mix-blend-mode: soft-light;
+}
+
+.wt-generated-foliage-layer {
+  mix-blend-mode: multiply;
+}
+
+.wt-controls {
+  top: 14px;
+  right: 14px;
+  gap: 7px;
+}
+
+.wt-controls button {
+  width: 38px;
+  height: 38px;
+  color: #3b240f;
+  border-color: rgba(70, 40, 13, .7);
+  border-radius: 1px;
+  background: rgba(224, 197, 145, .58);
+  box-shadow: inset 0 0 0 2px rgba(95, 57, 19, .18), 1px 2px 3px rgba(54, 31, 10, .32);
+}
+
+.wt-legend {
+  left: 20px;
+  bottom: 18px;
+  gap: 6px;
+  min-width: 220px;
+  padding: 14px 18px;
+  color: #38230f;
+  font-size: 13px;
+  font-weight: 600;
+  border-color: rgba(61, 36, 12, .64);
+  background: rgba(220, 190, 132, .5);
+  box-shadow: inset 0 0 0 4px rgba(223, 193, 139, .3), inset 0 0 0 5px rgba(66, 39, 13, .25);
+}
+
+.wt-legend-title {
+  color: #4a2c12;
+  font-family: var(--ledger-smallcaps, serif);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.wt-rail {
+  gap: 10px;
+  padding: 1px 4px 1px 1px;
+  color: var(--ink);
+  scrollbar-color: rgba(91, 58, 24, .62) transparent;
+}
+
+.wt-card,
+.qs-shell {
+  position: relative;
+  color: #35210f;
+  border: 1px solid rgba(70, 40, 13, .62);
+  border-radius: 0;
+  background: rgba(218, 185, 124, .18);
+  box-shadow: inset 0 0 0 4px rgba(223, 192, 134, .23), inset 0 0 0 5px rgba(72, 43, 15, .2);
+}
+
+.wt-card {
+  padding: 13px 17px;
+}
+
+.wt-card h3 {
+  margin: 0 0 8px;
+  color: #472a11;
+  font-family: var(--ledger-smallcaps, serif);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.wt-card h3::after,
+.qs-title::after {
+  content: '  ·──✦──·';
+  color: rgba(83, 49, 17, .65);
+  font-size: .68em;
+  letter-spacing: .06em;
+}
+
+.wt-detail-row {
+  color: #4d3319;
+  font-size: 13px;
+  font-weight: 500;
+  border-color: rgba(78, 48, 18, .28);
+}
+
+.wt-detail-row span:first-child,
+.wt-note {
+  color: #563615;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.wt-field {
+  gap: 9px;
+}
+
+.wt-input {
+  color: #321e0c;
+  font-family: var(--ledger-font, serif);
+  font-size: 14px;
+  font-weight: 600;
+  border-color: rgba(67, 38, 13, .64);
+  border-radius: 0;
+  background: rgba(231, 207, 160, .32);
+  box-shadow: inset 1px 2px 4px rgba(63, 37, 12, .2);
+}
+
+.wt-input::placeholder {
+  color: rgba(70, 43, 18, .56);
+}
+
+.wt-btn {
+  color: #39220d;
+  font-family: var(--ledger-smallcaps, serif);
+  font-size: 12px;
+  font-weight: 600;
+  border-color: rgba(70, 40, 13, .68);
+  border-radius: 0;
+  background: linear-gradient(180deg, rgba(209, 166, 91, .5), rgba(160, 111, 45, .32));
+  box-shadow: inset 0 0 0 2px rgba(236, 209, 158, .22), 1px 2px 3px rgba(54, 31, 10, .2);
+}
+
+.wt-btn-ghost {
+  color: #4b2e13;
+  border-color: rgba(70, 40, 13, .55);
+  background: rgba(225, 197, 142, .2);
+}
+
+.wt-btn-ghost:hover:not(:disabled) {
+  color: #6b2a14;
+  background: rgba(196, 150, 75, .22);
+}
+
+.wt-error {
+  color: #6f2118;
+  border-color: rgba(111, 33, 24, .6);
+  background: rgba(147, 58, 31, .1);
+}
+
+.wt-loading {
+  color: #5a3b1d;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.wt-empty-tree {
+  display: block;
+  width: min(78%, 720px);
+  max-height: calc(100% - 48px);
+  object-fit: contain;
+  filter: sepia(.12) saturate(.82) contrast(1.04) drop-shadow(4px 8px 7px rgba(53, 31, 10, .28));
+  opacity: .82;
+}
+
+/* The quest log is now an inked inset on the same sheet, not a second scroll
+   sitting on top of the first one. The measured open/close behavior remains. */
+.qs-shell {
+  display: block;
+  padding: 11px 13px 10px;
+  filter: none;
+}
+
+.qs-rod {
+  display: block;
+  height: auto;
+}
+
+.qs-rod-bottom,
+.qs-finial,
+.qs-curl,
+.qs-edge {
+  display: none;
+}
+
+.qs-handle {
+  width: 100%;
+  min-height: 48px;
+  justify-content: space-between;
+  padding: 0 7px 8px;
+  color: #38220e;
+  border: 0;
+  border-bottom: 1px solid rgba(68, 40, 14, .52);
+  background: transparent;
+  box-shadow: 0 1px rgba(231, 205, 157, .28);
+  text-shadow: none;
+}
+
+.qs-title {
+  color: #3b230e;
+  font-family: var(--ledger-smallcaps, serif);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: .07em;
+  text-shadow: none;
+}
+
+.qs-subtitle {
+  color: #654624;
+  font-family: var(--ledger-font, serif);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.qs-parchment,
+.qs-shell[data-focused] .qs-parchment,
+.qs-shell[data-phase='expanding'] .qs-parchment {
+  margin: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.qs-inner {
+  padding: 10px 7px 5px;
+}
+
+.qs-footer {
+  color: #684a2b;
+  border-color: rgba(74, 44, 16, .28);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.qs-filter {
+  color: #543719;
+  font-family: var(--ledger-smallcaps, serif);
+  font-weight: 600;
+  font-size: 12px;
+  border-color: rgba(68, 40, 14, .52);
+  border-radius: 0;
+  background: rgba(229, 205, 159, .22);
+}
+
+.qs-filter[data-active] {
+  color: #331e0b;
+  border-color: rgba(68, 40, 14, .72);
+  background: rgba(173, 125, 55, .34);
+  box-shadow: inset 0 0 0 2px rgba(232, 206, 157, .2);
+}
+
+.qr-row {
+  color: #38230f;
+  font-weight: 500;
+  border-color: rgba(74, 44, 16, .2);
+}
+
+.qr-row:hover,
+.qr-row[data-selected] {
+  background: rgba(151, 102, 42, .12);
+}
+
+.qr-title {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.qr-meta,
+.qr-right,
+.qs-empty {
+  color: #674827;
+  font-weight: 600;
+}
+
+.qr-meta,
+.qr-right {
+  font-size: 12px;
+}
+
+.qr-ref {
+  color: #4a2f16;
+  background: rgba(237, 216, 176, .28);
+  border-color: rgba(74, 44, 16, .28);
+}
+
+/* Open pull requests ignite their exact branch. Three dashed ink strokes move
+   at different speeds, reading as flame tongues and sparks without repainting
+   the whole SVG scene. */
+.wt-pr-fire {
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.wt-pr-fire path {
+  fill: none;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.wt-pr-fire-glow {
+  stroke: #b23b12;
+  stroke-opacity: .42;
+  stroke-dasharray: 3 15 7 21;
+  filter: drop-shadow(0 0 4px #7b1c08) drop-shadow(0 -4px 5px #d65b16);
+  animation: wt-fire-run 1.65s linear infinite, wt-fire-breathe .72s ease-in-out infinite alternate;
+}
+
+.wt-pr-fire-ember {
+  stroke: #ed7a19;
+  stroke-opacity: .9;
+  stroke-dasharray: 1 11 4 17;
+  filter: drop-shadow(0 0 3px #ef5a10);
+  animation: wt-fire-run .92s linear infinite reverse, wt-fire-breathe .48s ease-in-out infinite alternate-reverse;
+}
+
+.wt-pr-fire-spark {
+  stroke: #ffe072;
+  stroke-opacity: .95;
+  stroke-dasharray: 1 19;
+  animation: wt-fire-run .58s linear infinite;
+}
+
+.wt-pr-marker-flames {
+  transform-origin: 0 0;
+  animation: wt-flame-sway .66s ease-in-out infinite alternate;
+}
+
+.wt-pr-marker-flames path:first-child {
+  fill: #bd3c13;
+  opacity: .84;
+  filter: drop-shadow(0 0 4px #d64c12);
+}
+
+.wt-pr-marker-flames path:last-child {
+  fill: #ffbd3d;
+  opacity: .94;
+}
+
+@keyframes wt-fire-run {
+  to { stroke-dashoffset: -64; }
+}
+
+@keyframes wt-fire-breathe {
+  from { stroke-opacity: .4; }
+  to { stroke-opacity: 1; }
+}
+
+@keyframes wt-flame-sway {
+  from { transform: skewX(-5deg) scaleY(.9); opacity: .72; }
+  to { transform: skewX(6deg) scaleY(1.08); opacity: 1; }
+}
+
+@media (max-width: 1320px) {
+  .wt-header { align-items: flex-start; }
+  .wt-atlas-compass { flex-basis: 66px; width: 66px; }
+  .wt-stats { flex-basis: 39%; }
+  .wt-main { grid-template-columns: minmax(0, 1.78fr) minmax(280px, 1fr); }
+}
+
+@media (max-width: 1100px) {
+  .wt-shell {
+    height: auto;
+    min-height: calc(100dvh - 56px);
+    overflow: visible;
+    padding: 75px clamp(46px, 7.4vw, 82px) 72px;
+  }
+
+  .wt-header {
+    align-items: center;
+  }
+
+  .wt-stats {
+    flex-basis: 100%;
+  }
+
+  .wt-main {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .wt-tree-panel {
+    height: clamp(520px, 68vh, 720px);
+  }
+
+  .wt-rail {
+    max-height: none;
+    overflow: visible;
+  }
+}
+
+@media (max-width: 700px) {
+  .wt-page {
+    padding: 0;
+  }
+
+  .wt-shell {
+    padding: 64px 34px 68px;
+    background-size: 100% 100%;
+  }
+
+  .wt-header {
+    display: block;
+    min-height: 0;
+  }
+
+  .wt-atlas-compass {
+    flex-basis: 52px;
+    width: 52px;
+  }
+
+  .wt-title {
+    max-width: 12ch;
+    font-size: clamp(31px, 10vw, 46px);
+  }
+
+  .wt-stats {
+    grid-template-columns: repeat(2, 1fr);
+    margin-top: 12px;
+  }
+
+  .wt-tree-panel {
+    height: 460px;
+  }
+
+  .wt-card,
+  .qs-shell {
+    padding-inline: 11px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wt-pr-fire path,
+  .wt-pr-marker-flames {
+    animation: none;
+  }
+}

@@ -7,6 +7,7 @@ import { TimelinePage } from './pages/TimelinePage'
 import { MissionsPage } from './pages/MissionsPage'
 import { MapsPage } from './pages/MapsPage'
 import { MapDetailPage } from './pages/MapDetailPage'
+import { WorldTreePage } from './pages/WorldTreePage'
 import { DepartmentsPage } from './pages/DepartmentsPage'
 import { PersonDetailPage } from './pages/PersonDetailPage'
 import { NetworkPage } from './pages/NetworkPage'
@@ -26,6 +27,7 @@ export function App() {
           <Route path="/missions" element={<MissionsPage />} />
           <Route path="/maps" element={<MapsPage />} />
           <Route path="/maps/:id" element={<MapDetailPage />} />
+          <Route path="/world-tree" element={<WorldTreePage />} />
           <Route path="/departments" element={<DepartmentsPage />} />
           <Route path="/people/:id" element={<PersonDetailPage />} />
           <Route path="/network" element={<NetworkPage />} />

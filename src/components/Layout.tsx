@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from 'react-router-dom'
+import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useState } from 'react'
 import {
   Building2,
@@ -11,6 +11,7 @@ import {
   Scroll,
   Settings,
   Target,
+  TreeDeciduous,
   X,
 } from 'lucide-react'
 import { SaveIndicator } from './SaveIndicator'
@@ -23,6 +24,7 @@ const ICONS = {
   CalendarRange,
   Target,
   Map,
+  TreeDeciduous,
   Building2,
   Network,
   GitBranch,
@@ -57,6 +59,7 @@ const NAV_GROUPS: {
     heading: 'World',
     items: [
       { path: '/maps', label: 'World Map', icon: 'Map', hint: 'Maps' },
+      { path: '/world-tree', label: 'World Tree', icon: 'TreeDeciduous', hint: 'Git atlas' },
       { path: '/departments', label: 'Repositories', icon: 'Building2', hint: 'Departments' },
       { path: '/network', label: 'The Realm', icon: 'Network', hint: 'Network' },
     ],
@@ -73,37 +76,77 @@ const NAV_GROUPS: {
 
 export function Layout() {
   useKeyboardShortcuts()
-  const [mobileOpen, setMobileOpen] = useState(false)
+  const { pathname } = useLocation()
+  const [pinned, setPinned] = useState(() => {
+    if (typeof window === 'undefined') return false
+    return window.localStorage.getItem('vov:sidebar-pinned') === 'true'
+  })
+  const [pinAnimating, setPinAnimating] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(() =>
+    typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches,
+  )
+  const isDashboard = pathname === '/' || pathname === '/dashboard'
+  const isWorldTree = pathname === '/world-tree'
+
+  const closeAfterNavigate = () => {
+    if (typeof window === 'undefined' || window.innerWidth < 1024 || !pinned) {
+      setMobileOpen(false)
+    }
+  }
+
+  const togglePinned = () => {
+    const next = !pinned
+    setPinned(next)
+    setPinAnimating(true)
+    window.localStorage.setItem('vov:sidebar-pinned', String(next))
+    if (next) setMobileOpen(true)
+    window.setTimeout(() => setPinAnimating(false), 560)
+  }
 
   const nav = (
     <>
-      <div className="border-b border-gold-lo/40 px-5 pb-4 pt-5">
+      <div className="medieval-brand">
         <NavLink
           to="/"
-          className="block"
-          onClick={() => setMobileOpen(false)}
+          className="block text-center"
+          onClick={closeAfterNavigate}
           aria-label="VOV — go to Character"
         >
-          <span className="wow-wordmark text-[2.1rem]" data-text="VOV" aria-hidden="true">
-            VOV
-          </span>
-          <div className="wow-wordmark-rule mt-1.5" />
-          <p className="tabular mt-1.5 text-[9px] uppercase tracking-[0.28em] text-accent-dim">
+          <img
+            src="/vov-emblem-v3.png"
+            alt="VOV"
+            className="medieval-logo-img"
+          />
+          <p className="medieval-tagline">
             Quest Manager
           </p>
         </NavLink>
+        <button
+          type="button"
+          className={cn(
+            'nav-pin-button',
+            pinned && 'nav-pin-button-pinned',
+            pinAnimating && 'nav-pin-button-animating',
+          )}
+          aria-pressed={pinned}
+          aria-label={pinned ? 'Unpin navigation sidebar' : 'Pin navigation sidebar'}
+          title={pinned ? 'Unpin sidebar' : 'Keep sidebar open between pages'}
+          onClick={togglePinned}
+        >
+          <img src="/sidebar-pin-v3.png" alt="" aria-hidden="true" />
+          <span>{pinned ? 'Pinned' : 'Pin sidebar'}</span>
+        </button>
       </div>
 
-      <nav className="flex-1 space-y-4 overflow-y-auto p-3">
+      <nav className="medieval-nav flex-1 overflow-y-auto">
         {NAV_GROUPS.map((group) => (
-          <div key={group.heading}>
-            <div className="mb-1.5 px-2">
-              <span className="font-fancy text-[10px] uppercase tracking-[0.18em] text-accent-dim">
+          <div className="medieval-nav-group" key={group.heading}>
+            <div className="medieval-nav-heading">
+              <span>
                 {group.heading}
               </span>
-              <div className="wow-divider mt-1" />
             </div>
-            <div className="space-y-0.5">
+            <div>
               {group.items.map(({ path, label, icon, hint }) => {
                 const Icon = ICONS[icon]
                 return (
@@ -111,24 +154,19 @@ export function Layout() {
                     key={path}
                     to={path}
                     end={path === '/'}
-                    onClick={() => setMobileOpen(false)}
+                    onClick={closeAfterNavigate}
                     title={hint}
                     className={({ isActive }) =>
                       cn(
-                        'wow-hilight group relative flex items-center gap-2.5 rounded-sm px-2.5 py-2 text-sm transition-colors',
+                        'medieval-nav-item group',
                         isActive
-                          ? 'bg-gradient-to-r from-accent/20 to-transparent text-accent shadow-[inset_2px_0_0_var(--color-accent)]'
-                          : 'text-text-muted hover:text-text',
+                          ? 'medieval-nav-item-active'
+                          : 'medieval-nav-item-idle',
                       )
                     }
                   >
-                    <Icon size={17} aria-hidden="true" className="shrink-0" />
+                    <Icon size={21} strokeWidth={1.65} aria-hidden="true" className="shrink-0" />
                     <span className="flex-1">{label}</span>
-                    {hint && (
-                      <span className="text-[9px] uppercase tracking-wider text-text-dim opacity-0 transition-opacity group-hover:opacity-100">
-                        {hint}
-                      </span>
-                    )}
                   </NavLink>
                 )
               })}
@@ -137,20 +175,24 @@ export function Layout() {
         ))}
       </nav>
 
-      <div className="border-t border-gold-lo/40 p-3">
+      <div className="medieval-save-wrap">
         <SaveIndicator />
       </div>
     </>
   )
 
   return (
-    <div className="flex min-h-screen">
+    <div
+      className="app-shell flex min-h-screen"
+      data-nav-open={mobileOpen || undefined}
+      data-nav-pinned={pinned || undefined}
+    >
       {/* Mobile trigger — the sidebar was previously a fixed 224px rail
           with no collapse, which made every page unusable under ~640px. */}
       <button
         onClick={() => setMobileOpen(true)}
         aria-label="Open navigation"
-        className="wow-frame fixed left-3 top-3 z-40 rounded p-2 text-accent lg:hidden"
+        className={cn('mobile-menu-trigger atlas-menu-trigger fixed left-3 top-3 z-40 p-2', mobileOpen && 'invisible')}
       >
         <Menu size={18} aria-hidden="true" />
       </button>
@@ -164,17 +206,22 @@ export function Layout() {
 
       <aside
         className={cn(
-          'z-50 flex w-60 shrink-0 flex-col border-r border-frame-dark bg-surface-raised',
-          'shadow-[inset_-1px_0_0_rgba(107,74,24,0.6),4px_0_20px_rgba(0,0,0,0.5)]',
-          'max-lg:fixed max-lg:inset-y-0 max-lg:left-0 max-lg:transition-transform',
-          mobileOpen ? 'max-lg:translate-x-0' : 'max-lg:-translate-x-full',
+          'medieval-sidebar z-50 flex shrink-0 flex-col',
+          'atlas-sidebar',
+          mobileOpen ? 'atlas-sidebar-open' : 'atlas-sidebar-closed',
         )}
       >
         {mobileOpen && (
           <button
-            onClick={() => setMobileOpen(false)}
+            onClick={() => {
+              setMobileOpen(false)
+              if (pinned) {
+                setPinned(false)
+                window.localStorage.setItem('vov:sidebar-pinned', 'false')
+              }
+            }}
             aria-label="Close navigation"
-            className="absolute right-2 top-2 rounded p-2 text-text-muted lg:hidden"
+            className="nav-close-trigger absolute right-2 top-2 rounded p-2 text-text-muted"
           >
             <X size={18} aria-hidden="true" />
           </button>
@@ -182,7 +229,12 @@ export function Layout() {
         {nav}
       </aside>
 
-      <main className="flex-1 overflow-auto max-lg:pt-14">
+      <main
+        className={cn(
+          'app-main min-w-0 flex-1 overflow-auto max-lg:pt-14',
+          isDashboard ? 'dashboard-main' : isWorldTree ? 'world-tree-main' : 'archive-main',
+        )}
+      >
         <Outlet />
       </main>
     </div>

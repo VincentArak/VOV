@@ -13,6 +13,7 @@ import type {
   Subtask,
   Task,
 } from '../types'
+import type { GitConfig, GitRepoRecord } from '../types/git'
 import { DEFAULT_RELATIONSHIP_TYPES, SYSTEM_TYPE_IDS } from '../constants/relationships'
 
 class VovDatabase extends Dexie {
@@ -27,6 +28,8 @@ class VovDatabase extends Dexie {
   tasks!: EntityTable<Task, 'id'>
   settings!: EntityTable<AppSettings, 'id'>
   snapshots!: EntityTable<DataSnapshot, 'id'>
+  gitRepos!: EntityTable<GitRepoRecord, 'id'>
+  gitConfig!: EntityTable<GitConfig, 'id'>
 
   constructor() {
     super('vov-db')
@@ -197,6 +200,12 @@ class VovDatabase extends Dexie {
           tx.table('departments').update(d.id, { githubRepo: d.githubRepo ?? null }),
         ),
       )
+    })
+    // v12 — World Tree: cached Git topology for the /world-tree visualization.
+    // Derived data only; deliberately excluded from snapshots and exports.
+    this.version(12).stores({
+      gitRepos: 'id, fetchedAt',
+      gitConfig: 'id',
     })
   }
 }

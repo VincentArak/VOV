@@ -21,7 +21,8 @@ export function Button({
   return (
     <button
       className={cn(
-        'wow-hilight relative inline-flex cursor-pointer items-center justify-center gap-1.5 rounded font-medium',
+        'vov-button wow-hilight relative inline-flex cursor-pointer items-center justify-center gap-1.5 rounded font-medium',
+        `vov-button-${variant}`,
         'transition-[box-shadow,transform] duration-100',
         'disabled:cursor-not-allowed disabled:opacity-40 disabled:saturate-50',
         // Pressing physically depresses the button, matching UI-Quickslot-Depress.

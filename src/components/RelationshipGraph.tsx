@@ -254,8 +254,8 @@ export function RelationshipGraph({
                 cx={n.x}
                 cy={n.y}
                 r={highlighted ? 22 : 18}
-                fill={highlighted ? '#fbbf24' : '#334155'}
-                stroke={highlighted ? '#fbbf24' : '#475569'}
+                fill={highlighted ? '#b67524' : '#73522d'}
+                stroke={highlighted ? '#6d3517' : '#40270f'}
                 strokeWidth={highlighted ? 3 : 2}
                 className="cursor-grab active:cursor-grabbing"
                 onPointerDown={(e) => handlePointerDown(n.id, e)}
