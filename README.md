@@ -9,6 +9,7 @@ A single-user, browser-based task manager with quest-log UX, multi-map locations
 - **World Maps** — Upload images, place location nodes, create quests at locations
 - **Departments** — Tree-structured org chart with member management
 - **NPC Profiles** — Avatar, role, title, contact, bio, and notes per person
+- **World Tree** — a repository's real Git topology grown as an ancient tree: `main` is the trunk, branches are limbs forking at the commit they diverged from, merged branches arc back into the trunk, pull requests are quests on a parchment scroll
 - **Auto-Backup** — 4 local copies (live + on-save + 2 daily snapshots)
 - **PWA** — Installable, works offline
 
@@ -20,6 +21,30 @@ npm run dev
 ```
 
 Open http://localhost:5173 in your browser.
+
+## Run with Docker
+
+```bash
+docker compose up --build        # http://localhost:8080
+```
+
+Multi-stage build: `npm ci && npm run build` on `node:22-alpine`, then the static
+bundle behind `nginx:1.27-alpine` with SPA fallback so `/world-tree` and the other
+client-side routes resolve on a hard refresh.
+
+For live reload inside a container instead:
+
+```bash
+docker compose --profile dev up dev   # http://localhost:5173
+```
+
+The dev service bind-mounts the repo but keeps `node_modules` in a named volume,
+so Linux-native binaries are not shadowed by a Windows or macOS host copy, and
+enables watcher polling because bind mounts do not emit inotify events.
+
+> Nothing is persisted in the container. VOV keeps its data in the browser's
+> IndexedDB and calls the GitHub API straight from the page, so the image serves
+> static files only — your data lives in whichever browser you open it with.
 
 ## Build & Deploy
 
