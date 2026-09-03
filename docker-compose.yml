@@ -1,5 +1,10 @@
 services:
-  # Production build: static bundle behind nginx.  http://localhost:8080
+  # Production build: static bundle behind nginx.  http://localhost:8173
+  #
+  # Port 8173 rather than the usual 8080: 8080 is a crowded port on developer
+  # machines (Vivado, Tomcat, other stacks) and a collision shows up as either
+  # "port is already allocated" or, worse, someone else's 404 at the URL you
+  # expected. Override with VOV_PORT=9000 docker compose up.
   web:
     build:
       context: .
@@ -7,7 +12,7 @@ services:
     image: vov-worldtree:latest
     container_name: vov-worldtree
     ports:
-      - "8080:80"
+      - "${VOV_PORT:-8173}:80"
     restart: unless-stopped
 
   # Live-reload development server.  http://localhost:5173
@@ -19,7 +24,7 @@ services:
     working_dir: /app
     command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
     ports:
-      - "5173:5173"
+      - "${VOV_DEV_PORT:-5173}:5173"
     volumes:
       - .:/app
       # Keep the container's node_modules off the Windows bind mount: native

@@ -25,8 +25,11 @@ Open http://localhost:5173 in your browser.
 ## Run with Docker
 
 ```bash
-docker compose up --build        # http://localhost:8080
+docker compose up --build        # http://localhost:8173
 ```
+
+The host port is `8173`, not `8080` — 8080 collides with too many other dev
+tools. Override it with `VOV_PORT=9000 docker compose up` if 8173 is taken too.
 
 Multi-stage build: `npm ci && npm run build` on `node:22-alpine`, then the static
 bundle behind `nginx:1.27-alpine` with SPA fallback so `/world-tree` and the other
