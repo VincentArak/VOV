@@ -12,6 +12,7 @@ interface AppStore {
   toggleSound: () => Promise<void>
   toggleTrackTask: (taskId: string) => Promise<void>
   isTracked: (taskId: string) => boolean
+  updateSettings: (patch: Partial<AppSettings>) => Promise<void>
 }
 
 export const useAppStore = create<AppStore>((set, get) => ({
@@ -47,6 +48,14 @@ export const useAppStore = create<AppStore>((set, get) => ({
   isTracked: (taskId: string) => {
     const { settings } = get()
     return settings?.trackedTaskIds.includes(taskId) ?? false
+  },
+
+  updateSettings: async (patch: Partial<AppSettings>) => {
+    const { settings } = get()
+    if (!settings) return
+    const updated = { ...settings, ...patch }
+    await db.settings.put(updated)
+    set({ settings: updated })
   },
 }))
 

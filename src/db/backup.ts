@@ -150,7 +150,15 @@ async function runDailyBackupsIfNeeded(
   }
 
   const updated: AppSettings = {
-    ...(settings ?? { id: 'app', soundEnabled: true, trackedTaskIds: [] }),
+    ...(settings ?? {
+      id: 'app',
+      soundEnabled: true,
+      trackedTaskIds: [],
+      githubToken: null,
+      githubRepo: null,
+      jiraSiteUrl: null,
+      jiraProjectKey: null,
+    }),
     lastDailyBackupDate: today,
   }
   await runWithoutBackup(() => db.settings.put(updated))

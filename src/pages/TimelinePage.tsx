@@ -3,9 +3,18 @@ import { CalendarRange } from 'lucide-react'
 import { useState } from 'react'
 import { db } from '../db'
 import { QuestTimeline } from '../components/QuestTimeline'
+import { Card } from '../components/ui/Card'
 import { Select } from '../components/ui/Select'
 import { isTaskOpen } from '../utils'
 
+/**
+ * The Chronicle.
+ *
+ * Structured like the game's calendar/timer panels: a row of resource
+ * readouts across the top, then the track itself. The three counters use
+ * the same treatment as a character sheet's stat block so the numbers
+ * read as status rather than decoration.
+ */
 export function TimelinePage() {
   const tasks = useLiveQuery(() => db.tasks.toArray()) ?? []
   const [pastDays, setPastDays] = useState('7')
@@ -18,18 +27,18 @@ export function TimelinePage() {
   )
 
   return (
-    <div className="p-6 max-w-full">
-      <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
+    <div className="max-w-full p-6">
+      <div className="mb-5 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <CalendarRange size={24} className="text-accent" />
-            Timeline
+          <h1 className="font-fancy flex items-center gap-2 text-3xl text-accent [text-shadow:0_0_14px_rgba(255,209,0,0.25),1px_1px_0_#000]">
+            <CalendarRange size={26} aria-hidden="true" />
+            Chronicle
           </h1>
-          <p className="text-sm text-text-muted mt-1">
-            Open quests as lines pointing toward their due dates · {withDue.length} on timeline
+          <p className="mt-1 text-xs text-text-muted">
+            Open quests drawn as lines toward their deadlines
           </p>
         </div>
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap gap-2.5">
           <Select
             label="Past"
             value={pastDays}
@@ -40,7 +49,7 @@ export function TimelinePage() {
               { value: '14', label: '14 days' },
               { value: '30', label: '30 days' },
             ]}
-            className="w-32"
+            className="w-28"
           />
           <Select
             label="Future"
@@ -52,43 +61,48 @@ export function TimelinePage() {
               { value: '60', label: '60 days' },
               { value: '90', label: '90 days' },
             ]}
-            className="w-32"
+            className="w-28"
           />
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-4 mb-6 text-sm">
-        <div className="rounded-lg border border-border bg-surface-raised px-4 py-2">
-          <span className="text-text-muted">Open </span>
-          <span className="font-semibold">{openTasks.length}</span>
-        </div>
-        <div className="rounded-lg border border-border bg-surface-raised px-4 py-2">
-          <span className="text-text-muted">With deadline </span>
-          <span className="font-semibold">{withDue.length}</span>
-        </div>
-        <div className="rounded-lg border border-border bg-surface-raised px-4 py-2">
-          <span className="text-text-muted">Overdue </span>
-          <span className="font-semibold text-danger">{overdue.length}</span>
-        </div>
+      <div className="mb-4 grid grid-cols-3 gap-3 sm:max-w-md">
+        <Stat label="Open" value={openTasks.length} />
+        <Stat label="Scheduled" value={withDue.length} />
+        <Stat label="Overdue" value={overdue.length} tone="text-danger" />
       </div>
 
-      <div className="flex flex-wrap items-center gap-4 mb-4 text-xs text-text-muted">
-        <span className="flex items-center gap-1.5">
-          <span className="w-6 h-0.5 bg-accent rounded" /> Today
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="w-6 h-0.5 bg-info rounded" /> Line → due date
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-danger" /> Overdue
-        </span>
+      <div className="mb-3 flex flex-wrap items-center gap-4 text-[11px] text-text-dim">
+        <Legend swatch={<span className="h-0.5 w-6 rounded bg-accent" />} label="Today" />
+        <Legend swatch={<span className="h-0.5 w-6 rounded bg-q-rare" />} label="Line to deadline" />
+        <Legend swatch={<span className="h-2 w-2 rounded-full bg-danger" />} label="Overdue" />
       </div>
 
-      <QuestTimeline
-        tasks={tasks}
-        pastDays={Number(pastDays)}
-        futureDays={Number(futureDays)}
-      />
+      <Card className="overflow-hidden p-3">
+        <QuestTimeline tasks={tasks} pastDays={Number(pastDays)} futureDays={Number(futureDays)} />
+      </Card>
     </div>
+  )
+}
+
+function Stat({ label, value, tone }: { label: string; value: number; tone?: string }) {
+  return (
+    <Card className="px-3 py-2">
+      <div className="font-fancy text-[10px] uppercase tracking-[0.15em] text-text-dim">
+        {label}
+      </div>
+      <div className={`tabular text-2xl leading-tight ${value > 0 ? (tone ?? 'text-accent') : 'text-text-dim'}`}>
+        {value}
+      </div>
+    </Card>
+  )
+}
+
+function Legend({ swatch, label }: { swatch: React.ReactNode; label: string }) {
+  return (
+    <span className="flex items-center gap-1.5">
+      {swatch}
+      {label}
+    </span>
   )
 }

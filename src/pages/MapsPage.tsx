@@ -41,7 +41,7 @@ function MapPreviewCard({
   )
 
   return (
-    <div className="rounded-xl border border-border bg-surface-raised overflow-hidden">
+    <div className="wow-frame overflow-hidden">
       <div className="aspect-video bg-surface-overlay">
         {imageUrl ? (
           <img src={imageUrl} alt={map.name} className="w-full h-full object-cover" />
@@ -276,7 +276,7 @@ export function MapsPage() {
       <div className="flex-1 p-6 overflow-y-auto">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold">World Maps</h1>
+            <h1 className="font-fancy text-3xl text-accent [text-shadow:0_0_14px_rgba(255,209,0,0.25),1px_1px_0_#000]">World Map</h1>
             <p className="text-sm text-text-muted mt-1">
               {maps.length} map{maps.length !== 1 ? 's' : ''} · {rootMaps.length} top-level
             </p>

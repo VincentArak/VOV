@@ -172,9 +172,38 @@ class VovDatabase extends Dexie {
           ),
         )
       })
-    // v10 — World Tree: cached Git topology for the /world-tree visualization.
+    this.version(10).upgrade(async (tx) => {
+      const tasks = await tx.table('tasks').toArray()
+      await Promise.all(
+        tasks.map((task: Task) =>
+          tx.table('tasks').update(task.id, {
+            linkedItems: task.linkedItems ?? [],
+          }),
+        ),
+      )
+      const settings = await tx.table('settings').toArray()
+      await Promise.all(
+        settings.map((s: AppSettings) =>
+          tx.table('settings').update(s.id, {
+            githubToken: s.githubToken ?? null,
+            githubRepo: s.githubRepo ?? null,
+            jiraSiteUrl: s.jiraSiteUrl ?? null,
+            jiraProjectKey: s.jiraProjectKey ?? null,
+          }),
+        ),
+      )
+    })
+    this.version(11).upgrade(async (tx) => {
+      const departments = await tx.table('departments').toArray()
+      await Promise.all(
+        departments.map((d: Department) =>
+          tx.table('departments').update(d.id, { githubRepo: d.githubRepo ?? null }),
+        ),
+      )
+    })
+    // v12 — World Tree: cached Git topology for the /world-tree visualization.
     // Derived data only; deliberately excluded from snapshots and exports.
-    this.version(10).stores({
+    this.version(12).stores({
       gitRepos: 'id, fetchedAt',
       gitConfig: 'id',
     })

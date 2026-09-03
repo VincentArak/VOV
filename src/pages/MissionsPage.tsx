@@ -172,7 +172,7 @@ export function MissionsPage() {
             )}
             <div className="flex items-start justify-between gap-4 mb-6">
               <div>
-                <h1 className="text-2xl font-bold">{selectedMission.name}</h1>
+                <h1 className="font-fancy text-2xl text-accent">{selectedMission.name}</h1>
                 <p className="text-sm text-text-muted mt-1">
                   {linkedTasks.length} linked quest{linkedTasks.length !== 1 ? 's' : ''}
                   {childMissions.length > 0 &&
@@ -215,7 +215,7 @@ export function MissionsPage() {
 
             {selectedMission.vision && (
               <section className="mb-6">
-                <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-2">
+                <h3 className="font-fancy text-xs uppercase tracking-[0.15em] text-ot-header mb-2">
                   Vision
                 </h3>
                 <p className="text-text leading-relaxed whitespace-pre-wrap">
@@ -226,7 +226,7 @@ export function MissionsPage() {
 
             {selectedMission.description && (
               <section className="mb-6">
-                <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-2">
+                <h3 className="font-fancy text-xs uppercase tracking-[0.15em] text-ot-header mb-2">
                   Description
                 </h3>
                 <p className="text-text-muted leading-relaxed whitespace-pre-wrap">
@@ -237,7 +237,7 @@ export function MissionsPage() {
 
             {selectedMission.notes && (
               <section className="mb-6">
-                <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-2">
+                <h3 className="font-fancy text-xs uppercase tracking-[0.15em] text-ot-header mb-2">
                   Notes
                 </h3>
                 <p className="text-text-muted leading-relaxed whitespace-pre-wrap">
@@ -248,7 +248,7 @@ export function MissionsPage() {
 
             {childMissions.length > 0 && (
               <section className="mb-6">
-                <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-3">
+                <h3 className="font-fancy text-xs uppercase tracking-[0.15em] text-ot-header mb-3">
                   Sub-missions
                 </h3>
                 <div className="space-y-2">
@@ -256,7 +256,7 @@ export function MissionsPage() {
                     <button
                       key={m.id}
                       onClick={() => setSelectedMission(m)}
-                      className="w-full text-left rounded-lg border border-border px-4 py-3 hover:border-accent/50 transition-colors cursor-pointer"
+                      className="w-full text-left rounded-sm border border-frame-dark px-4 py-3 hover:border-accent/50 transition-colors cursor-pointer"
                     >
                       <div className="flex items-center justify-between gap-2">
                         <span className="font-medium">{m.name}</span>
@@ -276,7 +276,7 @@ export function MissionsPage() {
             )}
 
             <section>
-              <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-3">
+              <h3 className="font-fancy text-xs uppercase tracking-[0.15em] text-ot-header mb-3">
                 Linked Quests
               </h3>
               {linkedTasks.length === 0 ? (
@@ -289,7 +289,7 @@ export function MissionsPage() {
                     <Link
                       key={t.id}
                       to={`/quests/${t.id}`}
-                      className="flex items-center justify-between rounded-lg border border-border px-4 py-3 hover:border-accent/50 transition-colors"
+                      className="flex items-center justify-between rounded-sm border border-frame-dark px-4 py-3 hover:border-accent/50 transition-colors"
                     >
                       <span>{t.title}</span>
                       <span className="text-xs text-text-muted">

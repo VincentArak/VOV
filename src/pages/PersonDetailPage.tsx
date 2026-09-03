@@ -218,7 +218,7 @@ export function PersonDetailPage() {
             <>
               {person.contact && (
                 <div>
-                  <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-1">
+                  <h3 className="font-fancy text-xs uppercase tracking-[0.15em] text-ot-header mb-1">
                     Contact
                   </h3>
                   <p className="text-sm">{person.contact}</p>
@@ -226,7 +226,7 @@ export function PersonDetailPage() {
               )}
               {person.bio && (
                 <div>
-                  <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-1">
+                  <h3 className="font-fancy text-xs uppercase tracking-[0.15em] text-ot-header mb-1">
                     Bio
                   </h3>
                   <p className="text-sm text-text-muted leading-relaxed">{person.bio}</p>
@@ -234,7 +234,7 @@ export function PersonDetailPage() {
               )}
               {person.notes && (
                 <div>
-                  <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-1">
+                  <h3 className="font-fancy text-xs uppercase tracking-[0.15em] text-ot-header mb-1">
                     Notes
                   </h3>
                   <p className="text-sm text-text-muted leading-relaxed whitespace-pre-wrap">
@@ -246,7 +246,7 @@ export function PersonDetailPage() {
           )}
 
           <div>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">
+            <h3 className="font-fancy text-xs uppercase tracking-[0.15em] text-ot-header mb-2">
               Departments
             </h3>
             <div className="flex flex-wrap gap-2">
@@ -276,7 +276,7 @@ export function PersonDetailPage() {
           <PersonRelationships personId={person.id} personName={person.name} />
 
           <div>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-3">
+            <h3 className="font-fancy text-xs uppercase tracking-[0.15em] text-ot-header mb-3">
               Related Quests ({relatedTasks.length})
             </h3>
             {relatedTasks.length === 0 ? (
@@ -287,7 +287,7 @@ export function PersonDetailPage() {
                   <Link
                     key={t.id}
                     to={`/quests/${t.id}`}
-                    className="flex items-center justify-between rounded-lg border border-border px-3 py-2 text-sm hover:border-accent/40 transition-colors"
+                    className="flex items-center justify-between rounded-sm border border-frame-dark px-3 py-2 text-sm hover:border-accent/40 transition-colors"
                   >
                     <div>
                       <span className="font-medium">{t.title}</span>

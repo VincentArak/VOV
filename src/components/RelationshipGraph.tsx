@@ -199,7 +199,7 @@ export function RelationshipGraph({
   return (
     <div
       ref={containerRef}
-      className="relative rounded-xl border border-border bg-surface overflow-hidden"
+      className="relative rounded-sm border border-frame-dark bg-surface overflow-hidden"
       style={{ height }}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}

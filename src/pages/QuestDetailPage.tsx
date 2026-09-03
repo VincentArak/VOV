@@ -16,11 +16,12 @@ import { useAppStore } from '../store'
 import type { Task, TaskAttachment, TaskStatus } from '../types'
 import {
   PRIORITIES,
+  PRIORITY_HEX,
   PRIORITY_LABELS,
   STATUS_LABELS,
   TASK_STATUSES,
 } from '../constants'
-import { areDependenciesMet, formatDate, missionLabel, playSound } from '../utils'
+import { areDependenciesMet, cn, formatDate, isOverdue, missionLabel, playSound } from '../utils'
 import {
   addSubtaskToTree,
   countSubtasks,
@@ -29,12 +30,14 @@ import {
   updateSubtaskInTree,
 } from '../utils/subtasks'
 import { SubtaskTree } from '../components/SubtaskTree'
+import { LinkedItemsSection } from '../components/LinkedItemsSection'
+import { QuestChain } from '../components/QuestChain'
+import { QuestEpic } from '../components/QuestEpic'
 import { Avatar } from '../components/ui/Avatar'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
 import { Select } from '../components/ui/Select'
 import { StatusBadge } from '../components/ui/StatusBadge'
-import { Textarea } from '../components/ui/Textarea'
 
 export function QuestDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -156,44 +159,115 @@ export function QuestDetailPage() {
     .filter(Boolean) as Task[]
 
   return (
-    <div className="p-6 max-w-3xl">
-      <div className="flex items-center gap-3 mb-6">
-        <Link to="/quests" className="text-text-muted hover:text-text transition-colors">
-          <ArrowLeft size={20} />
+    <div className="max-w-3xl p-6">
+      <div className="mb-4 flex items-center gap-2">
+        <Link
+          to="/quests"
+          aria-label="Back to quest log"
+          className="rounded p-1.5 text-text-muted transition-colors hover:text-accent"
+        >
+          <ArrowLeft size={18} aria-hidden="true" />
         </Link>
-        <div className="flex-1">
-          <input
-            className="text-2xl font-bold bg-transparent border-none outline-none w-full text-text"
-            value={task.title}
-            onChange={(e) => update({ title: e.target.value })}
-          />
-        </div>
+        <span className="font-fancy text-[11px] uppercase tracking-[0.2em] text-text-dim">
+          Quest Log
+        </span>
+        <div className="wow-divider flex-1" />
         <button
           onClick={() => toggleTrackTask(task.id)}
-          className="text-text-muted hover:text-accent cursor-pointer"
+          aria-label={isTracked(task.id) ? 'Untrack quest' : 'Track quest'}
+          aria-pressed={isTracked(task.id)}
+          className="cursor-pointer rounded p-2 text-text-dim transition-colors hover:text-accent"
         >
           <Star
-            size={20}
+            size={17}
+            aria-hidden="true"
             className={isTracked(task.id) ? 'fill-accent text-accent' : ''}
           />
         </button>
-        <Button variant="danger" size="sm" onClick={deleteTask}>
-          <Trash2 size={14} />
+        <Button variant="danger" size="sm" onClick={deleteTask} aria-label="Abandon quest">
+          <Trash2 size={13} aria-hidden="true" />
+          Abandon
         </Button>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3 mb-6">
+      {/* The quest sheet itself: dark ink on parchment, ornate title, the
+          way the game presents quest text. Everything below the sheet is
+          editor chrome and stays on the dark panel. */}
+      <div className="wow-parchment mb-4 px-6 py-5">
+        <input
+          className="paper-title font-fancy w-full border-none bg-transparent text-2xl outline-none placeholder:text-paper-text/40"
+          value={task.title}
+          onChange={(e) => update({ title: e.target.value })}
+          aria-label="Quest title"
+          placeholder="Untitled quest"
+        />
+        <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px]">
+          <span
+            className="rounded-sm px-1.5 py-0.5 font-medium"
+            style={{
+              background: `${PRIORITY_HEX[task.priority]}22`,
+              color: PRIORITY_HEX[task.priority] === '#ffd100' ? '#6b5200' : PRIORITY_HEX[task.priority],
+              border: `1px solid ${PRIORITY_HEX[task.priority]}55`,
+            }}
+          >
+            {PRIORITY_LABELS[task.priority]}
+          </span>
+          {task.dueDate && (
+            <span className={isOverdue(task.dueDate, task.status) ? 'text-[#8b1a1a]' : 'text-quest-objective'}>
+              {isOverdue(task.dueDate, task.status) ? 'Overdue ' : 'Due '}
+              {formatDate(task.dueDate)}
+            </span>
+          )}
+        </div>
+
+        {/* Editing happens on the sheet itself rather than in a separate
+            field below it — otherwise the same text is on screen twice. */}
+        <textarea
+          value={task.description}
+          onChange={(e) => update({ description: e.target.value })}
+          aria-label="Quest description"
+          placeholder="Describe the quest…"
+          rows={Math.max(2, task.description.split('\n').length)}
+          className="mt-3 w-full resize-y border-none bg-transparent text-[13px] leading-relaxed text-paper-text outline-none placeholder:text-paper-text/40 focus:bg-[rgba(64,38,5,0.06)]"
+        />
+
+        {task.subtasks.length > 0 && (
+          <div className="mt-4">
+            <div className="paper-title font-fancy mb-1.5 text-sm">Quest Objectives</div>
+            <ul className="space-y-0.5 text-[12px]">
+              {task.subtasks.map((s) => {
+                const done = s.status === 'completed'
+                return (
+                  <li
+                    key={s.id}
+                    className={done ? 'text-[#333333]' : 'text-quest-objective'}
+                  >
+                    {s.title || 'Untitled objective'}
+                    {/* The game marks a finished objective by dimming it and
+                        appending the word, never by striking it through. */}
+                    {done && ' (Complete)'}
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+        )}
+      </div>
+
+      <div className="mb-5 flex flex-wrap items-center gap-2">
         <StatusBadge status={task.status} />
-        <div className="flex gap-1">
+        <div className="flex flex-wrap gap-1">
           {TASK_STATUSES.map((s) => (
             <button
               key={s}
               onClick={() => changeStatus(s)}
-              className={`px-2 py-0.5 rounded text-xs transition-colors cursor-pointer ${
+              aria-pressed={task.status === s}
+              className={cn(
+                'wow-hilight cursor-pointer rounded-sm border px-2 py-1 text-[11px] transition-colors',
                 task.status === s
-                  ? 'bg-accent text-surface font-medium'
-                  : 'bg-surface-overlay text-text-muted hover:text-text'
-              }`}
+                  ? 'border-gold-mid bg-gradient-to-b from-gold to-gold-mid font-semibold text-frame-dark'
+                  : 'border-frame-dark bg-surface-overlay text-text-muted hover:text-text',
+              )}
             >
               {STATUS_LABELS[s]}
             </button>
@@ -203,22 +277,28 @@ export function QuestDetailPage() {
 
       {task.status === 'completed' && (
         <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
+          initial={{ scale: 0.92, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="mb-6 rounded-xl border border-success/30 bg-success/10 px-4 py-3 text-success text-sm font-medium"
+          transition={{ type: 'spring', stiffness: 380, damping: 22 }}
+          className="mb-5 rounded-sm border border-success/40 bg-success/10 px-4 py-2.5 text-sm text-success shadow-[0_0_0_1px_rgba(26,255,26,0.15),0_0_20px_rgba(26,255,26,0.12)]"
         >
-          ✓ Quest Complete!
-          {task.completedAt && ` — ${formatDate(task.completedAt)}`}
+          <span className="font-fancy">Quest Complete!</span>
+          {task.completedAt && (
+            <span className="tabular ml-2 text-xs opacity-80">{formatDate(task.completedAt)}</span>
+          )}
         </motion.div>
       )}
 
       <div className="space-y-6">
-        <Textarea
-          label="Description"
-          value={task.description}
-          onChange={(e) => update({ description: e.target.value })}
-          rows={4}
-        />
+        {/* Bindings lead the page. A quest here is usually the local face of
+            a ticket that ships as a pull request, so where that work stands
+            is the first thing worth seeing — it was previously the last
+            section, below attachments. */}
+        <LinkedItemsSection task={task} onUpdate={update} />
+
+        <QuestEpic task={task} missions={missions} allTasks={allTasks} />
+
+        <QuestChain task={task} allTasks={allTasks} />
 
         <div className="grid grid-cols-2 gap-4">
           <Select
@@ -240,7 +320,7 @@ export function QuestDetailPage() {
         {/* Subtasks */}
         <section>
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider">
+            <h3 className="font-fancy text-xs uppercase tracking-[0.15em] text-ot-header">
               Objectives
             </h3>
             <Button variant="ghost" size="sm" onClick={() => addSubtask(null)}>
@@ -263,7 +343,7 @@ export function QuestDetailPage() {
 
         {/* People roles */}
         <section>
-          <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-3">
+          <h3 className="font-fancy mb-2 text-xs uppercase tracking-[0.15em] text-ot-header">
             Quest Givers &amp; Party
           </h3>
           {(
@@ -300,7 +380,7 @@ export function QuestDetailPage() {
                   )
                 })}
                 {people.length === 0 && (
-                  <p className="text-sm text-text-muted">Add people in Departments first</p>
+                  <p className="text-sm text-text-muted">Add people under Repositories first</p>
                 )}
               </div>
             </div>
@@ -309,7 +389,7 @@ export function QuestDetailPage() {
 
         {/* Mission */}
         <section>
-          <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-3">
+          <h3 className="font-fancy mb-2 text-xs uppercase tracking-[0.15em] text-ot-header">
             Mission
           </h3>
           <Select
@@ -324,8 +404,8 @@ export function QuestDetailPage() {
 
         {/* Departments */}
         <section>
-          <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-3">
-            Departments
+          <h3 className="font-fancy mb-2 text-xs uppercase tracking-[0.15em] text-ot-header">
+            Repositories
           </h3>
           <div className="flex flex-wrap gap-2">
             {departments.map((d) => {
@@ -354,7 +434,7 @@ export function QuestDetailPage() {
 
         {/* Map & Location */}
         <section>
-          <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-3">
+          <h3 className="font-fancy mb-2 text-xs uppercase tracking-[0.15em] text-ot-header">
             Location
           </h3>
           <div className="grid grid-cols-2 gap-4">
@@ -391,7 +471,7 @@ export function QuestDetailPage() {
 
         {/* Dependencies */}
         <section>
-          <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-3">
+          <h3 className="font-fancy mb-2 text-xs uppercase tracking-[0.15em] text-ot-header">
             Prerequisites
           </h3>
           <div className="flex flex-wrap gap-2 mb-3">
@@ -429,7 +509,7 @@ export function QuestDetailPage() {
 
         {/* Tags */}
         <section>
-          <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-3">
+          <h3 className="font-fancy mb-2 text-xs uppercase tracking-[0.15em] text-ot-header">
             Tags
           </h3>
           <div className="flex flex-wrap gap-2 mb-2">
@@ -465,7 +545,7 @@ export function QuestDetailPage() {
         {/* Attachments */}
         <section>
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider">
+            <h3 className="font-fancy text-xs uppercase tracking-[0.15em] text-ot-header">
               Attachments
             </h3>
             <label className="cursor-pointer">
@@ -504,6 +584,7 @@ export function QuestDetailPage() {
             </div>
           )}
         </section>
+
       </div>
     </div>
   )

@@ -16,18 +16,20 @@ const DAY_WIDTH = 52
 const ROW_HEIGHT = 44
 const LABEL_WIDTH = 220
 
+// Timeline lines reuse the quest-difficulty scale so a task reads the
+// same here as it does in the quest log.
 const LINE_COLORS: Record<Task['priority'], string> = {
-  low: 'bg-slate-400',
-  medium: 'bg-info',
-  high: 'bg-warning',
-  urgent: 'bg-danger',
+  low: 'bg-qd-trivial',
+  medium: 'bg-qd-standard',
+  high: 'bg-qd-difficult',
+  urgent: 'bg-qd-impossible',
 }
 
 const ARROW_COLORS: Record<Task['priority'], string> = {
-  low: 'border-l-slate-400',
-  medium: 'border-l-info',
-  high: 'border-l-warning',
-  urgent: 'border-l-danger',
+  low: 'border-l-qd-trivial',
+  medium: 'border-l-qd-standard',
+  high: 'border-l-qd-difficult',
+  urgent: 'border-l-qd-impossible',
 }
 
 function dayKey(d: Date): string {
@@ -109,7 +111,7 @@ export function QuestTimeline({ tasks, pastDays = 7, futureDays = 28 }: QuestTim
 
   if (openWithDue.length === 0) {
     return (
-      <div className="rounded-xl border border-border bg-surface-raised p-8 text-center">
+      <div className="wow-frame p-8 text-center">
         <p className="text-text-muted">No open quests with due dates on the timeline.</p>
         <p className="text-sm text-text-muted/70 mt-1">
           Add a due date to a quest and it will appear here as a line pointing to its deadline.
@@ -120,7 +122,7 @@ export function QuestTimeline({ tasks, pastDays = 7, futureDays = 28 }: QuestTim
 
   return (
     <div className="space-y-6">
-      <div className="rounded-xl border border-border bg-surface-raised overflow-hidden">
+      <div className="overflow-hidden rounded-sm">
         <div className="overflow-x-auto">
           <div style={{ minWidth: LABEL_WIDTH + gridWidth }}>
             {/* Month headers */}
@@ -264,7 +266,7 @@ export function QuestTimeline({ tasks, pastDays = 7, futureDays = 28 }: QuestTim
                         title={`Due ${due.toLocaleDateString()}`}
                       />
                       {/* Hover tooltip */}
-                      <div className="absolute -top-8 right-0 hidden group-hover:block whitespace-nowrap rounded bg-surface-overlay px-2 py-1 text-[10px] text-text shadow-lg border border-border z-30">
+                      <div className="absolute -top-8 right-0 z-30 hidden whitespace-nowrap rounded-sm border border-gold-lo bg-[#171730] px-2 py-1 text-[10px] text-text shadow-[0_0_0_1px_#000,0_4px_14px_rgba(0,0,0,0.8)] group-hover:block">
                         {task.title} → {due.toLocaleDateString()}
                       </div>
                     </div>
@@ -277,7 +279,7 @@ export function QuestTimeline({ tasks, pastDays = 7, futureDays = 28 }: QuestTim
       </div>
 
       {openNoDue.length > 0 && (
-        <section className="rounded-xl border border-border bg-surface-raised p-5">
+        <section className="wow-frame p-5">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-text-muted mb-3">
             Open quests without due date ({openNoDue.length})
           </h2>
@@ -289,7 +291,7 @@ export function QuestTimeline({ tasks, pastDays = 7, futureDays = 28 }: QuestTim
               <Link
                 key={task.id}
                 to={`/quests/${task.id}`}
-                className="block rounded-lg border border-border px-3 py-2 text-sm hover:border-accent/40 transition-colors"
+                className="wow-hilight block rounded-sm border border-frame-dark bg-surface-raised/60 px-3 py-2 text-sm shadow-[0_0_0_1px_rgba(107,74,24,0.35)]"
               >
                 {task.title}
               </Link>

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db'
 import type { GitRepoRecord, GitTopology } from '../types/git'
-import { GitHubError, fetchTopology, parseRepoInput } from '../services/github'
+import { GitHubError, fetchTopology, parseRepoInput } from '../services/gitTopology'
 import { buildSkeleton, type TreeSkeleton } from './core/skeleton'
 import { buildLayout, type WorldTreeLayout } from './core/layout'
 

@@ -1,9 +1,15 @@
 import type { RelationshipTypeDef } from '../types'
 
+/**
+ * Relationship colours are drawn from the game's class palette
+ * (RAID_CLASS_COLORS / ChrClasses.db2) rather than a generic ramp, so the
+ * realm graph reads like a party frame: each bond type has a distinct,
+ * saturated identity that stays legible against the dark map.
+ */
 export const DEFAULT_RELATIONSHIP_TYPES: Omit<RelationshipTypeDef, 'id'>[] = [
   {
     name: 'Collaborator',
-    color: '#3b82f6',
+    color: '#3fc7eb', // Mage cyan
     description: 'Works together on tasks',
     isSystem: true,
     isSymmetric: true,
@@ -11,7 +17,7 @@ export const DEFAULT_RELATIONSHIP_TYPES: Omit<RelationshipTypeDef, 'id'>[] = [
   },
   {
     name: 'Reports To',
-    color: '#22c55e',
+    color: '#aad372', // Hunter green
     description: 'From person reports to target',
     isSystem: true,
     isSymmetric: false,
@@ -19,7 +25,7 @@ export const DEFAULT_RELATIONSHIP_TYPES: Omit<RelationshipTypeDef, 'id'>[] = [
   },
   {
     name: 'Mentor Of',
-    color: '#a855f7',
+    color: '#a330c9', // Demon Hunter purple
     description: 'From person mentors target',
     isSystem: true,
     isSymmetric: false,
@@ -27,7 +33,7 @@ export const DEFAULT_RELATIONSHIP_TYPES: Omit<RelationshipTypeDef, 'id'>[] = [
   },
   {
     name: 'Assists',
-    color: '#f59e0b',
+    color: '#ff7c0a', // Druid orange
     description: 'From person assists target',
     isSystem: true,
     isSymmetric: false,
@@ -35,7 +41,7 @@ export const DEFAULT_RELATIONSHIP_TYPES: Omit<RelationshipTypeDef, 'id'>[] = [
   },
   {
     name: 'Peer',
-    color: '#94a3b8',
+    color: '#c69b6d', // Warrior tan
     description: 'Colleague / peer relationship',
     isSystem: true,
     isSymmetric: true,
@@ -70,7 +76,7 @@ export function getTypeDef(
 }
 
 export function getTypeColor(types: RelationshipTypeDef[], typeId: string): string {
-  return getTypeDef(types, typeId)?.color ?? '#64748b'
+  return getTypeDef(types, typeId)?.color ?? '#a8a8a8'
 }
 
 export function getTypeName(types: RelationshipTypeDef[], typeId: string): string {

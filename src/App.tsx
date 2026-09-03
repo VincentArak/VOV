@@ -11,6 +11,7 @@ import { WorldTreePage } from './pages/WorldTreePage'
 import { DepartmentsPage } from './pages/DepartmentsPage'
 import { PersonDetailPage } from './pages/PersonDetailPage'
 import { NetworkPage } from './pages/NetworkPage'
+import { IntegrationsPage } from './pages/IntegrationsPage'
 import { SettingsPage } from './pages/SettingsPage'
 
 export function App() {
@@ -30,6 +31,7 @@ export function App() {
           <Route path="/departments" element={<DepartmentsPage />} />
           <Route path="/people/:id" element={<PersonDetailPage />} />
           <Route path="/network" element={<NetworkPage />} />
+          <Route path="/integrations" element={<IntegrationsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
         </Route>
       </Routes>

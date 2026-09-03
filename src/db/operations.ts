@@ -18,8 +18,14 @@ import { runWithoutBackup, scheduleBackup } from './backup'
 export async function initSettings(): Promise<AppSettings> {
   const existing = await db.settings.get('app')
   if (existing) {
-    if (existing.lastDailyBackupDate === undefined) {
-      const updated = { ...existing, lastDailyBackupDate: null }
+    const patch: Partial<AppSettings> = {}
+    if (existing.lastDailyBackupDate === undefined) patch.lastDailyBackupDate = null
+    if (existing.githubToken === undefined) patch.githubToken = null
+    if (existing.githubRepo === undefined) patch.githubRepo = null
+    if (existing.jiraSiteUrl === undefined) patch.jiraSiteUrl = null
+    if (existing.jiraProjectKey === undefined) patch.jiraProjectKey = null
+    if (Object.keys(patch).length > 0) {
+      const updated = { ...existing, ...patch }
       await db.settings.put(updated)
       return updated
     }
@@ -31,6 +37,10 @@ export async function initSettings(): Promise<AppSettings> {
     soundEnabled: true,
     trackedTaskIds: [],
     lastDailyBackupDate: null,
+    githubToken: null,
+    githubRepo: null,
+    jiraSiteUrl: null,
+    jiraProjectKey: null,
   }
   await db.settings.put(defaults)
   return defaults
@@ -72,6 +82,11 @@ export async function exportAllData(): Promise<string> {
       db.settings.toArray(),
     ])
 
+  // Never write secrets to the export file — githubToken is redacted so backups
+  // can be shared/synced without leaking credentials. Re-enter it in Settings
+  // after importing a backup.
+  const redactedSettings = settings.map((s) => ({ ...s, githubToken: null }))
+
   return serializeAppData(
     {
       departments,
@@ -83,7 +98,7 @@ export async function exportAllData(): Promise<string> {
       maps,
       locations,
       tasks,
-      settings,
+      settings: redactedSettings,
     },
     new Date().toISOString(),
   )
@@ -150,6 +165,10 @@ async function loadImportData(data: {
     const normalized = data.settings.map((s) => ({
       ...s,
       lastDailyBackupDate: s.lastDailyBackupDate ?? null,
+      githubToken: s.githubToken ?? null,
+      githubRepo: s.githubRepo ?? null,
+      jiraSiteUrl: s.jiraSiteUrl ?? null,
+      jiraProjectKey: s.jiraProjectKey ?? null,
     }))
     await db.settings.bulkPut(normalized)
   }
