@@ -7,7 +7,7 @@ import { App } from './App'
 import { initBackupSystem, executeBackupCycle, initRelationshipTypes } from './db'
 import { useAppStore } from './store'
 
-function Root() {
+export function Root() {
   const loadSettings = useAppStore((s) => s.loadSettings)
 
   useEffect(() => {

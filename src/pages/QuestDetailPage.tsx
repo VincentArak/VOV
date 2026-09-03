@@ -1,7 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useState } from 'react'
-import { motion } from 'framer-motion'
 import {
   ArrowLeft,
   Download,
@@ -42,9 +41,11 @@ import { StatusBadge } from '../components/ui/StatusBadge'
 export function QuestDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { settings, toggleTrackTask, isTracked } = useAppStore()
+  const settings = useAppStore((state) => state.settings)
+  const toggleTrackTask = useAppStore((state) => state.toggleTrackTask)
 
   const task = useLiveQuery(() => (id ? db.tasks.get(id) : undefined), [id])
+  const taskIsTracked = task ? settings?.trackedTaskIds.includes(task.id) ?? false : false
   const allTasks = useLiveQuery(() => db.tasks.toArray()) ?? []
   const departments = useLiveQuery(() => db.departments.toArray()) ?? []
   const people = useLiveQuery(() => db.people.toArray()) ?? []
@@ -174,14 +175,14 @@ export function QuestDetailPage() {
         <div className="wow-divider flex-1" />
         <button
           onClick={() => toggleTrackTask(task.id)}
-          aria-label={isTracked(task.id) ? 'Untrack quest' : 'Track quest'}
-          aria-pressed={isTracked(task.id)}
+          aria-label={taskIsTracked ? 'Untrack quest' : 'Track quest'}
+          aria-pressed={taskIsTracked}
           className="cursor-pointer rounded p-2 text-text-dim transition-colors hover:text-accent"
         >
           <Star
             size={17}
             aria-hidden="true"
-            className={isTracked(task.id) ? 'fill-accent text-accent' : ''}
+            className={taskIsTracked ? 'fill-accent text-accent' : ''}
           />
         </button>
         <Button variant="danger" size="sm" onClick={deleteTask} aria-label="Abandon quest">
@@ -276,17 +277,14 @@ export function QuestDetailPage() {
       </div>
 
       {task.status === 'completed' && (
-        <motion.div
-          initial={{ scale: 0.92, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: 'spring', stiffness: 380, damping: 22 }}
-          className="mb-5 rounded-sm border border-success/40 bg-success/10 px-4 py-2.5 text-sm text-success shadow-[0_0_0_1px_rgba(26,255,26,0.15),0_0_20px_rgba(26,255,26,0.12)]"
+        <div
+          className="quest-complete-banner mb-5 rounded-sm border border-success/40 bg-success/10 px-4 py-2.5 text-sm text-success shadow-[0_0_0_1px_rgba(26,255,26,0.15),0_0_20px_rgba(26,255,26,0.12)]"
         >
           <span className="font-fancy">Quest Complete!</span>
           {task.completedAt && (
             <span className="tabular ml-2 text-xs opacity-80">{formatDate(task.completedAt)}</span>
           )}
-        </motion.div>
+        </div>
       )}
 
       <div className="space-y-6">

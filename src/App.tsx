@@ -1,18 +1,45 @@
+import { lazy } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Layout } from './components/Layout'
 import { DashboardPage } from './pages/DashboardPage'
-import { QuestsPage } from './pages/QuestsPage'
-import { QuestDetailPage } from './pages/QuestDetailPage'
-import { TimelinePage } from './pages/TimelinePage'
-import { MissionsPage } from './pages/MissionsPage'
-import { MapsPage } from './pages/MapsPage'
-import { MapDetailPage } from './pages/MapDetailPage'
-import { WorldTreePage } from './pages/WorldTreePage'
-import { DepartmentsPage } from './pages/DepartmentsPage'
-import { PersonDetailPage } from './pages/PersonDetailPage'
-import { NetworkPage } from './pages/NetworkPage'
-import { IntegrationsPage } from './pages/IntegrationsPage'
-import { SettingsPage } from './pages/SettingsPage'
+import { routeModules } from './routeModules'
+
+const QuestsPage = lazy(() =>
+  routeModules.quests().then((module) => ({ default: module.QuestsPage })),
+)
+const QuestDetailPage = lazy(() =>
+  routeModules.questDetail().then((module) => ({ default: module.QuestDetailPage })),
+)
+const TimelinePage = lazy(() =>
+  routeModules.timeline().then((module) => ({ default: module.TimelinePage })),
+)
+const MissionsPage = lazy(() =>
+  routeModules.missions().then((module) => ({ default: module.MissionsPage })),
+)
+const MapsPage = lazy(() =>
+  routeModules.maps().then((module) => ({ default: module.MapsPage })),
+)
+const MapDetailPage = lazy(() =>
+  routeModules.mapDetail().then((module) => ({ default: module.MapDetailPage })),
+)
+const WorldTreePage = lazy(() =>
+  routeModules.worldTree().then((module) => ({ default: module.WorldTreePage })),
+)
+const DepartmentsPage = lazy(() =>
+  routeModules.departments().then((module) => ({ default: module.DepartmentsPage })),
+)
+const PersonDetailPage = lazy(() =>
+  routeModules.personDetail().then((module) => ({ default: module.PersonDetailPage })),
+)
+const NetworkPage = lazy(() =>
+  routeModules.network().then((module) => ({ default: module.NetworkPage })),
+)
+const IntegrationsPage = lazy(() =>
+  routeModules.integrations().then((module) => ({ default: module.IntegrationsPage })),
+)
+const SettingsPage = lazy(() =>
+  routeModules.settings().then((module) => ({ default: module.SettingsPage })),
+)
 
 export function App() {
   return (

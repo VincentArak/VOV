@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { Person, PersonRelationship, RelationshipTypeDef } from '../types'
 import { getTypeColor, getTypeDef } from '../constants/relationships'
@@ -38,27 +38,37 @@ export function RelationshipGraph({
   const rafRef = useRef<number>(0)
   const navigate = useNavigate()
 
-  const filteredRels = relationships.filter(
-    (r) => !filterTypeIds || filterTypeIds.length === 0 || filterTypeIds.includes(r.type),
+  const filteredRels = useMemo(
+    () => relationships.filter(
+      (relationship) =>
+        !filterTypeIds || filterTypeIds.length === 0 || filterTypeIds.includes(relationship.type),
+    ),
+    [filterTypeIds, relationships],
   )
 
-  const connectedIds = new Set<string>()
-  filteredRels.forEach((r) => {
-    connectedIds.add(r.fromPersonId)
-    connectedIds.add(r.toPersonId)
-  })
-  const visiblePeople = people.filter(
-    (p) => connectedIds.has(p.id) || people.length <= 12,
+  const visiblePeople = useMemo(() => {
+    if (people.length <= 12) return people
+    const connectedIds = new Set<string>()
+    for (const relationship of filteredRels) {
+      connectedIds.add(relationship.fromPersonId)
+      connectedIds.add(relationship.toPersonId)
+    }
+    return people.filter((person) => connectedIds.has(person.id))
+  }, [filteredRels, people])
+  const visiblePeopleKey = useMemo(
+    () => visiblePeople.map((person) => `${person.id}:${person.name}`).join('|'),
+    [visiblePeople],
   )
 
   useEffect(() => {
     const el = containerRef.current
     if (!el) return
     const ro = new ResizeObserver(([entry]) => {
-      setWidth(entry.contentRect.width)
+      const nextWidth = Math.round(entry.contentRect.width)
+      setWidth((currentWidth) => currentWidth === nextWidth ? currentWidth : nextWidth)
     })
     ro.observe(el)
-    setWidth(el.clientWidth)
+    setWidth((currentWidth) => currentWidth === el.clientWidth ? currentWidth : el.clientWidth)
     return () => ro.disconnect()
   }, [])
 
@@ -78,10 +88,12 @@ export function RelationshipGraph({
       }
     })
     nodesRef.current = initial
-    setNodes(initial)
-  }, [visiblePeople.map((p) => p.id).join(','), width, height])
+  }, [height, visiblePeople, visiblePeopleKey, width])
 
   useEffect(() => {
+    let frame = 0
+    let quietFrames = 0
+
     const tick = () => {
       const ns = nodesRef.current
       if (ns.length === 0) return
@@ -116,9 +128,10 @@ export function RelationshipGraph({
         }
       }
 
+      const nodesById = new Map(ns.map((node) => [node.id, node]))
       for (const rel of filteredRels) {
-        const a = ns.find((n) => n.id === rel.fromPersonId)
-        const b = ns.find((n) => n.id === rel.toPersonId)
+        const a = nodesById.get(rel.fromPersonId)
+        const b = nodesById.get(rel.toPersonId)
         if (!a || !b) continue
         const dx = b.x - a.x
         const dy = b.y - a.y
@@ -137,6 +150,7 @@ export function RelationshipGraph({
         }
       }
 
+      let movement = 0
       for (const n of ns) {
         if (dragging === n.id) continue
         n.vx *= 0.85
@@ -145,15 +159,28 @@ export function RelationshipGraph({
         n.y += n.vy
         n.x = Math.max(40, Math.min(width - 40, n.x))
         n.y = Math.max(40, Math.min(height - 40, n.y))
+        movement += Math.abs(n.vx) + Math.abs(n.vy)
       }
 
       setNodes([...ns])
-      rafRef.current = requestAnimationFrame(tick)
+      frame += 1
+      quietFrames = movement < 0.035 ? quietFrames + 1 : 0
+      // Sleep once the force layout settles; drag or data changes restart it.
+      if (dragging || frame < 45 || quietFrames < 12) {
+        rafRef.current = requestAnimationFrame(tick)
+      } else {
+        rafRef.current = 0
+      }
     }
 
     rafRef.current = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(rafRef.current)
-  }, [filteredRels, width, height, dragging, visiblePeople.length])
+  }, [dragging, filteredRels, height, visiblePeopleKey, width])
+
+  const renderedNodesById = useMemo(
+    () => new Map(nodes.map((node) => [node.id, node])),
+    [nodes],
+  )
 
   const handlePointerDown = (id: string, e: React.PointerEvent) => {
     e.preventDefault()
@@ -225,8 +252,8 @@ export function RelationshipGraph({
           })}
         </defs>
         {filteredRels.map((rel) => {
-          const a = nodes.find((n) => n.id === rel.fromPersonId)
-          const b = nodes.find((n) => n.id === rel.toPersonId)
+          const a = renderedNodesById.get(rel.fromPersonId)
+          const b = renderedNodesById.get(rel.toPersonId)
           if (!a || !b) return null
           const color = getTypeColor(typeDefs, rel.type)
           const typeDef = getTypeDef(typeDefs, rel.type)

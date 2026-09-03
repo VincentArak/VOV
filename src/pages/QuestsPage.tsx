@@ -1,7 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { useEffect, useCallback, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useDeferredValue, useEffect, useCallback, useMemo, useState } from 'react'
 import { GitMerge, GitPullRequest, GripVertical, Plus, Search, Star, Ticket } from 'lucide-react'
 import { db } from '../db'
 import { useAppStore } from '../store'
@@ -31,17 +30,22 @@ import { Select } from '../components/ui/Select'
 import { StatusBadge } from '../components/ui/StatusBadge'
 import { cn } from '../utils'
 
+const EMPTY_LIST: never[] = []
+
 export function QuestsPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const tasksQuery = useLiveQuery(() => db.tasks.toArray())
   const isLoading = tasksQuery === undefined
-  const tasks = tasksQuery ?? []
-  const departments = useLiveQuery(() => db.departments.toArray()) ?? []
-  const missions = useLiveQuery(() => db.missions.toArray()) ?? []
-  const maps = useLiveQuery(() => db.maps.toArray()) ?? []
-  const people = useLiveQuery(() => db.people.toArray()) ?? []
-  const { toggleTrackTask, isTracked } = useAppStore()
+  const tasks = tasksQuery ?? EMPTY_LIST
+  const departments = useLiveQuery(() => db.departments.toArray()) ?? EMPTY_LIST
+  const missions = useLiveQuery(() => db.missions.toArray()) ?? EMPTY_LIST
+  const maps = useLiveQuery(() => db.maps.toArray()) ?? EMPTY_LIST
+  const people = useLiveQuery(() => db.people.toArray()) ?? EMPTY_LIST
+  const toggleTrackTask = useAppStore((state) => state.toggleTrackTask)
+  const trackedTaskIds = useAppStore((state) => state.settings?.trackedTaskIds)
+  const trackedIds = useMemo(() => new Set(trackedTaskIds ?? []), [trackedTaskIds])
+  const isTracked = useCallback((taskId: string) => trackedIds.has(taskId), [trackedIds])
 
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<TaskStatus | 'all'>('all')
@@ -51,13 +55,18 @@ export function QuestsPage() {
   const [mapFilter, setMapFilter] = useState<string>('all')
   const [personFilter, setPersonFilter] = useState<string>('all')
   const [dragId, setDragId] = useState<string | null>(null)
+  const deferredSearch = useDeferredValue(search)
+
+  const maxSortOrder = useMemo(
+    () => tasks.reduce((max, task) => Math.max(max, task.sortOrder ?? 0), -1),
+    [tasks],
+  )
 
   const createTask = useCallback(async () => {
-    const maxOrder = tasks.reduce((max, t) => Math.max(max, t.sortOrder ?? 0), -1)
-    const task = createEmptyTask(maxOrder + 1)
+    const task = createEmptyTask(maxSortOrder + 1)
     await db.tasks.add(task)
     navigate(`/quests/${task.id}`)
-  }, [navigate, tasks])
+  }, [navigate, maxSortOrder])
 
   useEffect(() => {
     if ((location.state as { createNew?: boolean })?.createNew) {
@@ -66,42 +75,59 @@ export function QuestsPage() {
     }
   }, [location.state, createTask, navigate])
 
-  const filtered = tasks
-    .filter((t) => {
-      if (statusFilter !== 'all' && t.status !== statusFilter) return false
-      if (priorityFilter !== 'all' && t.priority !== priorityFilter) return false
-      if (departmentFilter !== 'all' && !t.departmentIds.includes(departmentFilter)) return false
-      if (missionFilter !== 'all') {
-        if (!t.missionId) return false
-        if (t.missionId !== missionFilter) {
-          const descendants = getMissionDescendantIds(missionFilter, missions)
-          if (!descendants.has(t.missionId)) return false
-        }
-      }
-      if (mapFilter !== 'all' && t.mapId !== mapFilter) return false
-      if (personFilter !== 'all') {
-        const involved =
-          t.publisherIds.includes(personFilter) ||
-          t.executorIds.includes(personFilter) ||
-          t.reviewerIds.includes(personFilter) ||
-          t.assistantIds.includes(personFilter)
-        if (!involved) return false
-      }
-      if (search && !t.title.toLowerCase().includes(search.toLowerCase())) return false
-      return true
-    })
-    .sort((a, b) => {
-      const aTracked = isTracked(a.id) ? 0 : 1
-      const bTracked = isTracked(b.id) ? 0 : 1
-      if (aTracked !== bTracked) return aTracked - bTracked
-      const aOrder = a.sortOrder ?? 0
-      const bOrder = b.sortOrder ?? 0
-      if (aOrder !== bOrder) return aOrder - bOrder
-      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-    })
+  const missionDescendants = useMemo(
+    () => missionFilter === 'all' ? null : getMissionDescendantIds(missionFilter, missions),
+    [missionFilter, missions],
+  )
 
-  const trackedTasks = filtered.filter((t) => isTracked(t.id))
-  const otherTasks = filtered.filter((t) => !isTracked(t.id))
+  const { filtered, trackedTasks, otherTasks } = useMemo(() => {
+    const normalizedSearch = deferredSearch.trim().toLocaleLowerCase()
+    const filteredTasks = tasks
+      .filter((task) => {
+        if (statusFilter !== 'all' && task.status !== statusFilter) return false
+        if (priorityFilter !== 'all' && task.priority !== priorityFilter) return false
+        if (departmentFilter !== 'all' && !task.departmentIds.includes(departmentFilter)) return false
+        if (missionFilter !== 'all') {
+          if (!task.missionId) return false
+          if (task.missionId !== missionFilter && !missionDescendants?.has(task.missionId)) return false
+        }
+        if (mapFilter !== 'all' && task.mapId !== mapFilter) return false
+        if (personFilter !== 'all') {
+          const involved =
+            task.publisherIds.includes(personFilter) ||
+            task.executorIds.includes(personFilter) ||
+            task.reviewerIds.includes(personFilter) ||
+            task.assistantIds.includes(personFilter)
+          if (!involved) return false
+        }
+        if (normalizedSearch && !task.title.toLocaleLowerCase().includes(normalizedSearch)) return false
+        return true
+      })
+      .sort((a, b) => {
+        const trackedOrder = Number(trackedIds.has(b.id)) - Number(trackedIds.has(a.id))
+        if (trackedOrder !== 0) return trackedOrder
+        const sortOrder = (a.sortOrder ?? 0) - (b.sortOrder ?? 0)
+        if (sortOrder !== 0) return sortOrder
+        return Date.parse(b.updatedAt) - Date.parse(a.updatedAt)
+      })
+
+    return {
+      filtered: filteredTasks,
+      trackedTasks: filteredTasks.filter((task) => trackedIds.has(task.id)),
+      otherTasks: filteredTasks.filter((task) => !trackedIds.has(task.id)),
+    }
+  }, [
+    departmentFilter,
+    mapFilter,
+    missionDescendants,
+    missionFilter,
+    personFilter,
+    priorityFilter,
+    deferredSearch,
+    statusFilter,
+    tasks,
+    trackedIds,
+  ])
 
   const reorderTasks = async (sourceId: string, targetId: string) => {
     if (sourceId === targetId) return
@@ -113,16 +139,19 @@ export function QuestsPage() {
     const [moved] = list.splice(fromIdx, 1)
     list.splice(toIdx, 0, moved)
 
-    await Promise.all(
-      list.map((t, index) =>
-        db.tasks.put({ ...t, sortOrder: index, updatedAt: new Date().toISOString() }),
-      ),
+    const updatedAt = new Date().toISOString()
+    await db.tasks.bulkPut(
+      list.map((task, index) => ({ ...task, sortOrder: index, updatedAt })),
     )
   }
 
-  const activeCount = tasks.filter(
-    (t) => t.status !== 'completed' && t.status !== 'abandoned',
-  ).length
+  const activeCount = useMemo(
+    () => tasks.reduce(
+      (count, task) => count + Number(task.status !== 'completed' && task.status !== 'abandoned'),
+      0,
+    ),
+    [tasks],
+  )
 
   return (
     <div className="p-6 max-w-5xl">
@@ -319,8 +348,7 @@ function TaskList({
   onDrop: (sourceId: string, targetId: string) => void
 }) {
   return (
-    <AnimatePresence>
-      <div className="space-y-1.5">
+    <div className="space-y-1.5">
         {tasks.map((task, index) => {
           const blocked = !areDependenciesMet(task, allTasks) && task.status === 'available'
           const progress = subtaskProgress(task)
@@ -334,12 +362,8 @@ function TaskList({
           }
 
           return (
-            <motion.div
+            <div
               key={task.id}
-              layout
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
               draggable
               onDragStart={() => onDragStart(task.id)}
               onDragEnd={onDragEnd}
@@ -348,7 +372,7 @@ function TaskList({
                 e.preventDefault()
                 if (dragId) onDrop(dragId, task.id)
               }}
-              className={cn(dragId === task.id && 'opacity-40')}
+              className={cn('quest-row', dragId === task.id && 'opacity-40')}
             >
               <div
                 className={cn(
@@ -460,11 +484,10 @@ function TaskList({
 
                 <StatusBadge status={task.status} />
               </div>
-            </motion.div>
+            </div>
           )
         })}
-      </div>
-    </AnimatePresence>
+    </div>
   )
 }
 

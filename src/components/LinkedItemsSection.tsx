@@ -36,7 +36,7 @@ interface LinkedItemsSectionProps {
 type Provider = 'github' | 'jira'
 
 export function LinkedItemsSection({ task, onUpdate }: LinkedItemsSectionProps) {
-  const { settings } = useAppStore()
+  const settings = useAppStore((state) => state.settings)
   const [adding, setAdding] = useState<Provider | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)

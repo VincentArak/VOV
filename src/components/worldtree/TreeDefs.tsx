@@ -11,7 +11,7 @@ export function TreeDefs() {
     <defs>
       <pattern id="wt-generated-bark" width="320" height="320" patternUnits="userSpaceOnUse">
         <image
-          href="/world-tree-bark-v3.png"
+          href="/world-tree-bark-v3.webp"
           width="320"
           height="320"
           preserveAspectRatio="xMidYMid slice"
@@ -20,7 +20,7 @@ export function TreeDefs() {
 
       <pattern id="wt-generated-foliage" width="280" height="280" patternUnits="userSpaceOnUse">
         <image
-          href="/world-tree-foliage-v3.png"
+          href="/world-tree-foliage-v3.webp"
           width="280"
           height="280"
           preserveAspectRatio="xMidYMid slice"

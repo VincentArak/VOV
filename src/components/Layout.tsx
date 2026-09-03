@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import {
   Building2,
   CalendarRange,
@@ -17,6 +17,7 @@ import {
 import { SaveIndicator } from './SaveIndicator'
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts'
 import { cn } from '../utils'
+import { preloadRoute } from '../routeModules'
 
 const ICONS = {
   LayoutDashboard,
@@ -113,9 +114,10 @@ export function Layout() {
           aria-label="VOV — go to Character"
         >
           <img
-            src="/vov-emblem-v3.png"
+            src="/vov-emblem-v3.webp"
             alt="VOV"
             className="medieval-logo-img"
+            decoding="async"
           />
           <p className="medieval-tagline">
             Quest Manager
@@ -133,7 +135,7 @@ export function Layout() {
           title={pinned ? 'Unpin sidebar' : 'Keep sidebar open between pages'}
           onClick={togglePinned}
         >
-          <img src="/sidebar-pin-v3.png" alt="" aria-hidden="true" />
+          <img src="/sidebar-pin-v3.webp" alt="" aria-hidden="true" decoding="async" />
           <span>{pinned ? 'Pinned' : 'Pin sidebar'}</span>
         </button>
       </div>
@@ -155,6 +157,8 @@ export function Layout() {
                     to={path}
                     end={path === '/'}
                     onClick={closeAfterNavigate}
+                    onPointerEnter={() => preloadRoute(path)}
+                    onFocus={() => preloadRoute(path)}
                     title={hint}
                     className={({ isActive }) =>
                       cn(
@@ -235,8 +239,19 @@ export function Layout() {
           isDashboard ? 'dashboard-main' : isWorldTree ? 'world-tree-main' : 'archive-main',
         )}
       >
-        <Outlet />
+        <Suspense fallback={<RouteLoading />}>
+          <Outlet />
+        </Suspense>
       </main>
+    </div>
+  )
+}
+
+function RouteLoading() {
+  return (
+    <div className="route-loading" role="status" aria-live="polite">
+      <span className="route-loading-rune" aria-hidden="true" />
+      <span>Opening the chronicle…</span>
     </div>
   )
 }
