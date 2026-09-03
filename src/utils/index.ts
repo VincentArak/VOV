@@ -85,6 +85,7 @@ export function createEmptyTask(sortOrder: number): Task {
     dependencyIds: [],
     subtasks: [],
     attachments: [],
+    linkedItems: [],
     sortOrder,
     createdAt: now,
     updatedAt: now,
@@ -169,6 +170,7 @@ export function normalizeTask(task: Task & LegacyTaskFields): Task {
     assistantIds: task.assistantIds ?? [],
     missionId: task.missionId ?? null,
     subtasks: normalizeSubtasks(task.subtasks ?? []),
+    linkedItems: task.linkedItems ?? [],
   }
 }
 
@@ -247,6 +249,13 @@ export function playSound(type: 'accept' | 'complete'): void {
   osc.stop(ctx.currentTime + 0.4)
 }
 
-export function cn(...classes: (string | false | null | undefined)[]): string {
-  return classes.filter(Boolean).join(' ')
+type ClassValue = string | false | null | undefined | ClassValue[]
+
+/** Accepts nested arrays so a component can group the classes belonging
+ *  to one variant together instead of flattening them by hand. */
+export function cn(...classes: ClassValue[]): string {
+  return classes
+    .flat(Infinity as 1)
+    .filter(Boolean)
+    .join(' ')
 }

@@ -1,0 +1,404 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-02T12:48:03.580627+00:00",
+  "title": "Design System: VOV",
+  "extensions": {
+    "colorMeta": {
+      "panel": {
+        "role": "neutral",
+        "displayName": "Panel (Tooltip Blue-Black)",
+        "canonical": "#171730",
+        "tonalRamp": [
+          "#05050d",
+          "#0a0a16",
+          "#0f0f22",
+          "#171730",
+          "#1e1e3b",
+          "#252546",
+          "#323260",
+          "#43437e"
+        ]
+      },
+      "midnight": {
+        "role": "neutral",
+        "displayName": "Midnight",
+        "canonical": "#0a0a16",
+        "tonalRamp": [
+          "#030307",
+          "#05050d",
+          "#080812",
+          "#0a0a16",
+          "#12122a",
+          "#1a1a3a",
+          "#26264f",
+          "#353569"
+        ]
+      },
+      "torch-gold": {
+        "role": "primary",
+        "displayName": "Torch Gold",
+        "canonical": "#ffd100",
+        "tonalRamp": [
+          "#4a3d00",
+          "#7a6400",
+          "#ab8b00",
+          "#d9b100",
+          "#ffd100",
+          "#ffdf4d",
+          "#ffe98a",
+          "#fff4c2"
+        ]
+      },
+      "gold": {
+        "role": "primary",
+        "displayName": "Forged Gold",
+        "canonical": "#c9a44c",
+        "tonalRamp": [
+          "#3a2f13",
+          "#5c4a1e",
+          "#8a7130",
+          "#a8802f",
+          "#c9a44c",
+          "#dcbd72",
+          "#e9d29c",
+          "#f8e7a0"
+        ]
+      },
+      "parchment": {
+        "role": "neutral",
+        "displayName": "Aged Parchment",
+        "canonical": "#dcc49c",
+        "tonalRamp": [
+          "#402605",
+          "#66451a",
+          "#8d6a33",
+          "#b08f5f",
+          "#c9a97a",
+          "#dcc49c",
+          "#f0dcb4",
+          "#faeed4"
+        ]
+      },
+      "qd-impossible": {
+        "role": "danger",
+        "displayName": "Impossible Red",
+        "canonical": "#ff1a1a",
+        "tonalRamp": [
+          "#3f0505",
+          "#6b0d0d",
+          "#9b1414",
+          "#c71a1a",
+          "#ff1a1a",
+          "#ff5c5c",
+          "#ff9494",
+          "#ffcccc"
+        ]
+      },
+      "qd-standard": {
+        "role": "success",
+        "displayName": "Standard Green",
+        "canonical": "#40bf40",
+        "tonalRamp": [
+          "#0c290c",
+          "#154715",
+          "#1f661f",
+          "#2d8f2d",
+          "#40bf40",
+          "#6ed46e",
+          "#9ce59c",
+          "#cdf3cd"
+        ]
+      },
+      "xp-fill": {
+        "role": "info",
+        "displayName": "Unrested Purple",
+        "canonical": "#94008c",
+        "tonalRamp": [
+          "#2c0029",
+          "#460043",
+          "#6a0064",
+          "#7f0078",
+          "#94008c",
+          "#b81fae",
+          "#d15ac9",
+          "#e8a3e3"
+        ]
+      },
+      "ink-gold": {
+        "role": "primary",
+        "displayName": "Ink Gold (parchment-safe)",
+        "canonical": "#6b5200",
+        "tonalRamp": [
+          "#2b2100",
+          "#3d2f00",
+          "#523f00",
+          "#6b5200",
+          "#8a6a00",
+          "#b08900",
+          "#d9a900",
+          "#ffd100"
+        ]
+      },
+      "class-mage": {
+        "role": "info",
+        "displayName": "Mage Cyan",
+        "canonical": "#3fc7eb",
+        "tonalRamp": [
+          "#0b2830",
+          "#11414f",
+          "#18606f",
+          "#2189a2",
+          "#3fc7eb",
+          "#74d9f1",
+          "#a6e8f6",
+          "#d5f4fb"
+        ]
+      },
+      "class-druid": {
+        "role": "warning",
+        "displayName": "Druid Orange",
+        "canonical": "#ff7c0a",
+        "tonalRamp": [
+          "#3d1c00",
+          "#663000",
+          "#8f4400",
+          "#c25c00",
+          "#ff7c0a",
+          "#ff9e4d",
+          "#ffbe8a",
+          "#ffdec4"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Page title. One per screen, gold, soft glow."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Quest titles on parchment, dialog headings."
+      },
+      "heading": {
+        "displayName": "Heading",
+        "purpose": "Section and group labels, uppercase, wide tracking."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Default reading text."
+      },
+      "small": {
+        "displayName": "Small",
+        "purpose": "Dense list rows and chips."
+      },
+      "micro": {
+        "displayName": "Micro",
+        "purpose": "Row metadata and help text."
+      },
+      "tiny": {
+        "displayName": "Tiny",
+        "purpose": "Counters, timestamps, keycaps."
+      },
+      "nano": {
+        "displayName": "Nano",
+        "purpose": "Nav hover hints — the smallest text in the system."
+      },
+      "wordmark": {
+        "displayName": "Wordmark",
+        "purpose": "The VOV cast-metal emblem in the sidebar. Sidebar only; never for running text."
+      }
+    },
+    "shadows": [
+      {
+        "name": "frame",
+        "value": "0 0 0 2px #6b4a18, inset 0 1px 0 rgba(248,231,160,.22), inset 0 0 18px rgba(0,0,0,.75), 0 4px 16px rgba(0,0,0,.6)",
+        "purpose": "Standard forged-metal card edge. Reproduces WoW's 9-slice border overflow."
+      },
+      {
+        "name": "slot",
+        "value": "0 0 0 2px #6b4a18, inset 0 1px 0 rgba(248,231,160,.3), inset 0 -1px 0 rgba(0,0,0,.8), inset 0 0 6px rgba(0,0,0,.9)",
+        "purpose": "Icon slot / action-button well."
+      },
+      {
+        "name": "slot-active",
+        "value": "0 0 0 2px #c9a44c, 0 0 10px 2px rgba(255,209,0,.45), inset 0 0 10px rgba(255,209,0,.25)",
+        "purpose": "Lit slot — the game's CheckedTexture equivalent."
+      },
+      {
+        "name": "field-inset",
+        "value": "inset 0 1px 4px rgba(0,0,0,.85), 0 0 0 1px rgba(107,74,24,.55)",
+        "purpose": "Input carved into the panel."
+      },
+      {
+        "name": "field-focus",
+        "value": "inset 0 1px 4px rgba(0,0,0,.85), 0 0 0 1px #ffd100, 0 0 8px rgba(255,209,0,.35)",
+        "purpose": "Focus ring — gold glow, border colour unchanged."
+      },
+      {
+        "name": "parchment",
+        "value": "inset 0 0 40px rgba(64,38,5,.3), 0 3px 14px rgba(0,0,0,.55)",
+        "purpose": "Corner ageing on the quest sheet."
+      }
+    ],
+    "motion": [
+      {
+        "name": "hilight",
+        "value": "opacity .12s, additive white overlay via mix-blend-mode: plus-lighter",
+        "purpose": "Hover. Matches the game's alphaMode=ADD highlight rather than a colour swap."
+      },
+      {
+        "name": "bar-fill",
+        "value": "width .3s ease-out",
+        "purpose": "Progress and XP bars."
+      },
+      {
+        "name": "quest-complete",
+        "value": "spring, stiffness 380, damping 22, scale .92 to 1",
+        "purpose": "Completion banner — the moment should land as an event."
+      },
+      {
+        "name": "bob",
+        "value": "translateY 0 to -3px, 1.8s ease-in-out infinite",
+        "purpose": "The ? marker over a quest ready to turn in."
+      },
+      {
+        "name": "pulse",
+        "value": "opacity .55 to 1, 1.6s ease-in-out infinite",
+        "purpose": "Attention markers."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "lg",
+        "value": "1024px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The main action. Gold gradient, depresses when pressed.",
+      "html": "<button class=\"ds-btn-primary\">New Quest</button>",
+      "css": ".ds-btn-primary{background:linear-gradient(180deg,#c9a44c,#a8802f);color:#1a1208;border:1px solid #1a1208;border-radius:3px;padding:6px 16px;font:600 13px/1 'Amethysta',Georgia,serif;cursor:pointer;box-shadow:0 0 0 1px #6b4a18,inset 0 1px 0 rgba(248,231,160,.65),inset 0 -1px 0 rgba(0,0,0,.35);text-shadow:0 1px 0 rgba(248,231,160,.4)}.ds-btn-primary:hover{filter:brightness(1.12)}.ds-btn-primary:active{transform:translateY(1px);box-shadow:inset 0 2px 6px rgba(0,0,0,.9)}"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Standard panel with a forged-metal edge.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-title\">Quest Objectives</div><div class=\"ds-rule\"></div><p class=\"ds-card-body\">Reproduce locally with --repeat 50</p></div>",
+      "css": ".ds-card{background:#171730;border:1px solid #1a1208;border-radius:4px;padding:20px;box-shadow:0 0 0 2px #6b4a18,inset 0 1px 0 rgba(248,231,160,.22),inset 0 0 18px rgba(0,0,0,.75),0 4px 16px rgba(0,0,0,.6)}.ds-card-title{font:400 12px/1 'Metamorphous',serif;letter-spacing:.15em;text-transform:uppercase;color:#ffd100;text-shadow:1px 1px 0 rgba(0,0,0,.85)}.ds-rule{height:1px;margin:8px 0 12px;background:linear-gradient(90deg,transparent,#6b4a18 15%,#a8802f 50%,#6b4a18 85%,transparent)}.ds-card-body{margin:0;font:400 13px/1.5 'Amethysta',Georgia,serif;color:#cccccc;text-shadow:1px 1px 0 rgba(0,0,0,.85)}"
+    },
+    {
+      "name": "Parchment Quest Sheet",
+      "kind": "card",
+      "refersTo": "card-parchment",
+      "description": "Quest prose: dark ink on an aged sheet. Completed objectives dim and gain a suffix.",
+      "html": "<div class=\"ds-parchment\"><div class=\"ds-parchment-title\">Slay the flaky integration test</div><p class=\"ds-parchment-body\">The auth suite fails once every ~12 runs on CI.</p><div class=\"ds-parchment-title ds-sm\">Quest Objectives</div><div class=\"ds-obj ds-obj-done\">Reproduce locally (Complete)</div><div class=\"ds-obj\">Patch and verify 200 clean runs</div></div>",
+      "css": ".ds-parchment{background-color:#dcc49c;background-image:radial-gradient(ellipse at 18% 12%,rgba(64,38,5,0) 38%,rgba(64,38,5,.2) 100%),repeating-linear-gradient(107deg,rgba(144,96,40,.05) 0 2px,transparent 2px 5px),linear-gradient(160deg,#f0dcb4 0%,#dcc49c 45%,#c9a97a 100%);border:1px solid #402605;border-radius:3px;padding:20px 24px;box-shadow:inset 0 0 40px rgba(64,38,5,.3),0 3px 14px rgba(0,0,0,.55)}.ds-parchment-title{font:400 18px/1.3 'Metamorphous',serif;color:#350000;text-shadow:1px 1px 0 rgba(125,89,13,.55)}.ds-sm{font-size:14px;margin-top:14px}.ds-parchment-body{margin:8px 0 0;font:400 13px/1.6 'Amethysta',Georgia,serif;color:#2e1f0f}.ds-obj{font:400 12px/1.6 'Amethysta',Georgia,serif;color:#4d2e00}.ds-obj-done{color:#333333}"
+    },
+    {
+      "name": "Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Carved into the panel; focus adds a gold ring.",
+      "html": "<label class=\"ds-label\">Repository</label><input class=\"ds-input\" value=\"owner/repo\">",
+      "css": ".ds-label{display:block;margin-bottom:4px;font:400 11px/1 'Metamorphous',serif;letter-spacing:.05em;color:#c4a300}.ds-input{width:100%;background:#05050d;color:#fff;border:1px solid #1a1208;border-radius:3px;padding:6px 12px;font:400 13px 'Amethysta',Georgia,serif;box-shadow:inset 0 1px 4px rgba(0,0,0,.85),0 0 0 1px rgba(107,74,24,.55)}.ds-input:focus{outline:none;box-shadow:inset 0 1px 4px rgba(0,0,0,.85),0 0 0 1px #ffd100,0 0 8px rgba(255,209,0,.35)}"
+    },
+    {
+      "name": "Progress Bar",
+      "kind": "custom",
+      "refersTo": "progress-bar",
+      "description": "Gold fill with the trailing white spark that identifies a WoW bar.",
+      "html": "<div class=\"ds-bar\"><div class=\"ds-bar-fill\" style=\"width:67%\"></div></div>",
+      "css": ".ds-bar{position:relative;overflow:hidden;height:8px;border-radius:2px;background:rgba(0,0,0,.55);border:1px solid #1a1208;box-shadow:0 0 0 1px #6b4a18,inset 0 0 6px rgba(0,0,0,.85)}.ds-bar-fill{position:relative;height:100%;border-radius:2px;background:linear-gradient(180deg,#ffe066,#ffd100 55%,#c4a300)}.ds-bar-fill::after{content:'';position:absolute;top:-50%;right:-5px;width:10px;height:200%;background:radial-gradient(ellipse at center,rgba(255,255,255,.95) 0%,rgba(255,255,255,0) 70%);mix-blend-mode:plus-lighter}"
+    },
+    {
+      "name": "Status Badge",
+      "kind": "chip",
+      "refersTo": "status-badge",
+      "description": "State pill with a hairline gold ring.",
+      "html": "<span class=\"ds-badge\">Ready to Turn In</span>",
+      "css": ".ds-badge{display:inline-flex;align-items:center;border-radius:2px;padding:2px 8px;background:#ff8040;color:#fff;border:1px solid #1a1208;font:500 11px/1.4 'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.04em;box-shadow:0 0 0 1px rgba(107,74,24,.7),inset 0 1px 0 rgba(255,255,255,.18);text-shadow:1px 1px 0 rgba(0,0,0,.85)}"
+    },
+    {
+      "name": "Difficulty Pip",
+      "kind": "custom",
+      "refersTo": "difficulty-pip",
+      "description": "Priority as the game's quest-difficulty scale — grey skip it, red will kill you.",
+      "html": "<span class=\"ds-pip ds-pip-urgent\"></span><span class=\"ds-pip ds-pip-high\"></span><span class=\"ds-pip ds-pip-med\"></span><span class=\"ds-pip ds-pip-low\"></span>",
+      "css": ".ds-pip{display:inline-block;width:4px;height:28px;border-radius:9999px;margin-right:8px}.ds-pip-urgent{background:#ff1a1a;box-shadow:0 0 6px rgba(255,26,26,.4)}.ds-pip-high{background:#ffd100;box-shadow:0 0 6px rgba(255,209,0,.4)}.ds-pip-med{background:#40bf40;box-shadow:0 0 6px rgba(64,191,64,.4)}.ds-pip-low{background:#808080}"
+    },
+    {
+      "name": "Nav Item",
+      "kind": "nav",
+      "refersTo": "nav-item",
+      "description": "Active state is a gold left rule with a fading gold wash.",
+      "html": "<a class=\"ds-nav ds-nav-active\">Quest Log</a><a class=\"ds-nav\">Campaigns</a>",
+      "css": ".ds-nav{display:block;padding:8px 10px;border-radius:2px;font:400 13px 'Amethysta',Georgia,serif;color:#a8a8a8;text-decoration:none;text-shadow:1px 1px 0 rgba(0,0,0,.85)}.ds-nav:hover{color:#fff}.ds-nav-active{color:#ffd100;background:linear-gradient(90deg,rgba(255,209,0,.2),transparent);box-shadow:inset 2px 0 0 #ffd100}"
+    },
+    {
+      "name": "Wordmark",
+      "kind": "custom",
+      "refersTo": "wordmark",
+      "description": "Cast-metal VOV mark: outline pass on the element, gradient pass on ::after.",
+      "html": "<span class=\"ds-wordmark\" data-text=\"VOV\">VOV</span><div class=\"ds-wordmark-rule\"></div>",
+      "css": ".ds-wordmark{position:relative;display:inline-block;font:400 2.1rem/1 'Metamorphous',serif;letter-spacing:.08em;color:#140e04;-webkit-text-stroke:.14em #140e04;text-shadow:0 .035em 0 #6b4a18,0 .07em .06em rgba(0,0,0,.85),0 0 .5em rgba(255,209,0,.22)}.ds-wordmark::after{content:attr(data-text);position:absolute;inset:0;-webkit-text-stroke:0;text-shadow:none;background-image:linear-gradient(180deg,#fffbe8 0%,#ffe98a 22%,#ffd100 42%,#c9a44c 62%,#8a6a2e 82%,#e8d089 100%);-webkit-background-clip:text;background-clip:text;color:transparent}.ds-wordmark-rule{position:relative;height:2px;margin-top:6px;background:linear-gradient(90deg,transparent,#6b4a18 12%,#c9a44c 50%,#6b4a18 88%,transparent)}.ds-wordmark-rule::after{content:'';position:absolute;top:50%;left:50%;width:7px;height:7px;translate:-50% -50%;rotate:45deg;background:linear-gradient(135deg,#f8e7a0,#a8802f);border:1px solid #1a1208;box-shadow:0 0 6px rgba(255,209,0,.5)}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Quest Log",
+    "overview": "VOV wears World of Warcraft's interface. Not a fantasy-flavoured skin — the actual grammar of the game's UI: a midnight-blue panel that is deliberately not black, one gold accent doing all the emphasis work, forged-metal borders that overflow their own frames, and quest text set in dark ink on an aged sheet of parchment.\n\nThe palette is taken from Blizzard's own FrameXML source rather than sampled by eye. Where a value could only come from a bitmap it is marked as estimated rather than presented as canon. No Blizzard art is used: every frame, bevel and texture is CSS, and the two typefaces are open-licenced stand-ins.\n\nThe mapping runs deeper than colour. Task priority uses the game's quest-difficulty scale, because grey-means-skip-it and red-means-this-will-kill-you is the same judgement a priority field asks for. A task awaiting review shows the bobbing ? of a quest ready to turn in.",
+    "keyCharacteristics": [
+      "One gold accent (#ffd100) carries every active and primary state; nothing else competes",
+      "Depth is tonal — four background steps, and metal borders drawn with layered box-shadows, never a soft drop shadow",
+      "Two typefaces in opposition: an ornate face for titles against a glyphic serif for body copy",
+      "Dark panels everywhere except quest prose, which sits on parchment in near-black ink",
+      "Completion recedes toward the background; it is never struck through"
+    ],
+    "rules": [
+      {
+        "name": "The One Torch Rule",
+        "body": "Gold marks what is active or primary and nothing else. If two things on a screen are gold, one of them is wrong.",
+        "section": "colors"
+      },
+      {
+        "name": "The Not-Black Rule",
+        "body": "Panels are #171730. Reaching for #000 or a neutral grey anywhere a panel belongs is the fastest way to lose the look.",
+        "section": "colors"
+      },
+      {
+        "name": "The Family-Not-Weight Rule",
+        "body": "Emphasis comes from switching to Metamorphous or to gold. Bold is nearly absent; there is no italic and no second serif.",
+        "section": "typography"
+      },
+      {
+        "name": "The Hard Shadow Rule",
+        "body": "Text on dark surfaces carries 1px 1px 0 rgba(0,0,0,0.85). Text on parchment carries none, except titles, which take a dark-gold shadow.",
+        "section": "typography"
+      },
+      {
+        "name": "The Forged-Edge Rule",
+        "body": "A raised surface gets a metal ring, not a blur. The only blur in the system is the ambient darkness under a modal.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do keep #171730 as the panel colour — it is the system's fingerprint.",
+      "Do build elevation from tonal steps and metal rings, never a soft shadow.",
+      "Do signal completion by receding toward the background and, on parchment, by appending \"(Complete)\".",
+      "Do switch typeface to create hierarchy before reaching for weight.",
+      "Do put quest prose on parchment and interface chrome on dark panels.",
+      "Do leave the I-beam on text fields and grab on drag handles; the gauntlet is for click targets only."
+    ],
+    "donts": [
+      "Don't introduce a second accent colour; use a difficulty or quality colour if a second signal is genuinely needed.",
+      "Don't use strikethrough or heavy transparency for completed items.",
+      "Don't round corners past 6px.",
+      "Don't use opacity or a background swap for hover where the additive overlay belongs.",
+      "Don't embed Blizzard textures, icons, or the Friz Quadrata / Morpheus typefaces — the look is reproduced, not lifted."
+    ]
+  }
+}

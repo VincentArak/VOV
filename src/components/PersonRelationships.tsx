@@ -65,7 +65,7 @@ export function PersonRelationships({
   return (
     <div>
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+        <h3 className="font-fancy text-xs uppercase tracking-[0.15em] text-ot-header">
           Relationships
         </h3>
         <div className="flex gap-2">
@@ -98,7 +98,7 @@ export function PersonRelationships({
       </div>
 
       {showAdd && (
-        <div className="rounded-lg border border-border bg-surface-overlay p-4 mb-4 space-y-3">
+        <div className="rounded-sm border border-frame-dark bg-surface-overlay p-4 mb-4 space-y-3">
           <Select
             label="Person"
             value={targetId}
@@ -150,7 +150,7 @@ export function PersonRelationships({
             return (
               <div
                 key={rel.id}
-                className="flex items-center gap-3 rounded-lg border border-border px-3 py-2"
+                className="flex items-center gap-3 rounded-sm border border-frame-dark px-3 py-2"
                 style={{
                   borderLeftWidth: 3,
                   borderLeftColor: getTypeColor(typeDefs, rel.type),
@@ -186,7 +186,7 @@ export function PersonRelationships({
             return (
               <div
                 key={rel.id}
-                className="flex items-center gap-3 rounded-lg border border-border px-3 py-2 opacity-80"
+                className="flex items-center gap-3 rounded-sm border border-frame-dark px-3 py-2 opacity-80"
                 style={{
                   borderLeftWidth: 3,
                   borderLeftColor: getTypeColor(typeDefs, rel.type),

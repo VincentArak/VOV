@@ -17,14 +17,14 @@ export function RelationshipTypeManager() {
   const [editing, setEditing] = useState<RelationshipTypeDef | null>(null)
   const [form, setForm] = useState({
     name: '',
-    color: '#6366f1',
+    color: '#3fc7eb',
     description: '',
     isSymmetric: true,
   })
 
   const openCreate = () => {
     setEditing(null)
-    setForm({ name: '', color: '#6366f1', description: '', isSymmetric: true })
+    setForm({ name: '', color: '#3fc7eb', description: '', isSymmetric: true })
     setShowModal(true)
   }
 
@@ -81,7 +81,7 @@ export function RelationshipTypeManager() {
   }
 
   return (
-    <section className="rounded-xl border border-border bg-surface-raised p-5">
+    <section className="wow-frame p-5">
       <div className="flex items-center justify-between mb-4">
         <div>
           <h2 className="font-semibold">Relationship Types</h2>

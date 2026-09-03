@@ -472,7 +472,7 @@ export function MapDetailPage() {
 
           {getChildMapsForLocation(sidebarLoc.id).length > 0 && (
             <section className="mb-4">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">
+              <h3 className="font-fancy text-xs uppercase tracking-[0.15em] text-ot-header mb-2">
                 Sub-Maps (zoom in)
               </h3>
               <div className="space-y-1">
@@ -480,7 +480,7 @@ export function MapDetailPage() {
                   <Link
                     key={cm.id}
                     to={`/maps/${cm.id}`}
-                    className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm hover:border-accent/40"
+                    className="flex items-center gap-2 rounded-sm border border-frame-dark px-3 py-2 text-sm hover:border-accent/40"
                   >
                     <Layers size={14} className="text-accent shrink-0" />
                     {cm.name}
@@ -492,7 +492,7 @@ export function MapDetailPage() {
 
           {getChildLocations(sidebarLoc.id).length > 0 && (
             <section className="mb-4">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">
+              <h3 className="font-fancy text-xs uppercase tracking-[0.15em] text-ot-header mb-2">
                 Linked child locations
               </h3>
               <div className="space-y-1">
@@ -516,7 +516,7 @@ export function MapDetailPage() {
             </section>
           )}
 
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-3">
+          <h3 className="font-fancy text-xs uppercase tracking-[0.15em] text-ot-header mb-3">
             Quests at this location
           </h3>
           {locationTasks(sidebarLoc.id).length === 0 ? (
@@ -527,7 +527,7 @@ export function MapDetailPage() {
                 <Link
                   key={t.id}
                   to={`/quests/${t.id}`}
-                  className="flex items-center justify-between rounded-lg border border-border px-3 py-2 text-sm hover:border-accent/40 transition-colors"
+                  className="flex items-center justify-between rounded-sm border border-frame-dark px-3 py-2 text-sm hover:border-accent/40 transition-colors"
                 >
                   <span className="truncate">{t.title}</span>
                   <StatusBadge status={t.status} />

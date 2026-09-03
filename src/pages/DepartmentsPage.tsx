@@ -8,6 +8,8 @@ import { DepartmentTree } from '../components/DepartmentTree'
 import { Avatar } from '../components/ui/Avatar'
 import { Button } from '../components/ui/Button'
 import { EmptyState } from '../components/ui/EmptyState'
+import { RepoGitPanel } from '../components/RepoGitPanel'
+import { CardTitle } from '../components/ui/Card'
 import { Input } from '../components/ui/Input'
 import { Modal } from '../components/ui/Modal'
 import { Textarea } from '../components/ui/Textarea'
@@ -26,6 +28,7 @@ export function DepartmentsPage() {
 
   const [deptName, setDeptName] = useState('')
   const [deptDesc, setDeptDesc] = useState('')
+  const [deptRepo, setDeptRepo] = useState('')
 
   const [personForm, setPersonForm] = useState({
     name: '',
@@ -50,6 +53,7 @@ export function DepartmentsPage() {
     setParentIdForNew(parentId)
     setDeptName('')
     setDeptDesc('')
+    setDeptRepo('')
     setShowDeptModal(true)
   }
 
@@ -57,6 +61,7 @@ export function DepartmentsPage() {
     setEditingDept(dept)
     setDeptName(dept.name)
     setDeptDesc(dept.description)
+    setDeptRepo(dept.githubRepo ?? '')
     setShowDeptModal(true)
   }
 
@@ -67,6 +72,7 @@ export function DepartmentsPage() {
         ...editingDept,
         name: deptName.trim(),
         description: deptDesc,
+        githubRepo: deptRepo.trim() || null,
       })
     } else {
       const dept: Department = {
@@ -75,6 +81,7 @@ export function DepartmentsPage() {
         parentId: parentIdForNew,
         description: deptDesc,
         sortOrder: departments.length,
+        githubRepo: deptRepo.trim() || null,
       }
       await db.departments.add(dept)
       setSelectedDept(dept)
@@ -83,10 +90,10 @@ export function DepartmentsPage() {
   }
 
   const deleteDept = async (dept: Department) => {
-    if (!confirm(`Delete department "${dept.name}"?`)) return
+    if (!confirm(`Delete repository "${dept.name}"?`)) return
     const children = departments.filter((d) => d.parentId === dept.id)
     if (children.length > 0) {
-      alert('Cannot delete: has sub-departments. Remove them first.')
+      alert('Cannot delete: this has children. Remove them first.')
       return
     }
     await db.departments.delete(dept.id)
@@ -189,7 +196,7 @@ export function DepartmentsPage() {
     <div className="flex h-full min-h-screen">
       <div className="w-72 shrink-0 border-r border-border p-5">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold">Departments</h2>
+          <h2 className="font-fancy text-sm uppercase tracking-[0.15em] text-accent">Repositories</h2>
           <Button variant="ghost" size="sm" onClick={() => openCreateDept(null)}>
             <Plus size={14} />
           </Button>
@@ -206,13 +213,13 @@ export function DepartmentsPage() {
       <div className="flex-1 p-6">
         {!selectedDept ? (
           <EmptyState
-            title="Select a department"
-            description="Choose a department from the tree to view its members"
+            title="Select a repository"
+            description="Pick one from the tree to see its branches, pull requests, issues and members"
             action={
               departments.length === 0 ? (
                 <Button onClick={() => openCreateDept(null)}>
                   <Plus size={16} />
-                  Create Department
+                  Create Repository
                 </Button>
               ) : undefined
             }
@@ -221,7 +228,7 @@ export function DepartmentsPage() {
           <>
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h1 className="text-2xl font-bold">{selectedDept.name}</h1>
+                <h1 className="font-fancy text-2xl text-accent">{selectedDept.name}</h1>
                 {selectedDept.description && (
                   <p className="text-sm text-text-muted mt-1">{selectedDept.description}</p>
                 )}
@@ -236,10 +243,24 @@ export function DepartmentsPage() {
               </Button>
             </div>
 
+            {selectedDept.githubRepo && (
+              <section className="mb-6">
+                <CardTitle>
+                  <span className="inline-flex items-center gap-1.5">
+                    Repository
+                    <code className="font-body text-[11px] normal-case tracking-normal text-text-muted">
+                      {selectedDept.githubRepo}
+                    </code>
+                  </span>
+                </CardTitle>
+                <RepoGitPanel repo={selectedDept.githubRepo} />
+              </section>
+            )}
+
             {deptPeople.length === 0 ? (
               <EmptyState
                 title="No members yet"
-                description="Add people to this department"
+                description="Add people to this repository"
                 action={
                   <Button onClick={openCreatePerson}>
                     <Plus size={16} />
@@ -252,7 +273,7 @@ export function DepartmentsPage() {
                 {deptPeople.map((person) => (
                   <div
                     key={person.id}
-                    className="rounded-xl border border-border bg-surface-raised p-4 hover:border-accent/40 transition-colors group"
+                    className="wow-frame p-4 hover:border-accent/40 transition-colors group"
                   >
                     <Link to={`/people/${person.id}`} className="flex items-center gap-3">
                       <Avatar blobId={person.avatarId} name={person.name} size="lg" />
@@ -288,7 +309,7 @@ export function DepartmentsPage() {
 
             {people.filter((p) => !p.departmentIds.includes(selectedDept.id)).length > 0 && (
               <section className="mt-8">
-                <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-3">
+                <h3 className="font-fancy text-xs uppercase tracking-[0.15em] text-ot-header mb-3">
                   Add Existing Members
                 </h3>
                 <div className="flex flex-wrap gap-2">
@@ -314,7 +335,7 @@ export function DepartmentsPage() {
       <Modal
         open={showDeptModal}
         onClose={() => setShowDeptModal(false)}
-        title={editingDept ? 'Edit Department' : 'New Department'}
+        title={editingDept ? 'Edit Repository' : 'New Repository'}
       >
         <div className="space-y-4">
           <Input
@@ -327,6 +348,12 @@ export function DepartmentsPage() {
             label="Description"
             value={deptDesc}
             onChange={(e) => setDeptDesc(e.target.value)}
+          />
+          <Input
+            label="GitHub repository (optional)"
+            placeholder="owner/repo"
+            value={deptRepo}
+            onChange={(e) => setDeptRepo(e.target.value)}
           />
           <div className="flex justify-end gap-2">
             <Button variant="ghost" onClick={() => setShowDeptModal(false)}>

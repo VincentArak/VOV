@@ -13,6 +13,12 @@ export interface Department {
   parentId: string | null
   description: string
   sortOrder: number
+  /**
+   * "owner/repo". A department in this project is a codebase, so binding one
+   * to a real repository is what lets the branch/PR/issue panel know what to
+   * fetch. Null means the department is an organisational grouping only.
+   */
+  githubRepo: string | null
 }
 
 export type MissionStatus = 'planned' | 'active' | 'completed' | 'archived'
@@ -102,6 +108,20 @@ export interface TaskAttachment {
   mimeType: string
 }
 
+export type LinkedItemProvider = 'github' | 'jira'
+
+export interface LinkedItem {
+  id: string
+  provider: LinkedItemProvider
+  /** e.g. "owner/repo#123" for GitHub, "PROJ-123" for Jira */
+  externalId: string
+  title: string
+  url: string
+  /** GitHub: "open"/"closed" from the API. Jira: always null (no API access, see services/jira.ts). */
+  status: string | null
+  lastSyncedAt: string | null
+}
+
 export interface Task {
   id: string
   title: string
@@ -121,6 +141,7 @@ export interface Task {
   dependencyIds: string[]
   subtasks: Subtask[]
   attachments: TaskAttachment[]
+  linkedItems: LinkedItem[]
   sortOrder: number
   createdAt: string
   updatedAt: string
@@ -132,6 +153,12 @@ export interface AppSettings {
   soundEnabled: boolean
   trackedTaskIds: string[]
   lastDailyBackupDate: string | null
+  /** Stored in plaintext (no crypto lib in this app) — excluded from JSON export, see db/operations.ts */
+  githubToken: string | null
+  /** "owner/repo" */
+  githubRepo: string | null
+  jiraSiteUrl: string | null
+  jiraProjectKey: string | null
 }
 
 export type SnapshotId = 'on_save' | 'daily_primary' | 'daily_save'
