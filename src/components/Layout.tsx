@@ -1,10 +1,10 @@
 import { NavLink, Outlet } from 'react-router-dom'
-import { Building2, CalendarRange, LayoutDashboard, Map, Network, Scroll, Settings, Target } from 'lucide-react'
+import { Building2, CalendarRange, LayoutDashboard, Map, Network, Scroll, Settings, Target, TreeDeciduous } from 'lucide-react'
 import { SaveIndicator } from './SaveIndicator'
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts'
 import { cn } from '../utils'
 
-const ICONS = { LayoutDashboard, Scroll, CalendarRange, Target, Map, Building2, Network, Settings }
+const ICONS = { LayoutDashboard, Scroll, CalendarRange, Target, Map, TreeDeciduous, Building2, Network, Settings }
 
 const NAV = [
   { path: '/', label: 'Dashboard', icon: 'LayoutDashboard' as const },
@@ -12,6 +12,7 @@ const NAV = [
   { path: '/timeline', label: 'Timeline', icon: 'CalendarRange' as const },
   { path: '/missions', label: 'Missions', icon: 'Target' as const },
   { path: '/maps', label: 'Maps', icon: 'Map' as const },
+  { path: '/world-tree', label: 'World Tree', icon: 'TreeDeciduous' as const },
   { path: '/departments', label: 'Departments', icon: 'Building2' as const },
   { path: '/network', label: 'Network', icon: 'Network' as const },
   { path: '/settings', label: 'Settings', icon: 'Settings' as const },
