@@ -22,7 +22,11 @@ function Roots({
 }) {
   return (
     <g className="wt-roots">
-      {/* the mound the tree stands on */}
+      {/* The mound the tree stands on. Masked at its edges for the same reason
+          the distant ranges are: it spans the full viewBox, and on parchment an
+          unmasked span reads as the bottom edge of a card. */}
+      <g mask="url(#wt-fade-y)">
+      <g mask="url(#wt-fade-x)">
       <path
         d={`M${-40},${groundY + 130}
             C${cx * 0.5},${groundY + 34} ${cx - baseHalfWidth * 2.2},${groundY - 30} ${cx},${groundY - 38}
@@ -32,6 +36,8 @@ function Roots({
         opacity={0.26}
         filter="url(#wt-rough-soft)"
       />
+      </g>
+      </g>
 
       <g filter="url(#wt-rough)">
         {roots.map((root) => (
@@ -43,6 +49,12 @@ function Roots({
               stroke={PALETTE.ink}
               strokeWidth={1.5}
               strokeOpacity={0.62}
+            />
+            <path
+              d={root.outline}
+              fill="url(#wt-generated-bark)"
+              opacity={0.62}
+              className="wt-generated-bark-layer"
             />
             {root.bark.map((d, i) => (
               <path

@@ -1,6 +1,8 @@
 import { StrictMode, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
+import './medieval-dashboard.css'
+import './medieval-pages.css'
 import { App } from './App'
 import { initBackupSystem, executeBackupCycle, initRelationshipTypes } from './db'
 import { useAppStore } from './store'

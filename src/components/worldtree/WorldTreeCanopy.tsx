@@ -34,14 +34,21 @@ function CanopyLayer({
             style={{ transition: 'opacity 220ms ease' }}
           >
             {cluster.lobes.map((d, i) => (
-              <path
-                key={i}
-                d={d}
-                fill={`url(#wt-leaf-${((cluster.tone + i) % 3) as 0 | 1 | 2})`}
-                stroke="#33421f"
-                strokeWidth={i === 0 ? 1.5 : 0.8}
-                strokeOpacity={i === 0 ? 0.45 : 0.22}
-              />
+              <g key={i}>
+                <path
+                  d={d}
+                  fill={`url(#wt-leaf-${((cluster.tone + i) % 3) as 0 | 1 | 2})`}
+                  stroke="#283416"
+                  strokeWidth={i === 0 ? 1.5 : 0.8}
+                  strokeOpacity={i === 0 ? 0.52 : 0.28}
+                />
+                <path
+                  d={d}
+                  fill="url(#wt-generated-foliage)"
+                  opacity={layer === 'front' ? 0.54 : 0.7}
+                  className="wt-generated-foliage-layer"
+                />
+              </g>
             ))}
             {/* a couple of lit leaf flecks to keep the mass from going flat */}
             <path

@@ -1,10 +1,14 @@
+import { forwardRef } from 'react'
 import type { GitCommit } from '../../types/git'
 import type { RenderLimb } from '../../worldtree/core/layout'
 import { STATUS_LABEL } from '../../worldtree/theme'
 
+/**
+ * What the tooltip is about — not where it is. The position is written
+ * straight to the element on pointermove (see GitWorldTree), because carrying
+ * coordinates in here meant every mouse move re-rendered the whole tree.
+ */
 export interface TooltipTarget {
-  screenX: number
-  screenY: number
   commit?: GitCommit
   limb?: RenderLimb
 }
@@ -19,20 +23,18 @@ function timeAgo(iso: string): string {
   return `${Math.round(diff / (day * 365))} years ago`
 }
 
-/** Metadata is revealed on demand so the tree is never buried in text. */
-export function TreeTooltip({ target }: { target: TooltipTarget | null }) {
-  if (!target) return null
-  const { commit, limb } = target
+/**
+ * Metadata is revealed on demand so the tree is never buried in text.
+ *
+ * The node stays mounted while a target exists and is moved by transform, so
+ * the browser can keep it on its own layer instead of re-laying it out.
+ */
+export const TreeTooltip = forwardRef<HTMLDivElement, { target: TooltipTarget | null }>(
+  function TreeTooltip({ target }, ref) {
+    const { commit, limb } = target ?? {}
 
-  return (
-    <div
-      className="wt-tooltip"
-      style={{
-        left: target.screenX,
-        top: target.screenY,
-      }}
-      role="tooltip"
-    >
+    return (
+      <div className="wt-tooltip" ref={ref} role="tooltip" hidden={!target}>
       {commit && (
         <>
           <div className="wt-tooltip-title">{commit.message}</div>
@@ -72,6 +74,7 @@ export function TreeTooltip({ target }: { target: TooltipTarget | null }) {
           )}
         </>
       )}
-    </div>
-  )
-}
+      </div>
+    )
+  },
+)

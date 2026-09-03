@@ -1,5 +1,11 @@
-import { useCallback, useMemo, useState } from 'react'
-import { ExternalLink, GitBranch, RefreshCw, Trees, Unplug } from 'lucide-react'
+import {
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+} from 'react'
+import { ExternalLink, GitBranch, RefreshCw, Unplug } from 'lucide-react'
 import { useWorldTree } from '../worldtree/useWorldTree'
 import { GitWorldTree } from '../components/worldtree/GitWorldTree'
 import { QuestScroll, type ScrollState } from '../components/worldtree/QuestScroll'
@@ -112,7 +118,15 @@ export function WorldTreePage() {
   const [selectedBranch, setSelectedBranch] = useState<string | null>(null)
   const [selectedSha, setSelectedSha] = useState<string | null>(null)
   const [scrollState, setScrollState] = useState<ScrollState>('partial')
-
+  const [scrollOffset, setScrollOffset] = useState({ x: 0, y: 0 })
+  const [scrollDragging, setScrollDragging] = useState(false)
+  const scrollDrag = useRef<{
+    pointerId: number
+    startX: number
+    startY: number
+    originX: number
+    originY: number
+  } | null>(null)
   const { topology, layout, skeleton } = tree
 
   const limb = selectedBranch ? layout?.byId.get(selectedBranch) ?? null : null
@@ -135,21 +149,71 @@ export function WorldTreePage() {
     ]
   }, [skeleton, topology])
 
+  const beginScrollDrag = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
+    if (event.button !== 0) return
+    const target = event.target as HTMLElement
+    if (target.closest('button, a, input, select, textarea, .wt-tree-panel, .wt-rail')) return
+    scrollDrag.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      originX: scrollOffset.x,
+      originY: scrollOffset.y,
+    }
+    event.currentTarget.setPointerCapture(event.pointerId)
+    setScrollDragging(true)
+  }, [scrollOffset])
+
+  const moveScroll = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
+    const drag = scrollDrag.current
+    if (!drag || drag.pointerId !== event.pointerId) return
+    const maxX = Math.min(180, window.innerWidth * 0.1)
+    const maxY = Math.min(120, window.innerHeight * 0.1)
+    const x = Math.max(-maxX, Math.min(maxX, drag.originX + event.clientX - drag.startX))
+    const y = Math.max(-maxY, Math.min(maxY, drag.originY + event.clientY - drag.startY))
+    setScrollOffset({ x, y })
+  }, [])
+
+  const endScrollDrag = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
+    if (scrollDrag.current?.pointerId !== event.pointerId) return
+    scrollDrag.current = null
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId)
+    }
+    setScrollDragging(false)
+  }, [])
+
   return (
     <div className="wt-page">
-      <div className="wt-shell">
+      <div
+        className={`wt-shell${scrollDragging ? ' wt-shell-dragging' : ''}`}
+        style={{ transform: `translate3d(${scrollOffset.x}px, ${scrollOffset.y}px, 0)` }}
+        onPointerDown={beginScrollDrag}
+        onPointerMove={moveScroll}
+        onPointerUp={endScrollDrag}
+        onPointerCancel={endScrollDrag}
+        onDoubleClick={(event) => {
+          const target = event.target as HTMLElement
+          if (!target.closest('button, a, input, select, textarea, .wt-tree-panel, .wt-rail')) {
+            setScrollOffset({ x: 0, y: 0 })
+          }
+        }}
+      >
         <header className="wt-header">
-          <div>
-            <p className="wt-eyebrow">Repository Atlas</p>
-            <h1 className="wt-title">
-              {topology ? topology.repo.fullName : 'The World Tree'}
-            </h1>
-            <p className="wt-repo-line">
-              {topology
-                ? topology.repo.description ||
-                  'An ancient tree grown from this repository’s own history.'
-                : 'Every repository grows a tree: main is the trunk, each branch a living limb, each commit a ring carved into the wood.'}
-            </p>
+          <div className="wt-atlas-heading">
+            <span className="wt-atlas-compass" aria-hidden="true" />
+            <div>
+              <p className="wt-eyebrow">Repository Atlas</p>
+              <h1 className="wt-title">
+                {topology ? topology.repo.fullName : 'The World Tree'}
+              </h1>
+              <p className="wt-repo-line">
+                {topology
+                  ? topology.repo.description ||
+                    'An ancient tree grown from this repository’s own history.'
+                  : 'Every repository grows a tree: main is the trunk, each branch a living limb, each commit a ring carved into the wood.'}
+              </p>
+            </div>
           </div>
           {stats.length > 0 && (
             <div className="wt-stats">
@@ -164,7 +228,7 @@ export function WorldTreePage() {
         </header>
 
         <div className="wt-main">
-          <div>
+          <section className="wt-tree-panel" aria-label="Repository tree atlas">
             {tree.loading && !layout ? (
               <div className="wt-loading">
                 <div className="wt-seedling" />
@@ -181,11 +245,16 @@ export function WorldTreePage() {
               />
             ) : (
               <div className="wt-loading">
-                <Trees size={54} strokeWidth={1.1} opacity={0.45} />
+                <img
+                  src="/world-tree-underpainting-v3.png"
+                  className="wt-empty-tree"
+                  alt=""
+                  aria-hidden="true"
+                />
                 <p>No repository planted yet. Name one and the tree will grow.</p>
               </div>
             )}
-          </div>
+          </section>
 
           <aside className="wt-rail">
             {topology && (

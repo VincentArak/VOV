@@ -266,7 +266,7 @@ export function QuestTimeline({ tasks, pastDays = 7, futureDays = 28 }: QuestTim
                         title={`Due ${due.toLocaleDateString()}`}
                       />
                       {/* Hover tooltip */}
-                      <div className="absolute -top-8 right-0 z-30 hidden whitespace-nowrap rounded-sm border border-gold-lo bg-[#171730] px-2 py-1 text-[10px] text-text shadow-[0_0_0_1px_#000,0_4px_14px_rgba(0,0,0,0.8)] group-hover:block">
+                      <div className="timeline-ink-tooltip absolute -top-8 right-0 z-30 hidden whitespace-nowrap rounded-sm border border-gold-lo px-2 py-1 text-[10px] group-hover:block">
                         {task.title} → {due.toLocaleDateString()}
                       </div>
                     </div>

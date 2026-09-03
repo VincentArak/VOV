@@ -36,10 +36,12 @@ function Branch({
   const active = state === 'active'
   const dimmed = state === 'dimmed'
   const merged = limb.status === 'merged'
+  const burning = limb.skeleton.pullRequests.some((request) => request.state === 'open')
 
   return (
     <g
       className="wt-branch"
+      data-burning={burning || undefined}
       opacity={dimmed ? 0.24 : 1}
       style={{ transition: 'opacity 220ms ease', cursor: 'pointer' }}
       onPointerEnter={() => onHover(limb.id)}
@@ -74,43 +76,69 @@ function Branch({
 
       {part === 'wood' && (
         <>
-      <path d={limb.outline} fill="#33240f" opacity={0.26} transform="translate(4 6)" />
+          <path d={limb.outline} fill="#33240f" opacity={0.26} transform="translate(4 6)" />
 
-      <g filter="url(#wt-rough)">
-        <path
-          d={limb.outline}
-          fill={FILL[limb.status] ?? FILL.growing}
-          stroke={PALETTE.ink}
-          strokeWidth={active ? 2.2 : 1.6}
-          strokeOpacity={0.7}
-        />
-      </g>
+          <g filter="url(#wt-rough)">
+            <path
+              d={limb.outline}
+              fill={FILL[limb.status] ?? FILL.growing}
+              stroke={PALETTE.ink}
+              strokeWidth={active ? 2.2 : 1.6}
+              strokeOpacity={0.7}
+            />
+            <path
+              d={limb.outline}
+              fill="url(#wt-generated-bark)"
+              opacity={merged ? 0.46 : 0.62}
+              className="wt-generated-bark-layer"
+            />
+          </g>
 
-      {limb.bark.map((d, i) => (
-        <path
-          key={i}
-          d={d}
-          fill="none"
-          stroke={i === 0 ? '#33240f' : PALETTE.barkHigh}
-          strokeWidth={i === 0 ? 1.4 : 0.9}
-          strokeOpacity={0.3}
-          strokeLinecap="round"
-        />
-      ))}
+          {limb.bark.map((d, i) => (
+            <path
+              key={i}
+              d={d}
+              fill="none"
+              stroke={i === 0 ? '#33240f' : PALETTE.barkHigh}
+              strokeWidth={i === 0 ? 1.4 : 0.9}
+              strokeOpacity={0.3}
+              strokeLinecap="round"
+            />
+          ))}
 
       {/* a merged limb keeps a faint arcane thread along its length — the
           visual language for "this history flowed back into main" */}
-      {merged && (
-        <path
-          d={limb.center}
-          fill="none"
-          stroke={PALETTE.arcaneGlow}
-          strokeWidth={active ? 2.2 : 1.4}
-          strokeOpacity={active ? 0.75 : 0.4}
-          strokeDasharray="7 9"
-          strokeLinecap="round"
-        />
-      )}
+          {merged && (
+            <path
+              d={limb.center}
+              fill="none"
+              stroke={PALETTE.arcaneGlow}
+              strokeWidth={active ? 2.2 : 1.4}
+              strokeOpacity={active ? 0.75 : 0.4}
+              strokeDasharray="7 9"
+              strokeLinecap="round"
+            />
+          )}
+
+          {burning && (
+            <g className="wt-pr-fire" aria-hidden="true">
+              <path
+                d={limb.center}
+                className="wt-pr-fire-glow"
+                strokeWidth={Math.max(9, limb.baseHalfWidth * 1.45)}
+              />
+              <path
+                d={limb.center}
+                className="wt-pr-fire-ember"
+                strokeWidth={Math.max(4.5, limb.baseHalfWidth * 0.62)}
+              />
+              <path
+                d={limb.center}
+                className="wt-pr-fire-spark"
+                strokeWidth={Math.max(2.2, limb.baseHalfWidth * 0.3)}
+              />
+            </g>
+          )}
         </>
       )}
 

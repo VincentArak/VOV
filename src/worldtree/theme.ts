@@ -22,15 +22,15 @@ export const PALETTE = {
   leafLight: '#8d9f54',
   leafPale: '#aab86e',
 
-  ochre: '#b3853c',
-  gold: '#d3a445',
-  bronze: '#8a6a35',
-  ember: '#c8761f',
+  ochre: '#9f7433',
+  gold: '#b47b27',
+  bronze: '#765127',
+  ember: '#a74618',
 
-  arcane: '#4f9b93',
-  arcaneGlow: '#7fd3c8',
+  arcane: '#4d8178',
+  arcaneGlow: '#77b3a8',
 
-  danger: '#9b4a2f',
+  danger: '#7c3023',
 } as const
 
 export const STATUS_COLOR: Record<string, string> = {

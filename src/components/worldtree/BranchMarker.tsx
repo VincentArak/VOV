@@ -83,7 +83,16 @@ function Marker({
           {name}
         </text>
         {pr && (
-          <g transform={`translate(${x + w - 26} 0)`}>
+          <g
+            transform={`translate(${x + w - 26} 0)`}
+            className={pr.state === 'open' ? 'wt-pr-marker-burning' : undefined}
+          >
+            {pr.state === 'open' && (
+              <g className="wt-pr-marker-flames" aria-hidden="true">
+                <path d="M-8,-5 C-12,-13 -5,-15 -5,-21 C1,-16 1,-12 0,-8 C3,-13 8,-14 7,-20 C14,-13 10,-6 7,-2 Z" />
+                <path d="M-3,-5 C-5,-11 0,-12 1,-16 C5,-11 5,-7 3,-4 Z" />
+              </g>
+            )}
             <path
               d="M0,-8 L9,-4 L9,5 L0,9 L-9,5 L-9,-4 Z"
               fill={

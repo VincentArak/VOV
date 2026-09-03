@@ -1,12 +1,32 @@
 import { PALETTE } from '../../worldtree/theme'
 
 /**
- * All depth in this visualization comes from SVG: layered gradients, grain
- * filters, masks and stroke variation. No raster art is used anywhere.
+ * The topology remains pure SVG geometry, while ImageGen-authored bark and
+ * foliage tiles provide the physical surface. Because the bitmaps are only
+ * fills, branch count, length, fork position and growth still come entirely
+ * from repository data.
  */
 export function TreeDefs() {
   return (
     <defs>
+      <pattern id="wt-generated-bark" width="320" height="320" patternUnits="userSpaceOnUse">
+        <image
+          href="/world-tree-bark-v3.png"
+          width="320"
+          height="320"
+          preserveAspectRatio="xMidYMid slice"
+        />
+      </pattern>
+
+      <pattern id="wt-generated-foliage" width="280" height="280" patternUnits="userSpaceOnUse">
+        <image
+          href="/world-tree-foliage-v3.png"
+          width="280"
+          height="280"
+          preserveAspectRatio="xMidYMid slice"
+        />
+      </pattern>
+
       <linearGradient id="wt-bark" x1="0" y1="0" x2="1" y2="0">
         <stop offset="0%" stopColor={PALETTE.barkDark} />
         <stop offset="26%" stopColor={PALETTE.barkMid} />
@@ -117,6 +137,36 @@ export function TreeDefs() {
       <filter id="wt-mist" x="-20%" y="-20%" width="140%" height="140%">
         <feGaussianBlur stdDeviation="14" />
       </filter>
+
+      {/*
+       * The tree is drawn on parchment now, and its atmosphere layers — the
+       * distant ranges and the mound the roots sit in — are broad fills that
+       * run to the edge of the tree's own viewBox. Left alone they paint a
+       * hard-edged rectangle on the sheet, which is exactly the "card holding
+       * a tree" impression the scroll exists to get rid of.
+       *
+       * These masks dissolve those layers into the parchment instead. They use
+       * objectBoundingBox units so they need no dimensions and follow whatever
+       * the layout computed for this repository.
+       */}
+      <linearGradient id="wt-fade-x-grad" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stopColor="#000" />
+        <stop offset="0.42" stopColor="#fff" />
+        <stop offset="0.58" stopColor="#fff" />
+        <stop offset="1" stopColor="#000" />
+      </linearGradient>
+      <mask id="wt-fade-x" maskContentUnits="objectBoundingBox">
+        <rect x="0" y="0" width="1" height="1" fill="url(#wt-fade-x-grad)" />
+      </mask>
+
+      <linearGradient id="wt-fade-y-grad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stopColor="#fff" />
+        <stop offset="0.3" stopColor="#fff" />
+        <stop offset="1" stopColor="#000" />
+      </linearGradient>
+      <mask id="wt-fade-y" maskContentUnits="objectBoundingBox">
+        <rect x="0" y="0" width="1" height="1" fill="url(#wt-fade-y-grad)" />
+      </mask>
 
       <pattern id="wt-parchment-fibre" width="240" height="240" patternUnits="userSpaceOnUse">
         <rect width="240" height="240" fill="none" />

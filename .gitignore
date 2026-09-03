@@ -28,3 +28,7 @@ dist-ssr
 
 # docker-up.bat output
 docker-run.log
+
+# Local handoff/work directories
+_to_delete/
+.wiki-work/

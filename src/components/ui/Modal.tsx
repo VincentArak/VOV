@@ -67,7 +67,7 @@ export function Modal({ open, onClose, title, children, className }: ModalProps)
         aria-modal="true"
         aria-label={title}
         className={cn(
-          'wow-frame-ornate relative z-10 max-h-[90vh] w-full max-w-lg overflow-y-auto',
+          'vov-modal wow-frame-ornate relative z-10 max-h-[90vh] w-full max-w-lg overflow-y-auto',
           className,
         )}
       >

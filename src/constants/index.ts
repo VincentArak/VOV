@@ -22,11 +22,11 @@ export const STATUS_LABELS: Record<TaskStatus, string> = {
 }
 
 export const STATUS_COLORS: Record<TaskStatus, string> = {
-  available: 'bg-[#4a4a5a]',
-  in_progress: 'bg-[#0070dd]',
-  pending_review: 'bg-[#ff8040]',
-  completed: 'bg-[#1a8f1a]',
-  abandoned: 'bg-[#7a2020]',
+  available: 'bg-[#5f5748]',
+  in_progress: 'bg-[#355f78]',
+  pending_review: 'bg-[#9a571f]',
+  completed: 'bg-[#52672f]',
+  abandoned: 'bg-[#742d28]',
 }
 
 export const PRIORITIES: Priority[] = ['low', 'medium', 'high', 'urgent']
@@ -54,10 +54,10 @@ export const PRIORITY_COLORS: Record<Priority, string> = {
 
 /** Hex equivalents for places that need a raw value (borders, glows). */
 export const PRIORITY_HEX: Record<Priority, string> = {
-  low: '#808080',
-  medium: '#40bf40',
-  high: '#ffd100',
-  urgent: '#ff1a1a',
+  low: '#6f6759',
+  medium: '#586d32',
+  high: '#a87821',
+  urgent: '#7e2b20',
 }
 
 export const NAV_ITEMS = [

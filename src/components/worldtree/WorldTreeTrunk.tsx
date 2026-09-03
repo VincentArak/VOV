@@ -40,6 +40,12 @@ function Trunk({ trunk, dimmed }: { trunk: RenderLimb; dimmed: boolean }) {
           strokeWidth={2.4}
           strokeOpacity={0.72}
         />
+        <path
+          d={trunk.outline}
+          fill="url(#wt-generated-bark)"
+          opacity={0.68}
+          className="wt-generated-bark-layer"
+        />
       </g>
 
       {/* bark grooves following the trunk's own spine */}

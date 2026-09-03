@@ -1,0 +1,367 @@
+/* Shared archive skin for every page behind the Character dashboard and the
+   repository atlas. The pages keep their own information architecture; this
+   layer replaces the remaining modern dark cards with the same ink, paper,
+   ruled borders and carved controls used on the main ledger. */
+
+.archive-main {
+  --color-surface: #c9ad77;
+  --color-surface-raised: rgba(213, 184, 127, .72);
+  --color-surface-overlay: rgba(111, 75, 32, .16);
+  --color-surface-sunken: rgba(90, 55, 20, .2);
+  --color-text: #241506;
+  --color-text-muted: #563716;
+  --color-text-dim: #6d4b27;
+  --color-accent: #6d3517;
+  --color-accent-dim: #805623;
+  --color-border: #755027;
+  --color-gold-hi: #e8cf91;
+  --color-gold: #9b7338;
+  --color-gold-mid: #785225;
+  --color-gold-lo: #5d3b19;
+  --color-bronze: #78501e;
+  --color-frame-dark: #3f260e;
+  --color-success: #486124;
+  --color-warning: #9c4d16;
+  --color-danger: #7f241b;
+  --color-danger-dim: #682019;
+  --color-info: #37675e;
+  --color-qd-trivial: #6f6759;
+  --color-qd-standard: #586d32;
+  --color-qd-difficult: #9a7023;
+  --color-qd-verydifficult: #99501f;
+  --color-qd-impossible: #7e2b20;
+  --color-q-rare: #355f78;
+  --color-q-epic: #6d4d78;
+  --color-q-legendary: #9a571f;
+  --color-ot-header: #704817;
+  --color-paper-hi: #ead8ae;
+  --color-paper: #d6bd87;
+  --color-paper-lo: #b9955d;
+  --color-paper-dark: #4b2c10;
+  --color-paper-text: #2d1c0b;
+  --color-paper-title: #51200f;
+  --color-quest-objective: #54300e;
+
+  position: relative;
+  isolation: isolate;
+  color: var(--color-text);
+  font-family: var(--ledger-font, 'Cormorant Garamond', Baskerville, serif);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.42;
+  background-color: #8f6f42;
+  background-image:
+    linear-gradient(rgba(197, 163, 104, .16), rgba(116, 75, 31, .12)),
+    url('/parchment-ledger-v2.png');
+  background-position: center top;
+  background-size: cover;
+  background-attachment: local;
+}
+
+.archive-main::before {
+  content: '';
+  position: fixed;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 50% 8%, rgba(244, 217, 164, .16), transparent 50%),
+    radial-gradient(ellipse at 50% 100%, transparent 42%, rgba(48, 28, 10, .24));
+}
+
+.archive-main > * {
+  position: relative;
+  min-height: 100%;
+}
+
+.archive-main,
+.archive-main * {
+  text-shadow: none;
+}
+
+.archive-main h1,
+.archive-main h2,
+.archive-main h3,
+.archive-main h4 {
+  color: #43240e;
+  font-family: var(--ledger-font, 'Cormorant Garamond', serif);
+  font-weight: 600;
+  letter-spacing: .015em;
+  text-shadow: 0 1px rgba(239, 213, 163, .42);
+}
+
+.archive-main p,
+.archive-main li,
+.archive-main td,
+.archive-main button,
+.archive-main input,
+.archive-main select,
+.archive-main textarea {
+  letter-spacing: .008em;
+}
+
+.archive-main .text-xs,
+.archive-main .text-\[11px\],
+.archive-main .text-\[10px\] {
+  font-size: .82rem;
+  line-height: 1.35;
+}
+
+.archive-main h1 {
+  font-size: clamp(2rem, 3vw, 3.15rem);
+  line-height: 1;
+}
+
+.archive-main a {
+  color: #6b2d16;
+  font-weight: 600;
+}
+
+.archive-main a:hover {
+  color: #8a3a18;
+}
+
+/* Roomier but still bounded book pages. Existing split-view pages retain their
+   own full-width structure and receive an inset contents rail below. */
+.archive-main > div:not(.flex) {
+  width: min(100%, 1380px);
+  margin-inline: auto;
+  padding: clamp(20px, 2.4vw, 38px) !important;
+}
+
+.archive-main > div.flex.h-full,
+.archive-main > div.flex.min-h-screen,
+.archive-main > div[class*='min-h-screen'] {
+  background: rgba(218, 188, 130, .2);
+}
+
+.archive-main > div.flex.h-full > div:first-child,
+.archive-main > div.flex.min-h-screen > div:first-child {
+  border-right-color: rgba(70, 41, 14, .52);
+  background:
+    linear-gradient(rgba(113, 75, 31, .08), rgba(113, 75, 31, .08)),
+    rgba(225, 199, 149, .27);
+  box-shadow: 5px 0 13px rgba(64, 38, 13, .15);
+}
+
+.archive-main .vov-card,
+.archive-main .wow-frame,
+.archive-main .wow-frame-ornate {
+  color: #311f0e;
+  border: 1px solid rgba(67, 39, 13, .72);
+  border-radius: 1px;
+  background-color: rgba(210, 177, 116, .48);
+  background-image:
+    radial-gradient(ellipse at 9% 8%, rgba(240, 215, 167, .3), transparent 38%),
+    linear-gradient(165deg, rgba(230, 204, 153, .34), rgba(155, 111, 56, .16)),
+    repeating-linear-gradient(9deg, transparent 0 37px, rgba(69, 42, 16, .07) 38px, transparent 39px);
+  box-shadow:
+    inset 0 0 0 4px rgba(231, 205, 155, .2),
+    inset 0 0 0 5px rgba(68, 39, 13, .18),
+    2px 4px 9px rgba(54, 31, 10, .2);
+}
+
+.archive-main .wow-frame-ornate,
+.archive-main .vov-modal {
+  border-width: 2px;
+  box-shadow:
+    inset 0 0 0 4px rgba(235, 211, 166, .26),
+    inset 0 0 0 5px rgba(68, 39, 13, .32),
+    0 14px 38px rgba(28, 16, 6, .46);
+}
+
+.archive-main .wow-parchment {
+  border-radius: 0;
+  background-color: rgba(219, 186, 123, .72);
+  background-image:
+    radial-gradient(ellipse at 50% 0, rgba(247, 225, 181, .34), transparent 55%),
+    repeating-linear-gradient(11deg, transparent 0 31px, rgba(82, 48, 18, .06) 32px, transparent 33px);
+  box-shadow: inset 0 0 28px rgba(73, 42, 13, .18), 1px 3px 8px rgba(54, 31, 10, .2);
+}
+
+.archive-main .vov-card::before,
+.archive-main .wow-frame::before,
+.archive-main .wow-frame-ornate::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  pointer-events: none;
+  border: 1px solid rgba(80, 47, 15, .13);
+}
+
+.archive-main .vov-card-title h2,
+.archive-main .font-fancy,
+.archive-main [class*='tracking-'] {
+  font-family: var(--ledger-smallcaps, 'Cormorant SC', serif);
+  font-weight: 600;
+}
+
+.archive-main .wow-divider {
+  background: linear-gradient(90deg, transparent, rgba(77, 44, 14, .58) 16%, rgba(77, 44, 14, .74) 50%, rgba(77, 44, 14, .58) 84%, transparent);
+}
+
+.archive-main .wow-divider::after {
+  background: #745026;
+  box-shadow: 0 0 0 1px rgba(61, 35, 12, .46);
+}
+
+.archive-main .vov-field,
+.archive-main input:not([type='checkbox']):not([type='radio']):not([type='file']),
+.archive-main select,
+.archive-main textarea {
+  color: #2f1d0b !important;
+  border-color: rgba(65, 37, 12, .66) !important;
+  border-radius: 1px !important;
+  background-color: rgba(231, 207, 161, .47) !important;
+  box-shadow: inset 1px 2px 5px rgba(64, 37, 12, .24), 0 0 0 1px rgba(223, 193, 137, .18) !important;
+  font-family: var(--ledger-font, serif);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.archive-main input::placeholder,
+.archive-main textarea::placeholder {
+  color: rgba(75, 48, 23, .53) !important;
+}
+
+.archive-main .vov-field:focus,
+.archive-main input:focus,
+.archive-main select:focus,
+.archive-main textarea:focus {
+  outline: 1px solid #6b421c !important;
+  outline-offset: 1px;
+  box-shadow: inset 1px 2px 5px rgba(64, 37, 12, .24), 0 0 0 2px rgba(117, 75, 28, .22) !important;
+}
+
+.archive-main .vov-field-label,
+.archive-main label {
+  color: #68451f;
+  font-family: var(--ledger-smallcaps, serif);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .05em;
+}
+
+.archive-main select option {
+  color: #2d1c0b;
+  background: #d7bc84;
+}
+
+.archive-main .vov-button {
+  min-height: 32px;
+  color: #37210d;
+  border: 1px solid rgba(62, 35, 11, .72);
+  border-radius: 1px;
+  background: linear-gradient(180deg, rgba(206, 163, 87, .72), rgba(154, 105, 41, .58));
+  box-shadow: inset 0 0 0 2px rgba(239, 216, 173, .25), 1px 2px 4px rgba(50, 29, 9, .24);
+  font-family: var(--ledger-smallcaps, serif);
+  font-weight: 600;
+  letter-spacing: .035em;
+}
+
+.archive-main .vov-button-secondary {
+  color: #3d2812;
+  background: linear-gradient(180deg, rgba(218, 190, 137, .6), rgba(167, 126, 68, .46));
+}
+
+.archive-main .vov-button-danger {
+  color: #f0cfac;
+  border-color: #4f1b13;
+  background: linear-gradient(180deg, #82351f, #572015);
+}
+
+.archive-main .vov-button-ghost {
+  color: #65421f;
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+
+.archive-main .vov-button-ghost:hover {
+  color: #762d16;
+  background: rgba(126, 77, 26, .1);
+}
+
+.archive-main .rounded-full,
+.archive-main .rounded-lg,
+.archive-main .rounded-xl {
+  border-radius: 2px;
+}
+
+.archive-main [class*='bg-surface'],
+.archive-main [class*='bg-success/'],
+.archive-main [class*='bg-accent/'] {
+  backdrop-filter: none;
+}
+
+.archive-main [class*='border-border'],
+.archive-main [class*='border-frame'] {
+  border-color: rgba(68, 40, 14, .4);
+}
+
+.archive-main table {
+  color: #30200e;
+  border-collapse: collapse;
+}
+
+.archive-main th {
+  color: #5e3c1b;
+  font-family: var(--ledger-smallcaps, serif);
+  font-weight: 600;
+  letter-spacing: .06em;
+  border-bottom-color: rgba(64, 37, 12, .52);
+}
+
+.archive-main td {
+  border-bottom-color: rgba(72, 43, 15, .2);
+}
+
+.archive-main tr:hover td {
+  background: rgba(113, 70, 24, .08);
+}
+
+.archive-main .timeline-ink-tooltip {
+  color: #ead3a7;
+  border-color: #4a2b10;
+  background: #3a230f;
+  box-shadow: 0 0 0 1px #9a713b, 0 5px 14px rgba(38, 21, 6, .42);
+}
+
+.archive-main .fixed.inset-0 > .absolute.inset-0 {
+  background: rgba(20, 12, 5, .72);
+}
+
+@media (max-width: 1023px) {
+  .archive-main {
+    min-height: calc(100vh - 56px);
+  }
+}
+
+@media (max-width: 720px) {
+  .archive-main > div:not(.flex) {
+    padding: 18px !important;
+  }
+
+  .archive-main > div.flex.h-full,
+  .archive-main > div.flex.min-h-screen {
+    display: block;
+  }
+
+  .archive-main > div.flex.h-full > div:first-child,
+  .archive-main > div.flex.min-h-screen > div:first-child {
+    width: 100%;
+    border-right: 0;
+    border-bottom: 1px solid rgba(70, 41, 14, .42);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .archive-main *,
+  .archive-main *::before,
+  .archive-main *::after {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

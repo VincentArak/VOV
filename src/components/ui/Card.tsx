@@ -22,6 +22,7 @@ export function Card({
   return (
     <div
       className={cn(
+        'vov-card',
         variant === 'default' && 'wow-frame',
         variant === 'ornate' && 'wow-frame-ornate',
         variant === 'parchment' && 'wow-parchment',
@@ -52,7 +53,7 @@ export function CardTitle({
   action?: React.ReactNode
 }) {
   return (
-    <div className={cn('mb-3', className)}>
+    <div className={cn('vov-card-title mb-3', className)}>
       <div className="flex items-center justify-between gap-3">
         <h2 className="font-fancy text-sm tracking-wide text-accent">{children}</h2>
         {action}
