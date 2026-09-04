@@ -78,6 +78,7 @@ export function createEmptyTask(sortOrder: number): Task {
     missionId: null,
     locationId: null,
     mapId: null,
+    worldMapPosition: null,
     publisherIds: [],
     executorIds: [],
     assistantIds: [],

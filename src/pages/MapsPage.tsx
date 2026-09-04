@@ -1,491 +1,220 @@
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { Link, useNavigate } from 'react-router-dom'
-import { Link2, Plus, Settings } from 'lucide-react'
-import { useState } from 'react'
-import { db, deleteBlob, saveBlob } from '../db'
-import type { GameMap, Location } from '../types'
-import { useBlobUrl } from '../hooks/useBlobUrl'
-import { MapTree } from '../components/MapTree'
-import { Button } from '../components/ui/Button'
-import { EmptyState } from '../components/ui/EmptyState'
-import { Input } from '../components/ui/Input'
-import { Modal } from '../components/ui/Modal'
-import { Select } from '../components/ui/Select'
-import { getMapDescendantIds, wouldCreateMapCycle } from '../utils'
+import { useNavigate } from 'react-router-dom'
+import {
+  Compass,
+  Filter,
+  MapPlus,
+  Plus,
+  Search,
+  Settings,
+  X,
+} from 'lucide-react'
+import { db } from '../db'
+import type { Priority, Task, TaskStatus, WorldMapPosition } from '../types'
+import { createEmptyTask } from '../utils'
+import { AtlasArchiveDrawer } from '../components/worldmap/AtlasArchiveDrawer'
+import { WorkflowWorldMap } from '../components/worldmap/WorkflowWorldMap'
+import { createCustomContinent, type WorldContinent } from '../worldmap/model'
+import '../worldmap/worldmap.css'
 
-function MapPreviewCard({
-  map,
-  onOpen,
-  onEditHierarchy,
-  onAttachExisting,
-}: {
-  map: GameMap
-  onOpen: (map: GameMap) => void
-  onEditHierarchy: (map: GameMap) => void
-  onAttachExisting: (map: GameMap) => void
-}) {
-  const imageUrl = useBlobUrl(map.imageId)
-  const locations = useLiveQuery(
-    () => db.locations.where('mapId').equals(map.id).toArray(),
-  ) ?? []
-  const childMaps = useLiveQuery(
-    () => db.maps.where('parentMapId').equals(map.id).toArray(),
-  ) ?? []
-  const parentMap = useLiveQuery(
-    () => (map.parentMapId ? db.maps.get(map.parentMapId) : undefined),
-    [map.parentMapId],
-  )
-  const anchorLoc = useLiveQuery(
-    () => (map.parentLocationId ? db.locations.get(map.parentLocationId) : undefined),
-    [map.parentLocationId],
-  )
+const CUSTOM_CONTINENTS_KEY = 'vov:world-map-continents:v1'
+const PRIORITIES: Priority[] = ['low', 'medium', 'high', 'urgent']
+const EMPTY_TASKS: Task[] = []
 
-  return (
-    <div className="wow-frame overflow-hidden">
-      <div className="aspect-video bg-surface-overlay">
-        {imageUrl ? (
-          <img src={imageUrl} alt={map.name} className="w-full h-full object-cover" />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-text-muted text-sm">
-            No image
-          </div>
-        )}
-      </div>
-      <div className="p-4">
-        <h3 className="font-semibold text-lg">{map.name}</h3>
-        {parentMap ? (
-          <p className="text-xs text-text-muted mt-1">
-            Sub-map of{' '}
-            <Link to={`/maps/${parentMap.id}`} className="text-accent hover:underline">
-              {parentMap.name}
-            </Link>
-            {anchorLoc && ` · anchored at "${anchorLoc.name}"`}
-          </p>
-        ) : (
-          <p className="text-xs text-text-muted mt-1">Top-level map</p>
-        )}
-        <p className="text-xs text-text-muted mt-2">
-          {locations.length} location{locations.length !== 1 ? 's' : ''} ·{' '}
-          {childMaps.length} sub-map{childMaps.length !== 1 ? 's' : ''}
-        </p>
-        <div className="flex flex-col gap-2 mt-3">
-          <Button
-            className="w-full"
-            variant="secondary"
-            onClick={(e) => {
-              e.stopPropagation()
-              onOpen(map)
-            }}
-          >
-            Open Map
-          </Button>
-          <div className="flex gap-2">
-            <Button
-              className="flex-1"
-              variant="ghost"
-              size="sm"
-              onClick={(e) => {
-                e.stopPropagation()
-                onEditHierarchy(map)
-              }}
-            >
-              <Settings size={14} />
-              Hierarchy
-            </Button>
-            <Button
-              className="flex-1"
-              variant="ghost"
-              size="sm"
-              onClick={(e) => {
-                e.stopPropagation()
-                onAttachExisting(map)
-              }}
-            >
-              <Link2 size={14} />
-              Attach Map
-            </Button>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
+function loadCustomContinents(): WorldContinent[] {
+  try {
+    const value = window.localStorage.getItem(CUSTOM_CONTINENTS_KEY)
+    if (!value) return []
+    const parsed = JSON.parse(value) as WorldContinent[]
+    return Array.isArray(parsed)
+      ? parsed.filter((item) => item?.custom && item.id && item.name && Array.isArray(item.polygon))
+      : []
+  } catch {
+    return []
+  }
 }
 
 export function MapsPage() {
   const navigate = useNavigate()
-  const maps = useLiveQuery(() => db.maps.toArray()) ?? []
-  const allLocations = useLiveQuery(() => db.locations.toArray()) ?? []
-  const [selectedMap, setSelectedMap] = useState<GameMap | null>(null)
-  const [showCreate, setShowCreate] = useState(false)
-  const [showHierarchy, setShowHierarchy] = useState(false)
-  const [showAttach, setShowAttach] = useState(false)
-  const [editingMap, setEditingMap] = useState<GameMap | null>(null)
-  const [attachTargetMap, setAttachTargetMap] = useState<GameMap | null>(null)
+  const tasks = useLiveQuery(() => db.tasks.orderBy('sortOrder').toArray()) ?? EMPTY_TASKS
+  const [customContinents, setCustomContinents] = useState<WorldContinent[]>(loadCustomContinents)
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [filterOpen, setFilterOpen] = useState(false)
+  const [archiveOpen, setArchiveOpen] = useState(false)
+  const [backlogOpen, setBacklogOpen] = useState(false)
+  const [continentModalOpen, setContinentModalOpen] = useState(false)
+  const [search, setSearch] = useState('')
+  const [priorities, setPriorities] = useState<Set<Priority>>(new Set())
+  const [continentName, setContinentName] = useState('')
+  const [continentSubtitle, setContinentSubtitle] = useState('The Unnamed Reach')
+  const [continentStatus, setContinentStatus] = useState<TaskStatus>('available')
+  const searchInputRef = useRef<HTMLInputElement>(null)
 
-  const [name, setName] = useState('')
-  const [file, setFile] = useState<File | null>(null)
-  const [parentMapId, setParentMapId] = useState('')
-  const [parentLocationId, setParentLocationId] = useState('')
+  useEffect(() => {
+    window.localStorage.setItem(CUSTOM_CONTINENTS_KEY, JSON.stringify(customContinents))
+  }, [customContinents])
 
-  const [editParentMapId, setEditParentMapId] = useState('')
-  const [editParentLocationId, setEditParentLocationId] = useState('')
-  const [attachChildMapId, setAttachChildMapId] = useState('')
-  const [attachAnchorLocId, setAttachAnchorLocId] = useState('')
+  useEffect(() => {
+    if (searchOpen) searchInputRef.current?.focus()
+  }, [searchOpen])
 
-  const parentMapLocations: Location[] = parentMapId
-    ? allLocations.filter((l) => l.mapId === parentMapId)
-    : []
+  const statusCounts = useMemo(() => ({
+    active: tasks.filter((task) => task.status !== 'completed' && task.status !== 'abandoned').length,
+    completed: tasks.filter((task) => task.status === 'completed').length,
+    backlog: tasks.filter((task) => task.status === 'available' && task.worldMapPosition?.continentId === 'backlog').length,
+  }), [tasks])
 
-  const editParentLocations = editParentMapId
-    ? allLocations.filter((l) => l.mapId === editParentMapId)
-    : []
-
-  const attachTargetLocations = attachTargetMap
-    ? allLocations.filter((l) => l.mapId === attachTargetMap.id)
-    : []
-
-  const getAttachableMaps = (parent: GameMap) => {
-    const excluded = new Set([parent.id, ...getMapDescendantIds(parent.id, maps)])
-    return maps.filter((m) => !excluded.has(m.id))
+  const createQuest = async () => {
+    const task = createEmptyTask(tasks.length)
+    task.worldMapPosition = { continentId: 'todo', x: .5, y: .58 }
+    await db.tasks.add(task)
+    navigate(`/quests/${task.id}`)
   }
 
-  const getValidParentOptions = (map: GameMap) => {
-    const excluded = new Set([map.id, ...getMapDescendantIds(map.id, maps)])
-    return maps.filter((m) => !excluded.has(m.id))
-  }
-
-  const openCreate = (parentId: string | null = null, anchorLocId: string | null = null) => {
-    setName('')
-    setFile(null)
-    setParentMapId(parentId ?? '')
-    setParentLocationId(anchorLocId ?? '')
-    setShowCreate(true)
-  }
-
-  const openEditHierarchy = (map: GameMap) => {
-    setEditingMap(map)
-    setEditParentMapId(map.parentMapId ?? '')
-    setEditParentLocationId(map.parentLocationId ?? '')
-    setShowHierarchy(true)
-  }
-
-  const openAttachExisting = (parent: GameMap) => {
-    setAttachTargetMap(parent)
-    setAttachChildMapId('')
-    setAttachAnchorLocId('')
-    setShowAttach(true)
-  }
-
-  const createMap = async () => {
-    if (!name.trim() || !file) return
-    const imageId = await saveBlob(file)
-    const img = new Image()
-    const url = URL.createObjectURL(file)
-    await new Promise<void>((resolve) => {
-      img.onload = () => resolve()
-      img.src = url
+  const moveTask = async (
+    task: Task,
+    status: TaskStatus,
+    worldMapPosition: WorldMapPosition,
+  ) => {
+    const now = new Date().toISOString()
+    await db.tasks.put({
+      ...task,
+      status,
+      worldMapPosition,
+      updatedAt: now,
+      completedAt: status === 'completed' ? task.completedAt ?? now : null,
     })
-    const map: GameMap = {
-      id: crypto.randomUUID(),
-      name: name.trim(),
-      imageId,
-      width: img.naturalWidth,
-      height: img.naturalHeight,
-      parentMapId: parentMapId || null,
-      parentLocationId: parentLocationId || null,
-    }
-    URL.revokeObjectURL(url)
-    await db.maps.add(map)
-    setShowCreate(false)
-    setSelectedMap(map)
   }
 
-  const saveHierarchy = async () => {
-    if (!editingMap) return
-    const newParentId = editParentMapId || null
-    if (wouldCreateMapCycle(editingMap.id, newParentId, maps)) {
-      alert('Invalid parent: would create a circular hierarchy.')
-      return
+  const addContinent = () => {
+    if (!continentName.trim()) return
+    setCustomContinents((current) => [
+      ...current,
+      createCustomContinent(current.length, {
+        name: continentName.trim(),
+        subtitle: continentSubtitle.trim() || 'The Unnamed Reach',
+        status: continentStatus,
+      }),
+    ])
+    setContinentName('')
+    setContinentSubtitle('The Unnamed Reach')
+    setContinentModalOpen(false)
+  }
+
+  const deleteCustomContinent = async (continent: WorldContinent) => {
+    const inhabitants = tasks.filter((task) => task.worldMapPosition?.continentId === continent.id)
+    if (inhabitants.length && !window.confirm(
+      `Remove “${continent.name}”? Its ${inhabitants.length} quest${inhabitants.length === 1 ? '' : 's'} will return to To Do.`,
+    )) return
+    if (inhabitants.length) {
+      await db.transaction('rw', db.tasks, async () => {
+        await Promise.all(inhabitants.map((task, index) => db.tasks.put({
+          ...task,
+          status: 'available',
+          worldMapPosition: { continentId: 'todo', x: .35 + (index % 3) * .16, y: .55 + Math.floor(index / 3) * .1 },
+          updatedAt: new Date().toISOString(),
+          completedAt: null,
+        })))
+      })
     }
-    await db.maps.put({
-      ...editingMap,
-      parentMapId: newParentId,
-      parentLocationId: newParentId ? editParentLocationId || null : null,
+    setCustomContinents((current) => current.filter((item) => item.id !== continent.id))
+  }
+
+  const togglePriority = (priority: Priority) => {
+    setPriorities((current) => {
+      const next = new Set(current)
+      if (next.has(priority)) next.delete(priority)
+      else next.add(priority)
+      return next
     })
-    setShowHierarchy(false)
-    setEditingMap(null)
-    if (selectedMap?.id === editingMap.id) {
-      const updated = await db.maps.get(editingMap.id)
-      if (updated) setSelectedMap(updated)
-    }
   }
-
-  const attachExistingMap = async () => {
-    if (!attachTargetMap || !attachChildMapId) return
-    if (wouldCreateMapCycle(attachChildMapId, attachTargetMap.id, maps)) {
-      alert('Cannot attach: would create a circular hierarchy.')
-      return
-    }
-    const child = maps.find((m) => m.id === attachChildMapId)
-    if (!child) return
-    await db.maps.put({
-      ...child,
-      parentMapId: attachTargetMap.id,
-      parentLocationId: attachAnchorLocId || null,
-    })
-    setShowAttach(false)
-    setAttachTargetMap(null)
-  }
-
-  const deleteMap = async (map: GameMap) => {
-    const children = maps.filter((m) => m.parentMapId === map.id)
-    if (children.length > 0) {
-      alert('Cannot delete: this map has sub-maps. Remove or re-parent them first.')
-      return
-    }
-    if (!confirm(`Delete map "${map.name}" and all its locations?`)) return
-    await db.locations.where('mapId').equals(map.id).delete()
-    await deleteBlob(map.imageId)
-    await db.maps.delete(map.id)
-    if (selectedMap?.id === map.id) setSelectedMap(null)
-  }
-
-  const rootMaps = maps.filter((m) => !m.parentMapId)
 
   return (
-    <div className="flex h-full min-h-screen">
-      <div className="w-72 shrink-0 border-r border-border p-5 overflow-y-auto">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold">Map Hierarchy</h2>
-          <Button variant="ghost" size="sm" onClick={() => openCreate(null)}>
-            <Plus size={14} />
-          </Button>
-        </div>
-        <p className="text-xs text-text-muted mb-4 leading-relaxed">
-          Create a parent map, then use <strong>Attach Map</strong> to link an
-          existing map as its sub-map.
-        </p>
-        <MapTree
-          selectedId={selectedMap?.id}
-          onSelect={setSelectedMap}
-          onAddChild={(parentId) => openCreate(parentId)}
-          onDelete={deleteMap}
-        />
-      </div>
-
-      <div className="flex-1 p-6 overflow-y-auto">
-        <div className="flex items-center justify-between mb-6">
+    <div className="world-map-page">
+      <header className="world-map-header">
+        <div className="world-map-heading">
+          <span className="world-map-compass" aria-hidden="true"><Compass /></span>
           <div>
-            <h1 className="font-fancy text-3xl text-accent [text-shadow:0_0_14px_rgba(255,209,0,0.25),1px_1px_0_#000]">World Map</h1>
-            <p className="text-sm text-text-muted mt-1">
-              {maps.length} map{maps.length !== 1 ? 's' : ''} · {rootMaps.length} top-level
-            </p>
+            <h1>World Map</h1>
+            <p>Drag quests across the realms. Explore, plan, and conquer.</p>
           </div>
-          <Button onClick={() => openCreate(null)}>
-            <Plus size={16} />
-            New Top-Level Map
-          </Button>
         </div>
 
-        {maps.length === 0 ? (
-          <EmptyState
-            title="No maps yet"
-            description="Upload a large-scale map (e.g. national) to get started"
-            action={
-              <Button onClick={() => openCreate(null)}>
-                <Plus size={16} />
-                New Map
-              </Button>
-            }
-          />
-        ) : selectedMap ? (
-          <MapPreviewCard
-            map={selectedMap}
-            onOpen={(m) => navigate(`/maps/${m.id}`)}
-            onEditHierarchy={openEditHierarchy}
-            onAttachExisting={openAttachExisting}
-          />
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {rootMaps.map((map) => (
-              <div key={map.id} onClick={() => setSelectedMap(map)} className="cursor-pointer">
-                <MapPreviewCard
-                  map={map}
-                  onOpen={(m) => navigate(`/maps/${m.id}`)}
-                  onEditHierarchy={(m) => {
-                    setSelectedMap(m)
-                    openEditHierarchy(m)
-                  }}
-                  onAttachExisting={(m) => {
-                    setSelectedMap(m)
-                    openAttachExisting(m)
-                  }}
-                />
+        <div className="world-map-summary" aria-label="Quest map summary">
+          <span><strong>{statusCounts.active}</strong> active</span>
+          <span><strong>{statusCounts.completed}</strong> legends</span>
+          <button onClick={() => setBacklogOpen(true)}><strong>{statusCounts.backlog}</strong> backlog</button>
+        </div>
+
+        <div className="world-map-actions">
+          <button className="world-map-action" onClick={() => setContinentModalOpen(true)}><MapPlus /> Add Continent</button>
+          <button className="world-map-action primary" onClick={() => void createQuest()}><Plus /> New Quest</button>
+          <div className="world-map-popover-wrap">
+            <button className={`world-map-icon-action ${searchOpen ? 'active' : ''}`} onClick={() => setSearchOpen((value) => !value)} aria-label="Search quests"><Search /></button>
+            {searchOpen && (
+              <div className="world-map-search-popover">
+                <Search />
+                <input ref={searchInputRef} value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search the realms…" />
+                {search && <button onClick={() => setSearch('')} aria-label="Clear search"><X /></button>}
               </div>
-            ))}
+            )}
           </div>
-        )}
-      </div>
-
-      <Modal
-        open={showCreate}
-        onClose={() => setShowCreate(false)}
-        title={parentMapId ? 'Create Sub-Map' : 'Create Map'}
-      >
-        <div className="space-y-4">
-          {parentMapId && (
-            <p className="text-sm text-text-muted rounded-lg bg-surface-overlay px-3 py-2">
-              Parent: <strong>{maps.find((m) => m.id === parentMapId)?.name}</strong>
-            </p>
-          )}
-          <Input
-            label="Map Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder={parentMapId ? 'e.g. Shanghai Office Floor' : 'e.g. China — National'}
-          />
-          <div>
-            <label className="text-xs text-text-muted font-medium">Map Image</label>
-            <input
-              type="file"
-              accept="image/*"
-              className="mt-1 block w-full text-sm text-text-muted file:mr-3 file:rounded-lg file:border-0 file:bg-accent file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-surface cursor-pointer"
-              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-            />
+          <div className="world-map-popover-wrap">
+            <button className={`world-map-icon-action ${filterOpen || priorities.size ? 'active' : ''}`} onClick={() => setFilterOpen((value) => !value)} aria-label="Filter quests"><Filter /></button>
+            {filterOpen && (
+              <div className="world-map-filter-popover">
+                <strong>Quest Difficulty</strong>
+                {PRIORITIES.map((priority) => (
+                  <label key={priority} className={`priority-${priority}`}>
+                    <input type="checkbox" checked={priorities.has(priority)} onChange={() => togglePriority(priority)} />
+                    <span>{priority}</span>
+                  </label>
+                ))}
+                <button onClick={() => setPriorities(new Set())}>Show all quests</button>
+              </div>
+            )}
           </div>
-          {!parentMapId && (
-            <Select
-              label="Parent Map (optional)"
-              value={parentMapId}
-              onChange={(e) => {
-                setParentMapId(e.target.value)
-                setParentLocationId('')
-              }}
-              options={[
-                { value: '', label: '— Top-level map —' },
-                ...maps.map((m) => ({ value: m.id, label: m.name })),
-              ]}
-            />
-          )}
-          {parentMapId && (
-            <Select
-              label="Anchor to parent location (optional)"
-              value={parentLocationId}
-              onChange={(e) => setParentLocationId(e.target.value)}
-              options={[
-                { value: '', label: '— Not anchored —' },
-                ...parentMapLocations.map((l) => ({ value: l.id, label: l.name })),
-              ]}
-            />
-          )}
-          <div className="flex justify-end gap-2">
-            <Button variant="ghost" onClick={() => setShowCreate(false)}>
-              Cancel
-            </Button>
-            <Button onClick={createMap} disabled={!name.trim() || !file}>
-              Create
-            </Button>
-          </div>
+          <button className="world-map-icon-action" onClick={() => setArchiveOpen(true)} aria-label="Open atlas archive"><Settings /></button>
         </div>
-      </Modal>
+      </header>
 
-      <Modal
-        open={showHierarchy}
-        onClose={() => setShowHierarchy(false)}
-        title="Edit Map Hierarchy"
-      >
-        {editingMap && (
-          <div className="space-y-4">
-            <p className="text-sm text-text-muted">
-              Change parent for <strong>{editingMap.name}</strong>
-            </p>
-            <Select
-              label="Parent Map"
-              value={editParentMapId}
-              onChange={(e) => {
-                setEditParentMapId(e.target.value)
-                setEditParentLocationId('')
-              }}
-              options={[
-                { value: '', label: '— Top-level (no parent) —' },
-                ...getValidParentOptions(editingMap).map((m) => ({
-                  value: m.id,
-                  label: m.name,
-                })),
-              ]}
-            />
-            {editParentMapId && (
-              <Select
-                label="Anchor to parent location (optional)"
-                value={editParentLocationId}
-                onChange={(e) => setEditParentLocationId(e.target.value)}
-                options={[
-                  { value: '', label: '— Not anchored —' },
-                  ...editParentLocations.map((l) => ({ value: l.id, label: l.name })),
-                ]}
-              />
-            )}
-            <div className="flex justify-end gap-2">
-              <Button variant="ghost" onClick={() => setShowHierarchy(false)}>
-                Cancel
-              </Button>
-              <Button onClick={saveHierarchy}>Save</Button>
-            </div>
-          </div>
-        )}
-      </Modal>
+      <WorkflowWorldMap
+        tasks={tasks}
+        customContinents={customContinents}
+        search={search}
+        priorities={priorities}
+        backlogOpen={backlogOpen}
+        onBacklogOpen={setBacklogOpen}
+        onOpenTask={(task) => navigate(`/quests/${task.id}`)}
+        onMoveTask={moveTask}
+        onDeleteCustomContinent={(continent) => void deleteCustomContinent(continent)}
+      />
 
-      <Modal
-        open={showAttach}
-        onClose={() => setShowAttach(false)}
-        title="Attach Existing Map"
-      >
-        {attachTargetMap && (
-          <div className="space-y-4">
-            <p className="text-sm text-text-muted">
-              Make an existing map a sub-map of{' '}
-              <strong>{attachTargetMap.name}</strong>
-            </p>
-            <Select
-              label="Existing map to attach"
-              value={attachChildMapId}
-              onChange={(e) => setAttachChildMapId(e.target.value)}
-              options={[
-                { value: '', label: '— Select a map —' },
-                ...getAttachableMaps(attachTargetMap).map((m) => ({
-                  value: m.id,
-                  label: m.parentMapId
-                    ? `${m.name} (currently sub-map)`
-                    : `${m.name} (top-level)`,
-                })),
-              ]}
-            />
-            {attachTargetLocations.length > 0 && (
-              <Select
-                label="Anchor to location on parent map (optional)"
-                value={attachAnchorLocId}
-                onChange={(e) => setAttachAnchorLocId(e.target.value)}
-                options={[
-                  { value: '', label: '— Not anchored —' },
-                  ...attachTargetLocations.map((l) => ({ value: l.id, label: l.name })),
-                ]}
-              />
-            )}
-            <p className="text-xs text-text-muted">
-              Tip: create the large-scale parent map first, then attach your
-              existing detail map as its child.
-            </p>
-            <div className="flex justify-end gap-2">
-              <Button variant="ghost" onClick={() => setShowAttach(false)}>
-                Cancel
-              </Button>
-              <Button onClick={attachExistingMap} disabled={!attachChildMapId}>
-                Attach
-              </Button>
-            </div>
-          </div>
-        )}
-      </Modal>
+      <AtlasArchiveDrawer open={archiveOpen} onClose={() => setArchiveOpen(false)} />
+
+      {continentModalOpen && (
+        <div className="world-modal-backdrop" role="presentation" onPointerDown={() => setContinentModalOpen(false)}>
+          <section className="world-modal" role="dialog" aria-modal="true" aria-labelledby="new-continent-title" onPointerDown={(event) => event.stopPropagation()}>
+            <header>
+              <div><MapPlus /><h2 id="new-continent-title">Chart a New Continent</h2></div>
+              <button onClick={() => setContinentModalOpen(false)} aria-label="Close"><X /></button>
+            </header>
+            <p>A generated island will become another literal landmass and quest drop zone.</p>
+            <label>Continent name<input autoFocus value={continentName} onChange={(event) => setContinentName(event.target.value)} placeholder="e.g. The Ember Coast" /></label>
+            <label>Realm subtitle<input value={continentSubtitle} onChange={(event) => setContinentSubtitle(event.target.value)} /></label>
+            <label>Workflow stage
+              <select value={continentStatus} onChange={(event) => setContinentStatus(event.target.value as TaskStatus)}>
+                <option value="available">To Do</option>
+                <option value="in_progress">In Progress</option>
+                <option value="pending_review">In Review</option>
+                <option value="completed">Done</option>
+              </select>
+            </label>
+            <footer><button onClick={() => setContinentModalOpen(false)}>Cancel</button><button className="primary" disabled={!continentName.trim()} onClick={addContinent}>Raise Landmass</button></footer>
+          </section>
+        </div>
+      )}
     </div>
   )
 }
