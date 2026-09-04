@@ -1,6 +1,7 @@
 .world-map-main {
   min-height: 100dvh;
   overflow: hidden;
+  overflow: clip;
   padding: 0 !important;
   color: #ead39c;
   background: #080805;
@@ -228,6 +229,17 @@
   cursor: grab;
   background: #1e2725;
   box-shadow: inset 0 0 90px #000;
+}
+
+.world-map-viewport::after {
+  content: '';
+  position: absolute;
+  z-index: 75;
+  inset: 0;
+  pointer-events: none;
+  border: 5px solid #181008;
+  border-image: linear-gradient(135deg, #a77b37, #21160a 18%, #735025 50%, #160f08 82%, #987038) 1;
+  box-shadow: inset 0 0 34px #000c, inset 0 0 0 2px #0a0805;
 }
 
 .world-map-viewport[data-panning='true'] { cursor: grabbing; }
@@ -535,8 +547,14 @@
   background: linear-gradient(145deg, #18110adf, #080706f2);
   box-shadow: inset 0 0 0 3px #000, 0 9px 25px #000d;
 }
-.world-minimap-panel h3 { grid-column: 1 / -1; display: flex; margin: 0; align-items: center; gap: 7px; color: #d9ad58; font-family: var(--ledger-smallcaps); font-size: 1rem; text-transform: uppercase; }
-.world-minimap-panel h3 svg { width: 16px; }
+.world-minimap-panel.is-collapsed { width: 220px; grid-template-columns: 1fr; padding: 0; }
+.world-minimap-toggle { grid-column: 1 / -1; display: flex; width: 100%; min-height: 25px; margin: 0; padding: 0; align-items: center; justify-content: space-between; gap: 7px; color: #d9ad58; border: 0; background: transparent; font-family: var(--ledger-smallcaps); font-size: 1rem; font-weight: 600; text-transform: uppercase; }
+.world-minimap-toggle span { display: flex; align-items: center; gap: 7px; }
+.world-minimap-toggle svg { width: 16px; transition: transform .2s ease; }
+.world-minimap-toggle > svg { margin-left: auto; }
+.world-minimap-panel.is-collapsed .world-minimap-toggle { padding: 10px 13px; }
+.world-minimap-panel.is-collapsed .world-minimap-toggle > svg { transform: rotate(180deg); }
+.world-minimap-toggle:hover { color: #f1ca72; }
 .world-minimap { position: relative; display: block; aspect-ratio: 1.55; padding: 0; overflow: hidden; border: 1px solid #a77b38; background: url('/world-kanban-atlas-v1.webp') center / 100% 100%; }
 .world-minimap::after { content: ''; position: absolute; inset: 0; box-shadow: inset 0 0 13px #000; }
 .world-minimap-view { position: absolute; z-index: 2; border: 2px solid #f1ca72; background: #efc3611c; box-shadow: 0 0 5px #000; }
@@ -665,6 +683,7 @@
   .world-map-action svg { width: 19px; height: 19px; }
   .world-map-icon-action { width: 40px; height: 40px; }
   .world-minimap-panel { width: 265px; grid-template-columns: 1fr; }
+  .world-minimap-panel.is-collapsed { width: 220px; }
   .world-minimap-legend { display: none; }
   .world-drag-hint { display: none; }
 }
@@ -677,7 +696,8 @@
   .world-map-header { min-height: 58px; }
   .world-map-zoom { top: 12px; left: 10px; }
   .world-minimap-panel { left: 10px; bottom: 10px; width: 190px; padding: 8px; }
-  .world-minimap-panel h3,
+  .world-minimap-panel.is-collapsed { width: 175px; padding: 0; }
+  .world-minimap-toggle { min-height: 22px; font-size: .7rem; }
   .world-recenter { display: none; }
   .world-map-legend { right: 10px; bottom: 10px; width: 144px; }
   .world-map-legend summary { height: 39px; font-size: .72rem; }

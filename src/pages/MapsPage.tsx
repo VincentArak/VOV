@@ -52,6 +52,10 @@ export function MapsPage() {
   const searchInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
+    document.querySelector<HTMLElement>('.world-map-main')?.scrollTo({ top: 0, left: 0 })
+  }, [])
+
+  useEffect(() => {
     window.localStorage.setItem(CUSTOM_CONTINENTS_KEY, JSON.stringify(customContinents))
   }, [customContinents])
 

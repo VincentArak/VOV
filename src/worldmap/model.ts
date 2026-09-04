@@ -128,15 +128,60 @@ export function pathFromPolygon(polygon: Point[]): string {
   return polygon.map(([x, y], index) => `${index ? 'L' : 'M'} ${x} ${y}`).join(' ') + ' Z'
 }
 
+function distanceToSegment(point: Point, start: Point, end: Point): number {
+  const dx = end[0] - start[0]
+  const dy = end[1] - start[1]
+  if (dx === 0 && dy === 0) return Math.hypot(point[0] - start[0], point[1] - start[1])
+  const progress = Math.min(1, Math.max(0, (
+    (point[0] - start[0]) * dx + (point[1] - start[1]) * dy
+  ) / (dx * dx + dy * dy)))
+  return Math.hypot(point[0] - (start[0] + progress * dx), point[1] - (start[1] + progress * dy))
+}
+
+function boundaryDistance(point: Point, polygon: Point[]): number {
+  let distance = Number.POSITIVE_INFINITY
+  for (let index = 0; index < polygon.length; index += 1) {
+    distance = Math.min(distance, distanceToSegment(
+      point,
+      polygon[index],
+      polygon[(index + 1) % polygon.length],
+    ))
+  }
+  return distance
+}
+
+/** Keeps the full parchment card on land instead of accepting only its centre. */
+export function safePointInContinent(
+  continent: WorldContinent,
+  point: Point,
+  coastClearance = 150,
+): Point {
+  const centroid = continent.polygon.reduce(
+    (total, current) => [total[0] + current[0], total[1] + current[1]] as [number, number],
+    [0, 0] as [number, number],
+  ).map((value) => value / continent.polygon.length) as [number, number]
+  let candidate: Point = point
+  for (let attempt = 0; attempt < 18; attempt += 1) {
+    if (pointInPolygon(candidate, continent.polygon)
+      && boundaryDistance(candidate, continent.polygon) >= coastClearance) return candidate
+    candidate = [
+      candidate[0] * .78 + centroid[0] * .22,
+      candidate[1] * .78 + centroid[1] * .22,
+    ]
+  }
+  return centroid
+}
+
 export function toLocalPosition(
   continent: WorldContinent,
   point: Point,
 ): WorldMapPosition {
   const { x, y, width, height } = continent.bounds
+  const safePoint = safePointInContinent(continent, point)
   return {
     continentId: continent.id,
-    x: Math.min(.96, Math.max(.04, (point[0] - x) / width)),
-    y: Math.min(.95, Math.max(.08, (point[1] - y) / height)),
+    x: Math.min(.9, Math.max(.1, (safePoint[0] - x) / width)),
+    y: Math.min(.9, Math.max(.1, (safePoint[1] - y) / height)),
   }
 }
 
@@ -166,9 +211,13 @@ export function positionForTask(
     localX = Math.min(.9, Math.max(.1, slot[0] + jitter + cycle * .035))
     localY = Math.min(.91, Math.max(.18, slot[1] - jitter + cycle * .045))
   }
+  const safePoint = safePointInContinent(continent, [
+    continent.bounds.x + localX * continent.bounds.width,
+    continent.bounds.y + localY * continent.bounds.height,
+  ])
   return {
-    x: continent.bounds.x + localX * continent.bounds.width,
-    y: continent.bounds.y + localY * continent.bounds.height,
+    x: safePoint[0],
+    y: safePoint[1],
     continent,
   }
 }

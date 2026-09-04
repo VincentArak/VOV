@@ -2,6 +2,7 @@ import {
   ArchiveRestore,
   BookOpen,
   Castle,
+  ChevronDown,
   Crown,
   Expand,
   LocateFixed,
@@ -40,6 +41,20 @@ import {
 
 type Camera = { x: number; y: number; scale: number }
 type PositionedTask = { task: Task; x: number; y: number; continent: WorldContinent }
+
+const MAX_CAMERA_SCALE = 1.35
+
+function clampCamera(camera: Camera, viewportWidth: number, viewportHeight: number): Camera {
+  const minimumScale = Math.max(viewportWidth / WORLD_WIDTH, viewportHeight / WORLD_HEIGHT)
+  const scale = Math.min(Math.max(MAX_CAMERA_SCALE, minimumScale), Math.max(minimumScale, camera.scale))
+  const scaledWidth = WORLD_WIDTH * scale
+  const scaledHeight = WORLD_HEIGHT * scale
+  return {
+    scale,
+    x: Math.min(0, Math.max(viewportWidth - scaledWidth, camera.x)),
+    y: Math.min(0, Math.max(viewportHeight - scaledHeight, camera.y)),
+  }
+}
 
 interface WorkflowWorldMapProps {
   tasks: Task[]
@@ -150,6 +165,9 @@ export function WorkflowWorldMap({
   const cameraRef = useRef<Camera>({ x: 0, y: 0, scale: .4 })
   const [camera, setCamera] = useState<Camera>({ x: 0, y: 0, scale: .4 })
   const [vortexPulse, setVortexPulse] = useState(false)
+  const [overviewCollapsed, setOverviewCollapsed] = useState(
+    () => window.localStorage.getItem('vov:world-map-overview-collapsed') === 'true',
+  )
   const viewport = useElementSize(viewportRef)
   const continents = useMemo(
     () => [...DEFAULT_CONTINENTS, ...customContinents],
@@ -195,16 +213,21 @@ export function WorkflowWorldMap({
   }, [positionedTasks])
 
   const applyCamera = useCallback((next: Camera, syncControls = true) => {
-    const bounded = { ...next, scale: Math.min(1.35, Math.max(.2, next.scale)) }
+    const element = viewportRef.current
+    const bounded = clampCamera(
+      next,
+      Math.max(1, element?.clientWidth ?? viewport.width),
+      Math.max(1, element?.clientHeight ?? viewport.height),
+    )
     cameraRef.current = bounded
     if (worldRef.current) {
       worldRef.current.style.transform = `translate3d(${bounded.x}px, ${bounded.y}px, 0) scale(${bounded.scale})`
     }
     if (syncControls) setCamera(bounded)
-  }, [])
+  }, [viewport.height, viewport.width])
 
   const fitMap = useCallback(() => {
-    const scale = Math.min(viewport.width / WORLD_WIDTH, viewport.height / WORLD_HEIGHT) * .98
+    const scale = Math.max(viewport.width / WORLD_WIDTH, viewport.height / WORLD_HEIGHT) * 1.005
     applyCamera({
       scale,
       x: (viewport.width - WORLD_WIDTH * scale) / 2,
@@ -223,7 +246,11 @@ export function WorkflowWorldMap({
     const previous = cameraRef.current
     const px = (clientX ?? rect.left + rect.width / 2) - rect.left
     const py = (clientY ?? rect.top + rect.height / 2) - rect.top
-    const scale = Math.min(1.35, Math.max(.2, previous.scale * factor))
+    const minimumScale = Math.max(rect.width / WORLD_WIDTH, rect.height / WORLD_HEIGHT)
+    const scale = Math.min(
+      Math.max(MAX_CAMERA_SCALE, minimumScale),
+      Math.max(minimumScale, previous.scale * factor),
+    )
     const worldX = (px - previous.x) / previous.scale
     const worldY = (py - previous.y) / previous.scale
     applyCamera({ x: px - worldX * scale, y: py - worldY * scale, scale })
@@ -383,6 +410,14 @@ export function WorkflowWorldMap({
     })
   }
 
+  const toggleOverview = () => {
+    setOverviewCollapsed((current) => {
+      const next = !current
+      window.localStorage.setItem('vov:world-map-overview-collapsed', String(next))
+      return next
+    })
+  }
+
   const minimapView = {
     left: Math.max(0, (-camera.x / camera.scale / WORLD_WIDTH) * 100),
     top: Math.max(0, (-camera.y / camera.scale / WORLD_HEIGHT) * 100),
@@ -502,29 +537,41 @@ export function WorkflowWorldMap({
         ><Expand /></button>
       </div>
 
-      <div className="world-minimap-panel" data-world-interactive="true">
-        <h3><MapPinned /> Realm Overview</h3>
-        <button className="world-minimap" onPointerDown={recenterFromMinimap} aria-label="Recenter using minimap">
-          <span className="world-minimap-view" style={minimapView} />
+      <div className={`world-minimap-panel ${overviewCollapsed ? 'is-collapsed' : ''}`} data-world-interactive="true">
+        <button
+          type="button"
+          className="world-minimap-toggle"
+          aria-expanded={!overviewCollapsed}
+          onClick={toggleOverview}
+        >
+          <span><MapPinned /> Realm Overview</span>
+          <ChevronDown aria-hidden="true" />
         </button>
-        <div className="world-minimap-legend">
-          {DEFAULT_CONTINENTS.map((continent) => (
-            <button
-              key={continent.id}
-              onClick={() => {
-                const next = cameraRef.current
-                applyCamera({
-                  ...next,
-                  x: viewport.width / 2 - continent.label.x * next.scale,
-                  y: viewport.height / 2 - continent.label.y * next.scale,
-                })
-              }}
-            >
-              <i className={`tone-${continent.tone}`} /> {continent.name}
+        {!overviewCollapsed && (
+          <>
+            <button className="world-minimap" onPointerDown={recenterFromMinimap} aria-label="Recenter using minimap">
+              <span className="world-minimap-view" style={minimapView} />
             </button>
-          ))}
-        </div>
-        <button className="world-recenter" onClick={fitMap}><LocateFixed /> Re-center Map</button>
+            <div className="world-minimap-legend">
+              {DEFAULT_CONTINENTS.map((continent) => (
+                <button
+                  key={continent.id}
+                  onClick={() => {
+                    const next = cameraRef.current
+                    applyCamera({
+                      ...next,
+                      x: viewport.width / 2 - continent.label.x * next.scale,
+                      y: viewport.height / 2 - continent.label.y * next.scale,
+                    })
+                  }}
+                >
+                  <i className={`tone-${continent.tone}`} /> {continent.name}
+                </button>
+              ))}
+            </div>
+            <button className="world-recenter" onClick={fitMap}><LocateFixed /> Re-center Map</button>
+          </>
+        )}
       </div>
 
       <div className="world-drag-hint" data-world-interactive="true">
