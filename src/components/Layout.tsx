@@ -88,6 +88,7 @@ export function Layout() {
   )
   const isDashboard = pathname === '/' || pathname === '/dashboard'
   const isWorldTree = pathname === '/world-tree'
+  const isWorldMap = pathname === '/maps'
 
   const closeAfterNavigate = () => {
     if (typeof window === 'undefined' || window.innerWidth < 1024 || !pinned) {
@@ -236,7 +237,13 @@ export function Layout() {
       <main
         className={cn(
           'app-main min-w-0 flex-1 overflow-auto max-lg:pt-14',
-          isDashboard ? 'dashboard-main' : isWorldTree ? 'world-tree-main' : 'archive-main',
+          isDashboard
+            ? 'dashboard-main'
+            : isWorldTree
+              ? 'world-tree-main'
+              : isWorldMap
+                ? 'world-map-main'
+                : 'archive-main',
         )}
       >
         <Suspense fallback={<RouteLoading />}>

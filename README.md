@@ -6,7 +6,7 @@ A single-user, browser-based task manager with quest-log UX, multi-map locations
 
 - **Dashboard** — Overview of due today, overdue, in progress, and tracked quests
 - **Quest Log** — Tasks with 5 statuses, subtasks, progress bars, drag-to-reorder
-- **World Maps** — Upload images, place location nodes, create quests at locations
+- **Living World Map** — A literal four-continent Kanban atlas: drag quests across irregular coastlines to change status, preserve their exact map position, or cast them into the animated Backlog maelstrom. Includes pan/zoom, search, difficulty filters, a minimap, custom generated islands, and the original uploaded-map archive.
 - **Departments** — Tree-structured org chart with member management
 - **NPC Profiles** — Avatar, role, title, contact, bio, and notes per person
 - **World Tree** — a repository's real Git topology grown as an ancient tree: `main` is the trunk, branches are limbs forking at the commit they diverged from, merged branches arc back into the trunk, pull requests are quests on a parchment scroll

@@ -207,6 +207,16 @@ class VovDatabase extends Dexie {
       gitRepos: 'id, fetchedAt',
       gitConfig: 'id',
     })
+    this.version(13).upgrade(async (tx) => {
+      const tasks = await tx.table('tasks').toArray()
+      await Promise.all(
+        tasks.map((task: Task) =>
+          tx.table('tasks').update(task.id, {
+            worldMapPosition: task.worldMapPosition ?? null,
+          }),
+        ),
+      )
+    })
   }
 }
 

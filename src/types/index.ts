@@ -108,6 +108,14 @@ export interface TaskAttachment {
   mimeType: string
 }
 
+/** Position on the pannable workflow atlas. x/y are normalized within the
+ * owning continent, so cards remain anchored if a continent is resized. */
+export interface WorldMapPosition {
+  continentId: string
+  x: number
+  y: number
+}
+
 export type LinkedItemProvider = 'github' | 'jira'
 
 export interface LinkedItem {
@@ -134,6 +142,7 @@ export interface Task {
   missionId: string | null
   locationId: string | null
   mapId: string | null
+  worldMapPosition: WorldMapPosition | null
   publisherIds: string[]
   executorIds: string[]
   assistantIds: string[]
